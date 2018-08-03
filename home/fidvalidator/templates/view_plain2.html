@@ -1,135 +1,139 @@
-<h1> Welcome to the landmark validator </h1>
+<h1><u> Welcome to the landmark validator </u></h1>
+<br>
+<h2> Please enter your coordinates and press compute at the bottom </h2>
+<h2> The result is the total Euclidean distance (in mm) between your fiducial and the average </h2>
+<h2> Any unfilled values will be calculated with the defaults (0, 0, 0) </h2>
 <table>
 <tr>
 <td valign="top">
 <form method=post action="">
 <table>
      <tr>
-    <td>{{ form.AC_x.name }}</td><td>{{ form.AC_x(value=0) }}</td><td>{{ form.AC_y.name }}</td><td>{{ form.AC_y(value=0) }}</td><td>{{ form.AC_z.name }}</td><td>{{ form.AC_z(value=0) }}</td>
+    <td>{{ form.AC_x.name }}</td><td>{{ form.AC_x(size=10,value=0) }}</td><td>{{ form.AC_y.name }}</td><td>{{ form.AC_y(size=10,value=0) }}</td><td>{{ form.AC_z.name }}</td><td>{{ form.AC_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.PC_x.name }}</td><td>{{ form.PC_x(value=0) }}</td><td>{{ form.PC_y.name }}</td><td>{{ form.PC_y(value=0) }}</td><td>{{ form.PC_z.name }}</td><td>{{ form.PC_z(value=0) }}</td>
+    <td>{{ form.PC_x.name }}</td><td>{{ form.PC_x(size=10,value=0) }}</td><td>{{ form.PC_y.name }}</td><td>{{ form.PC_y(size=10,value=0) }}</td><td>{{ form.PC_z.name }}</td><td>{{ form.PC_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.inf_x.name }}</td><td>{{ form.inf_x(value=0) }}</td><td>{{ form.inf_y.name }}</td><td>{{ form.inf_y(value=0) }}</td><td>{{ form.inf_z.name }}</td><td>{{ form.inf_z(value=0) }}</td>
+    <td>{{ form.inf_x.name }}</td><td>{{ form.inf_x(size=10,value=0) }}</td><td>{{ form.inf_y.name }}</td><td>{{ form.inf_y(size=10,value=0) }}</td><td>{{ form.inf_z.name }}</td><td>{{ form.inf_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.pmj_x.name }}</td><td>{{ form.pmj_x(value=0) }}</td><td>{{ form.pmj_y.name }}</td><td>{{ form.pmj_y(value=0) }}</td><td>{{ form.pmj_z.name }}</td><td>{{ form.pmj_z(value=0) }}</td>
+    <td>{{ form.pmj_x.name }}</td><td>{{ form.pmj_x(size=10,value=0) }}</td><td>{{ form.pmj_y.name }}</td><td>{{ form.pmj_y(size=10,value=0) }}</td><td>{{ form.pmj_z.name }}</td><td>{{ form.pmj_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.sup_inc_fos_x.name }}</td><td>{{ form.sup_inc_fos_x(value=0) }}</td><td>{{ form.sup_inc_fos_y.name }}</td><td>{{ form.sup_inc_fos_y(value=0) }}</td><td>{{ form.sup_inc_fos_z.name }}</td><td>{{ form.sup_inc_fos_z(value=0) }}</td>
+    <td>{{ form.sup_inc_fos_x.name }}</td><td>{{ form.sup_inc_fos_x(size=10,value=0) }}</td><td>{{ form.sup_inc_fos_y.name }}</td><td>{{ form.sup_inc_fos_y(size=10,value=0) }}</td><td>{{ form.sup_inc_fos_z.name }}</td><td>{{ form.sup_inc_fos_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.r_s_LMS_x.name }}</td><td>{{ form.r_s_LMS_x(value=0) }}</td><td>{{ form.r_s_LMS_y.name }}</td><td>{{ form.r_s_LMS_y(value=0) }}</td><td>{{ form.r_s_LMS_z.name }}</td><td>{{ form.r_s_LMS_z(value=0) }}</td>
+    <td>{{ form.r_s_LMS_x.name }}</td><td>{{ form.r_s_LMS_x(size=10,value=0) }}</td><td>{{ form.r_s_LMS_y.name }}</td><td>{{ form.r_s_LMS_y(size=10,value=0) }}</td><td>{{ form.r_s_LMS_z.name }}</td><td>{{ form.r_s_LMS_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.l_s_LMS_x.name }}</td><td>{{ form.l_s_LMS_x(value=0) }}</td><td>{{ form.l_s_LMS_y.name }}</td><td>{{ form.l_s_LMS_y(value=0) }}</td><td>{{ form.l_s_LMS_z.name }}</td><td>{{ form.l_s_LMS_z(value=0) }}</td>
+    <td>{{ form.l_s_LMS_x.name }}</td><td>{{ form.l_s_LMS_x(size=10,value=0) }}</td><td>{{ form.l_s_LMS_y.name }}</td><td>{{ form.l_s_LMS_y(size=10,value=0) }}</td><td>{{ form.l_s_LMS_z.name }}</td><td>{{ form.l_s_LMS_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.r_i_LMS_x.name }}</td><td>{{ form.r_i_LMS_x(value=0) }}</td><td>{{ form.r_i_LMS_y.name }}</td><td>{{ form.r_i_LMS_y(value=0) }}</td><td>{{ form.r_i_LMS_z.name }}</td><td>{{ form.r_i_LMS_z(value=0) }}</td>
+    <td>{{ form.r_i_LMS_x.name }}</td><td>{{ form.r_i_LMS_x(size=10,value=0) }}</td><td>{{ form.r_i_LMS_y.name }}</td><td>{{ form.r_i_LMS_y(size=10,value=0) }}</td><td>{{ form.r_i_LMS_z.name }}</td><td>{{ form.r_i_LMS_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.l_i_LMS_x.name }}</td><td>{{ form.l_i_LMS_x(value=0) }}</td><td>{{ form.l_i_LMS_y.name }}</td><td>{{ form.l_i_LMS_y(value=0) }}</td><td>{{ form.l_i_LMS_z.name }}</td><td>{{ form.l_i_LMS_z(value=0) }}</td>
+    <td>{{ form.l_i_LMS_x.name }}</td><td>{{ form.l_i_LMS_x(size=10,value=0) }}</td><td>{{ form.l_i_LMS_y.name }}</td><td>{{ form.l_i_LMS_y(size=10,value=0) }}</td><td>{{ form.l_i_LMS_z.name }}</td><td>{{ form.l_i_LMS_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.culmen_x.name }}</td><td>{{ form.culmen_x(value=0) }}</td><td>{{ form.culmen_y.name }}</td><td>{{ form.culmen_y(value=0) }}</td><td>{{ form.culmen_z.name }}</td><td>{{ form.culmen_z(value=0) }}</td>
+    <td>{{ form.culmen_x.name }}</td><td>{{ form.culmen_x(size=10,value=0) }}</td><td>{{ form.culmen_y.name }}</td><td>{{ form.culmen_y(size=10,value=0) }}</td><td>{{ form.culmen_z.name }}</td><td>{{ form.culmen_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.inter_sulc_x.name }}</td><td>{{ form.inter_sulc_x(value=0) }}</td><td>{{ form.inter_sulc_y.name }}</td><td>{{ form.inter_sulc_y(value=0) }}</td><td>{{ form.inter_sulc_z.name }}</td><td>{{ form.inter_sulc_z(value=0) }}</td>
+    <td>{{ form.inter_sulc_x.name }}</td><td>{{ form.inter_sulc_x(size=10,value=0) }}</td><td>{{ form.inter_sulc_y.name }}</td><td>{{ form.inter_sulc_y(size=10,value=0) }}</td><td>{{ form.inter_sulc_z.name }}</td><td>{{ form.inter_sulc_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.r_mb_x.name }}</td><td>{{ form.r_mb_x(value=0) }}</td><td>{{ form.r_mb_y.name }}</td><td>{{ form.r_mb_y(value=0) }}</td><td>{{ form.r_mb_z.name }}</td><td>{{ form.r_mb_z(value=0) }}</td>
+    <td>{{ form.r_mb_x.name }}</td><td>{{ form.r_mb_x(size=10,value=0) }}</td><td>{{ form.r_mb_y.name }}</td><td>{{ form.r_mb_y(size=10,value=0) }}</td><td>{{ form.r_mb_z.name }}</td><td>{{ form.r_mb_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.l_mb_x.name }}</td><td>{{ form.l_mb_x(value=0) }}</td><td>{{ form.l_mb_y.name }}</td><td>{{ form.l_mb_y(value=0) }}</td><td>{{ form.l_mb_z.name }}</td><td>{{ form.l_mb_z(value=0) }}</td>
+    <td>{{ form.l_mb_x.name }}</td><td>{{ form.l_mb_x(size=10,value=0) }}</td><td>{{ form.l_mb_y.name }}</td><td>{{ form.l_mb_y(size=10,value=0) }}</td><td>{{ form.l_mb_z.name }}</td><td>{{ form.l_mb_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.pineal_gland_x.name }}</td><td>{{ form.pineal_gland_x(value=0) }}</td><td>{{ form.pineal_gland_y.name }}</td><td>{{ form.pineal_gland_y(value=0) }}</td><td>{{ form.pineal_gland_z.name }}</td><td>{{ form.pineal_gland_z(value=0) }}</td>
+    <td>{{ form.pineal_gland_x.name }}</td><td>{{ form.pineal_gland_x(size=10,value=0) }}</td><td>{{ form.pineal_gland_y.name }}</td><td>{{ form.pineal_gland_y(size=10,value=0) }}</td><td>{{ form.pineal_gland_z.name }}</td><td>{{ form.pineal_gland_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.R_LV_AC_x.name }}</td><td>{{ form.R_LV_AC_x(value=0) }}</td><td>{{ form.R_LV_AC_y.name }}</td><td>{{ form.R_LV_AC_y(value=0) }}</td><td>{{ form.R_LV_AC_z.name }}</td><td>{{ form.R_LV_AC_z(value=0) }}</td>
+    <td>{{ form.R_LV_AC_x.name }}</td><td>{{ form.R_LV_AC_x(size=10,value=0) }}</td><td>{{ form.R_LV_AC_y.name }}</td><td>{{ form.R_LV_AC_y(size=10,value=0) }}</td><td>{{ form.R_LV_AC_z.name }}</td><td>{{ form.R_LV_AC_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.L_LV_AC_x.name }}</td><td>{{ form.L_LV_AC_x(value=0) }}</td><td>{{ form.L_LV_AC_y.name }}</td><td>{{ form.L_LV_AC_y(value=0) }}</td><td>{{ form.L_LV_AC_z.name }}</td><td>{{ form.L_LV_AC_z(value=0) }}</td>
+    <td>{{ form.L_LV_AC_x.name }}</td><td>{{ form.L_LV_AC_x(size=10,value=0) }}</td><td>{{ form.L_LV_AC_y.name }}</td><td>{{ form.L_LV_AC_y(size=10,value=0) }}</td><td>{{ form.L_LV_AC_z.name }}</td><td>{{ form.L_LV_AC_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.R_LV_PC_x.name }}</td><td>{{ form.R_LV_PC_x(value=0) }}</td><td>{{ form.R_LV_PC_y.name }}</td><td>{{ form.R_LV_PC_y(value=0) }}</td><td>{{ form.R_LV_PC_z.name }}</td><td>{{ form.R_LV_PC_z(value=0) }}</td>
+    <td>{{ form.R_LV_PC_x.name }}</td><td>{{ form.R_LV_PC_x(size=10,value=0) }}</td><td>{{ form.R_LV_PC_y.name }}</td><td>{{ form.R_LV_PC_y(size=10,value=0) }}</td><td>{{ form.R_LV_PC_z.name }}</td><td>{{ form.R_LV_PC_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.L_LV_PC_x.name }}</td><td>{{ form.L_LV_PC_x(value=0) }}</td><td>{{ form.L_LV_PC_y.name }}</td><td>{{ form.L_LV_PC_y(value=0) }}</td><td>{{ form.L_LV_PC_z.name }}</td><td>{{ form.L_LV_PC_z(value=0) }}</td>
+    <td>{{ form.L_LV_PC_x.name }}</td><td>{{ form.L_LV_PC_x(size=10,value=0) }}</td><td>{{ form.L_LV_PC_y.name }}</td><td>{{ form.L_LV_PC_y(size=10,value=0) }}</td><td>{{ form.L_LV_PC_z.name }}</td><td>{{ form.L_LV_PC_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.Genu_CC_x.name }}</td><td>{{ form.Genu_CC_x(value=0) }}</td><td>{{ form.Genu_CC_y.name }}</td><td>{{ form.Genu_CC_y(value=0) }}</td><td>{{ form.Genu_CC_z.name }}</td><td>{{ form.Genu_CC_z(value=0) }}</td>
+    <td>{{ form.Genu_CC_x.name }}</td><td>{{ form.Genu_CC_x(size=10,value=0) }}</td><td>{{ form.Genu_CC_y.name }}</td><td>{{ form.Genu_CC_y(size=10,value=0) }}</td><td>{{ form.Genu_CC_z.name }}</td><td>{{ form.Genu_CC_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.Splenium_x.name }}</td><td>{{ form.Splenium_x(value=0) }}</td><td>{{ form.Splenium_y.name }}</td><td>{{ form.Splenium_y(value=0) }}</td><td>{{ form.Splenium_z.name }}</td><td>{{ form.Splenium_z(value=0) }}</td>
+    <td>{{ form.Splenium_x.name }}</td><td>{{ form.Splenium_x(size=10,value=0) }}</td><td>{{ form.Splenium_y.name }}</td><td>{{ form.Splenium_y(size=10,value=0) }}</td><td>{{ form.Splenium_z.name }}</td><td>{{ form.Splenium_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.R_AL_th_x.name }}</td><td>{{ form.R_AL_th_x(value=0) }}</td><td>{{ form.R_AL_th_y.name }}</td><td>{{ form.R_AL_th_y(value=0) }}</td><td>{{ form.R_AL_th_z.name }}</td><td>{{ form.R_AL_th_z(value=0) }}</td>
+    <td>{{ form.R_AL_th_x.name }}</td><td>{{ form.R_AL_th_x(size=10,value=0) }}</td><td>{{ form.R_AL_th_y.name }}</td><td>{{ form.R_AL_th_y(size=10,value=0) }}</td><td>{{ form.R_AL_th_z.name }}</td><td>{{ form.R_AL_th_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.L_AL_th_x.name }}</td><td>{{ form.L_AL_th_x(value=0) }}</td><td>{{ form.L_AL_th_y.name }}</td><td>{{ form.L_AL_th_y(value=0) }}</td><td>{{ form.L_AL_th_z.name }}</td><td>{{ form.L_AL_th_z(value=0) }}</td>
+    <td>{{ form.L_AL_th_x.name }}</td><td>{{ form.L_AL_th_x(size=10,value=0) }}</td><td>{{ form.L_AL_th_y.name }}</td><td>{{ form.L_AL_th_y(size=10,value=0) }}</td><td>{{ form.L_AL_th_z.name }}</td><td>{{ form.L_AL_th_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.R_sup_AM_x.name }}</td><td>{{ form.R_sup_AM_x(value=0) }}</td><td>{{ form.R_sup_AM_y.name }}</td><td>{{ form.R_sup_AM_y(value=0) }}</td><td>{{ form.R_sup_AM_z.name }}</td><td>{{ form.R_sup_AM_z(value=0) }}</td>
+    <td>{{ form.R_sup_AM_x.name }}</td><td>{{ form.R_sup_AM_x(size=10,value=0) }}</td><td>{{ form.R_sup_AM_y.name }}</td><td>{{ form.R_sup_AM_y(size=10,value=0) }}</td><td>{{ form.R_sup_AM_z.name }}</td><td>{{ form.R_sup_AM_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.L_sup_AM_x.name }}</td><td>{{ form.L_sup_AM_x(value=0) }}</td><td>{{ form.L_sup_AM_y.name }}</td><td>{{ form.L_sup_AM_y(value=0) }}</td><td>{{ form.L_sup_AM_z.name }}</td><td>{{ form.L_sup_AM_z(value=0) }}</td>
+    <td>{{ form.L_sup_AM_x.name }}</td><td>{{ form.L_sup_AM_x(size=10,value=0) }}</td><td>{{ form.L_sup_AM_y.name }}</td><td>{{ form.L_sup_AM_y(size=10,value=0) }}</td><td>{{ form.L_sup_AM_z.name }}</td><td>{{ form.L_sup_AM_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.R_inf_AM_x.name }}</td><td>{{ form.R_inf_AM_x(value=0) }}</td><td>{{ form.R_inf_AM_y.name }}</td><td>{{ form.R_inf_AM_y(value=0) }}</td><td>{{ form.R_inf_AM_z.name }}</td><td>{{ form.R_inf_AM_z(value=0) }}</td>
+    <td>{{ form.R_inf_AM_x.name }}</td><td>{{ form.R_inf_AM_x(size=10,value=0) }}</td><td>{{ form.R_inf_AM_y.name }}</td><td>{{ form.R_inf_AM_y(size=10,value=0) }}</td><td>{{ form.R_inf_AM_z.name }}</td><td>{{ form.R_inf_AM_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.L_inf_AM_x.name }}</td><td>{{ form.L_inf_AM_x(value=0) }}</td><td>{{ form.L_inf_AM_y.name }}</td><td>{{ form.L_inf_AM_y(value=0) }}</td><td>{{ form.L_inf_AM_z.name }}</td><td>{{ form.L_inf_AM_z(value=0) }}</td>
+    <td>{{ form.L_inf_AM_x.name }}</td><td>{{ form.L_inf_AM_x(size=10,value=0) }}</td><td>{{ form.L_inf_AM_y.name }}</td><td>{{ form.L_inf_AM_y(size=10,value=0) }}</td><td>{{ form.L_inf_AM_z.name }}</td><td>{{ form.L_inf_AM_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.R_ind_gri_x.name }}</td><td>{{ form.R_ind_gri_x(value=0) }}</td><td>{{ form.R_ind_gri_y.name }}</td><td>{{ form.R_ind_gri_y(value=0) }}</td><td>{{ form.R_ind_gri_z.name }}</td><td>{{ form.R_ind_gri_z(value=0) }}</td>
+    <td>{{ form.R_ind_gri_x.name }}</td><td>{{ form.R_ind_gri_x(size=10,value=0) }}</td><td>{{ form.R_ind_gri_y.name }}</td><td>{{ form.R_ind_gri_y(size=10,value=0) }}</td><td>{{ form.R_ind_gri_z.name }}</td><td>{{ form.R_ind_gri_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.L_ind_gri_x.name }}</td><td>{{ form.L_ind_gri_x(value=0) }}</td><td>{{ form.L_ind_gri_y.name }}</td><td>{{ form.L_ind_gri_y(value=0) }}</td><td>{{ form.L_ind_gri_z.name }}</td><td>{{ form.L_ind_gri_z(value=0) }}</td>
+    <td>{{ form.L_ind_gri_x.name }}</td><td>{{ form.L_ind_gri_x(size=10,value=0) }}</td><td>{{ form.L_ind_gri_y.name }}</td><td>{{ form.L_ind_gri_y(size=10,value=0) }}</td><td>{{ form.L_ind_gri_z.name }}</td><td>{{ form.L_ind_gri_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.R_vent_occ_x.name }}</td><td>{{ form.R_vent_occ_x(value=0) }}</td><td>{{ form.R_vent_occ_y.name }}</td><td>{{ form.R_vent_occ_y(value=0) }}</td><td>{{ form.R_vent_occ_z.name }}</td><td>{{ form.R_vent_occ_z(value=0) }}</td>
+    <td>{{ form.R_vent_occ_x.name }}</td><td>{{ form.R_vent_occ_x(size=10,value=0) }}</td><td>{{ form.R_vent_occ_y.name }}</td><td>{{ form.R_vent_occ_y(size=10,value=0) }}</td><td>{{ form.R_vent_occ_z.name }}</td><td>{{ form.R_vent_occ_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.L_vent_occ_x.name }}</td><td>{{ form.L_vent_occ_x(value=0) }}</td><td>{{ form.L_vent_occ_y.name }}</td><td>{{ form.L_vent_occ_y(value=0) }}</td><td>{{ form.L_vent_occ_z.name }}</td><td>{{ form.L_vent_occ_z(value=0) }}</td>
+    <td>{{ form.L_vent_occ_x.name }}</td><td>{{ form.L_vent_occ_x(size=10,value=0) }}</td><td>{{ form.L_vent_occ_y.name }}</td><td>{{ form.L_vent_occ_y(size=10,value=0) }}</td><td>{{ form.L_vent_occ_z.name }}</td><td>{{ form.L_vent_occ_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.R_olf_sulc_x.name }}</td><td>{{ form.R_olf_sulc_x(value=0) }}</td><td>{{ form.R_olf_sulc_y.name }}</td><td>{{ form.R_olf_sulc_y(value=0) }}</td><td>{{ form.R_olf_sulc_z.name }}</td><td>{{ form.R_olf_sulc_z(value=0) }}</td>
+    <td>{{ form.R_olf_sulc_x.name }}</td><td>{{ form.R_olf_sulc_x(size=10,value=0) }}</td><td>{{ form.R_olf_sulc_y.name }}</td><td>{{ form.R_olf_sulc_y(size=10,value=0) }}</td><td>{{ form.R_olf_sulc_z.name }}</td><td>{{ form.R_olf_sulc_z(size=10,value=0) }}</td>
     </tr>
 
     <tr>
-    <td>{{ form.L_olf_sulc_x.name }}</td><td>{{ form.L_olf_sulc_x(value=0) }}</td><td>{{ form.L_olf_sulc_y.name }}</td><td>{{ form.L_olf_sulc_y(value=0) }}</td><td>{{ form.L_olf_sulc_z.name }}</td><td>{{ form.L_olf_sulc_z(value=0) }}</td>
+    <td>{{ form.L_olf_sulc_x.name }}</td><td>{{ form.L_olf_sulc_x(size=10,value=0) }}</td><td>{{ form.L_olf_sulc_y.name }}</td><td>{{ form.L_olf_sulc_y(size=10,value=0) }}</td><td>{{ form.L_olf_sulc_z.name }}</td><td>{{ form.L_olf_sulc_z(size=10,value=0) }}</td>
     </tr>
 
 </tr>
