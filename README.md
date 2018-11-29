@@ -11,3 +11,4 @@ To Do List:
 * additional stats / insights
 * direct slicer connection
 * new url
+* Github - server integration
