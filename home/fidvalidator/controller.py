@@ -4,6 +4,7 @@ from model import InputForm
 import os
 from compute_auto import compute_mean_std as compute_function
 from model_auto import Average
+from werkzeug import secure_filename
 
 app = Flask(__name__)
 
@@ -144,10 +145,12 @@ def index2():
             if file and allowed_file(file.filename):
                 # Make a valid version of filename for any file ystem
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'],
-                                       filename))
+                # file.save(os.path.join(app.config['UPLOAD_FOLDER'],
+                #                       filename))
+                result = "valid file"
+            else:
+                result = "invalid file"
 
-        result = compute_function(filename)
     else:
         result = None
 
