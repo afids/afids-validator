@@ -7,9 +7,9 @@ def compute_mean_std(filename=None):
 Data from file <tt>%s</tt>:
 <p>
 <table border=1>
-<tr><td> infracollicular sulcus    </td><td> %.3g </td></tr>
+<tr><td> Infracollicular sulcus    </td><td> %.3g </td></tr>
 <tr><td> PMJ </td><td> %.3g </td></tr>
-<tr><td> superior interpeduncular fossa </td><td> %.3g </td></tr>
+<tr><td> Superior interpeduncular fossa </td><td> %.3g </td></tr>
 <tr><td> R superior LMS </td><td> %.3g </td></tr>
 <tr><td> L superior LMS </td><td> %.3g </td></tr>
 <tr><td> R inferior LMS </td><td> %.3g </td></tr>
@@ -31,11 +31,11 @@ Data from file <tt>%s</tt>:
 <tr><td> R inferior AM temporal horn </td><td> %.3g </td></tr>
 <tr><td> L inferior AM temporal horn </td><td> %.3g </td></tr>
 <tr><td> R indusium griseum origin </td><td> %.3g </td></tr>
-<tr><td> L indisium griseum origin </td><td> %.3g </td></tr>
+<tr><td> L indusium griseum origin </td><td> %.3g </td></tr>
 <tr><td> R ventral occipital horn </td><td> %.3g </td></tr>
 <tr><td> L ventral occipital horn </td><td> %.3g </td></tr>
-<tr><td> R olfactory sulcul fundus </td><td> %.3g </td></tr>
-<tr><td> L olfactory sulcul fundus </td><td> %.3g </td></tr>
+<tr><td> R olfactory sulcal fundus </td><td> %.3g </td></tr>
+<tr><td> L olfactory sulcal fundus </td><td> %.3g </td></tr>
 
 
 """ % (filename, np.mean(data), np.std(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), 
