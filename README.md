@@ -1,6 +1,6 @@
 # fidvalidator
 
-### Website at fidvalidator.pythonanywhere.com/vib1
+### Website at fidvalidator.pythonanywhere.com/home
 
 To Do List:
 
