@@ -3,7 +3,7 @@ from compute import calc
 from model import InputForm
 import os
 from compute_auto import compute_mean_std as compute_function
-from model_auto import Average
+from model_auto import Average, csvtojson
 from werkzeug import secure_filename
 
 app = Flask(__name__)
@@ -148,6 +148,10 @@ def index2():
                 # file.save(os.path.join(app.config['UPLOAD_FOLDER'],
                 #                       filename))
                 result = "valid file"
+
+                # Need to find the file - currently cannot find on site
+                # Pressing upload will take to error page
+                # jsonData = csvtojson(filename)
             else:
                 result = "invalid file"
 
