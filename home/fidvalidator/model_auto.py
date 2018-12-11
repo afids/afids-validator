@@ -12,11 +12,11 @@ def _skip_first(seq, n):
             yield item
 
 
-def csvtojson(in_file):
+def csv_to_json(in_file):
     """ Parse .fscv / .csv files and write to json object """
     # Irrelevant fields set to None
     fields = (None, 'x', 'y', 'z', None, None, None, None, None,
-              None, None, None, 'desc', None)
+              None, None, 'label', 'desc', None)
 
     # Read CSV
     csvFile = open(in_file, 'r')
@@ -25,7 +25,8 @@ def csvtojson(in_file):
     # Read csv file and dump to json object
     jsonData = {}
     for row in _skip_first(csvReader, 3):
-        jsonData[row['desc']] = {'x': row['x'], 'y': row['y'], 'z': row['z']}
+        jsonData[row['desc']] = {'label': row['label'], 'x': row['x'],
+                                 'y': row['y'], 'z': row['z']}
     csvFile.close()
 
     jsonData = json.dumps(jsonData, sort_keys=False, indent=4,
