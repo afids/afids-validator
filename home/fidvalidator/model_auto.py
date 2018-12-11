@@ -25,8 +25,8 @@ def csv_to_json(in_file):
     # Read csv file and dump to json object
     jsonData = {}
     for row in _skip_first(csvReader, 3):
-        jsonData[row['desc']] = {'label': row['label'], 'x': row['x'],
-                                 'y': row['y'], 'z': row['z']}
+        jsonData[row['label']] = {'desc': row['desc'], 'x': row['x'],
+                                  'y': row['y'], 'z': row['z']}
     csvFile.close()
 
     jsonData = json.dumps(jsonData, sort_keys=False, indent=4,
