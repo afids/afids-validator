@@ -19,17 +19,17 @@ def csv_to_json(in_file):
               None, None, 'label', 'desc', None)
 
     # Read CSV
-    csvFile = open(in_file, 'r')
-    csvReader = csv.DictReader(csvFile, fields)
+    csv_file = open(in_file, 'r')
+    csv_reader = csv.DictReader(csv_file, fields)
 
     # Read csv file and dump to json object
-    jsonData = {}
-    for row in _skip_first(csvReader, 3):
-        jsonData[row['label']] = {'desc': row['desc'], 'x': row['x'],
-                                  'y': row['y'], 'z': row['z']}
-    csvFile.close()
+    json_data = {}
+    for row in _skip_first(csv_reader, 3):
+        json_data[row['label']] = {'desc': row['desc'], 'x': row['x'],
+                                   'y': row['y'], 'z': row['z']}
+    csv_file.close()
 
-    jsonData = json.dumps(jsonData, sort_keys=False, indent=4,
-                          separators=(',', ': '))
+    json_data = json.dumps(json_data, sort_keys=False, indent=4,
+                           separators=(',', ': '))
 
-    return jsonData
+    return json_data
