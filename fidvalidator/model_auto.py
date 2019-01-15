@@ -4,6 +4,15 @@ import csv, json
 class Average(wtf.Form):
     filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
 
+class InvalidFcsvError(Exception):
+    """Exception raised when a csv to be parsed is invalid.
+
+    Attributes:
+        message -- explanation of why the fcsv is invalid
+    """
+
+    def __init__(self, message):
+        self.message = message
 
 def _skip_first(seq, n):
     """ Internal function to skip rows from beginning """
@@ -25,9 +34,30 @@ def csv_to_json(in_file):
     # Read csv file and dump to json object
     json_data = {}
     for row in _skip_first(csv_reader, 3):
+        if len(row) != 14:
+            row_label = None
+            try:
+                row_label = row['label']
+                raise InvalidFcsvError('Incorrect number of columns in row ' +
+                        f'{row_label}')
+            except KeyError:
+                raise InvalidFcsvError('Incorrect number of columns.')
+
+        row_label = None
+        try:
+            row_label = row['label']
+        except KeyError:
+            raise InvalidFcsvError('Row with no label.')
+
+
         json_data[row['label']] = {'desc': row['desc'], 'x': row['x'],
                                    'y': row['y'], 'z': row['z']}
+ 
     csv_file.close()
+
+    if len(json_data) != 32:
+        # Incorrect number of rows
+        raise InvalidFcsvError('Incorrect number of rows.')
 
     json_data = json.dumps(json_data, sort_keys=False, indent=4,
                            separators=(',', ': '))
