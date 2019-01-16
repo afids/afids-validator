@@ -1,5 +1,5 @@
 import wtforms as wtf
-import csv, json
+import csv, json, math
 
 class Average(wtf.Form):
     filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
@@ -21,6 +21,22 @@ def _skip_first(seq, n):
             yield item
 
 
+def parse_fcsv_float(value):
+    parsed_value = None
+    try:
+        parsed_value = float(row['x'])
+    except KeyError:
+        raise InvalidFcsvError(f'Row {row_desc} has no x value.')
+    except ValueError:
+        raise InvalidFcsvError(f'x in row {row_desc} is not a real ' +
+                'number.')
+
+    if not math.isfinite(parsed_value):
+        raise InvalidFcsvError(f'x in row {row_desc} is not finite')
+
+    return parsed_value
+
+
 def csv_to_json(in_file):
     """ Parse .fscv / .csv files and write to json object """
     # Irrelevant fields set to None
@@ -34,24 +50,59 @@ def csv_to_json(in_file):
     # Read csv file and dump to json object
     json_data = {}
     for row in _skip_first(csv_reader, 3):
-        if len(row) != 14:
-            row_label = None
-            try:
-                row_label = row['label']
-                raise InvalidFcsvError('Incorrect number of columns in row ' +
-                        f'{row_label}')
-            except KeyError:
-                raise InvalidFcsvError('Incorrect number of columns.')
-
         row_label = None
         try:
             row_label = row['label']
         except KeyError:
             raise InvalidFcsvError('Row with no label.')
 
+        row_desc = None
+        try:
+            row_desc = row['desc']
+        except KeyError:
+            raise InvalidFcsvError(f'Row {row_label} has no description.')
 
-        json_data[row['label']] = {'desc': row['desc'], 'x': row['x'],
-                                   'y': row['y'], 'z': row['z']}
+        # TODO: Check for correspondence between label and desc
+
+        row_x = None
+        try:
+            row_x = float(row['x'])
+        except KeyError:
+            raise InvalidFcsvError(f'Row {row_desc} has no x value.')
+        except ValueError:
+            raise InvalidFcsvError(f'x in row {row_desc} is not a real ' +
+                    'number.')
+        if not math.isfinite(row_x):
+            raise InvalidFcsvError(f'x in row {row_desc} is not finite')
+
+        row_y = None
+        try:
+            row_y = float(row['y'])
+        except KeyError:
+            raise InvalidFcsvError(f'Row {row_desc} has no y value.')
+        except ValueError:
+            raise InvalidFcsvError(f'y in row {row_desc} is not a real ' +
+                    'number.')
+        if not math.isfinite(row_y):
+            raise InvalidFcsvError(f'y in row {row_desc} is not finite')
+
+        row_z = None
+        try:
+            row_z = float(row['z'])
+        except KeyError:
+            raise InvalidFcsvError(f'Row {row_desc} has no z value.')
+        except ValueError:
+            raise InvalidFcsvError(f'z in row {row_desc} is not a real ' +
+                    'number.')
+        if not math.isfinite(row_z):
+            raise InvalidFcsvError(f'z in row {row_desc} is not finite')
+
+        if len(row) != 14:
+            raise InvalidFcsvError('Incorrect number of columns in row ' +
+                        f'{row_label}')
+
+        json_data[row_label] = {'desc': row_desc, 'x': row_x, 'y': row_y,
+                                'z': row_z}
  
     csv_file.close()
 
