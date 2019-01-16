@@ -1,120 +1,6 @@
 import wtforms as wtf
 import csv, json, math
 
-class Average(wtf.Form):
-    filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
-
-class InvalidFcsvError(Exception):
-    """Exception raised when a csv to be parsed is invalid.
-
-    Attributes:
-        message -- explanation of why the fcsv is invalid
-    """
-
-    def __init__(self, message):
-        self.message = message
-
-def _skip_first(seq, n):
-    """ Internal function to skip rows from beginning """
-    for i, item in enumerate(seq):
-        if i >= n:
-            yield item
-
-
-def parse_fcsv_float(value):
-    parsed_value = None
-    try:
-        parsed_value = float(row['x'])
-    except KeyError:
-        raise InvalidFcsvError(f'Row {row_desc} has no x value.')
-    except ValueError:
-        raise InvalidFcsvError(f'x in row {row_desc} is not a real ' +
-                'number.')
-
-    if not math.isfinite(parsed_value):
-        raise InvalidFcsvError(f'x in row {row_desc} is not finite')
-
-    return parsed_value
-
-
-def csv_to_json(in_file):
-    """ Parse .fscv / .csv files and write to json object """
-    # Irrelevant fields set to None
-    fields = (None, 'x', 'y', 'z', None, None, None, None, None,
-              None, None, 'label', 'desc', None)
-
-    # Read CSV
-    csv_file = open(in_file, 'r')
-    csv_reader = csv.DictReader(csv_file, fields)
-
-    # Read csv file and dump to json object
-    json_data = {}
-    for row in _skip_first(csv_reader, 3):
-        row_label = None
-        try:
-            row_label = row['label']
-        except KeyError:
-            raise InvalidFcsvError('Row with no label.')
-
-        row_desc = None
-        try:
-            row_desc = row['desc']
-        except KeyError:
-            raise InvalidFcsvError(f'Row {row_label} has no description.')
-
-        # TODO: Check for correspondence between label and desc
-
-        row_x = None
-        try:
-            row_x = float(row['x'])
-        except KeyError:
-            raise InvalidFcsvError(f'Row {row_desc} has no x value.')
-        except ValueError:
-            raise InvalidFcsvError(f'x in row {row_desc} is not a real ' +
-                    'number.')
-        if not math.isfinite(row_x):
-            raise InvalidFcsvError(f'x in row {row_desc} is not finite')
-
-        row_y = None
-        try:
-            row_y = float(row['y'])
-        except KeyError:
-            raise InvalidFcsvError(f'Row {row_desc} has no y value.')
-        except ValueError:
-            raise InvalidFcsvError(f'y in row {row_desc} is not a real ' +
-                    'number.')
-        if not math.isfinite(row_y):
-            raise InvalidFcsvError(f'y in row {row_desc} is not finite')
-
-        row_z = None
-        try:
-            row_z = float(row['z'])
-        except KeyError:
-            raise InvalidFcsvError(f'Row {row_desc} has no z value.')
-        except ValueError:
-            raise InvalidFcsvError(f'z in row {row_desc} is not a real ' +
-                    'number.')
-        if not math.isfinite(row_z):
-            raise InvalidFcsvError(f'z in row {row_desc} is not finite')
-
-        if len(row) != 14:
-            raise InvalidFcsvError('Incorrect number of columns in row ' +
-                        f'{row_label}')
-
-        json_data[row_label] = {'desc': row_desc, 'x': row_x, 'y': row_y,
-                                'z': row_z}
- 
-    csv_file.close()
-
-    if len(json_data) != 32:
-        # Incorrect number of rows
-        raise InvalidFcsvError('Incorrect number of rows.')
-
-    json_data = json.dumps(json_data, sort_keys=False, indent=4,
-                           separators=(',', ': '))
-
-    return json_data
-
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
         'AC',
@@ -152,46 +38,97 @@ EXPECTED_DESCS = [
 
 EXPECTED_MAP = dict(zip(EXPECTED_LABELS, EXPECTED_DESCS))
 
-def validate_afids_json(afids_json):
-    """ Validate that given .fcsv data conform to AFIDs protocol """
-    afids_dict = {}
+class Average(wtf.Form):
+    filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
+
+class InvalidFcsvError(Exception):
+    """Exception raised when a csv to be parsed is invalid.
+
+    Attributes:
+        message -- explanation of why the fcsv is invalid
+    """
+
+    def __init__(self, message):
+        self.message = message
+
+def _skip_first(seq, n):
+    """ Internal function to skip rows from beginning """
+    for i, item in enumerate(seq):
+        if i >= n:
+            yield item
+
+def parse_fcsv_field(row, key, label=None):
     try:
-        afids_dict = json.loads(afids_json)
-    except json.JSONDecodeError:
-        return {'valid': False, 'reason': 'Invalid JSON'}
+        return row[key]
+    except KeyError:
+        if label:
+            return InvalidFcsvError(f'Row {label} has no {key} value')
+        else:
+            return InvalidFcscError(f'Row has no {key} value')
 
-    if not isinstance(afids_dict, dict):
-        return {'valid': False, 'reason': 'Improper JSON'}
+def parse_fcsv_float(value, field, label):
+    parsed_value = None
+    try:
+        parsed_value = float(value)
+    except ValueError:
+        raise InvalidFcsvError(f'{field} in row {label} is not a real number.')
 
-    if frozenset(afids_dict.keys()) != frozenset(EXPECTED_LABELS):
-        return {'valid': False, 'reason': 'Invalid labels'}
-    for expected_label in EXPECTED_LABELS:
-        json_afid = afids_dict[expected_label]
-        json_desc = json_afid['desc']
+    if not math.isfinite(parsed_value):
+        raise InvalidFcsvError(f'{field} in row {label} is not finite')
+
+    return parsed_value
+
+
+def csv_to_json(in_file):
+    """ Parse .fscv / .csv files and write to json object """
+    
+    # Read CSV
+    json_data = {}
+    with open(in_file, 'r') as csv_file:
+        # Some fields are irrelevant, but we know they should be there
+        fields = ('id', 'x', 'y', 'z', 'ow', 'ox', 'oy', 'oz', 'vis',
+                  'sel', 'lock', 'label', 'desc', 'associatedNodeID')
+
+        csv_reader = csv.DictReader(csv_file, fields)
+
+        # Read csv file and dump to json object
+        expected_label = 1
+        for row in _skip_first(csv_reader, 3):
+            row_label = parse_fcsv_field(row, 'label')
+
+            if row_label != str(expected_label):
+                raise InvalidFcsvError(f'Row label {row_label} out of order')
+            expected_label += 1
+
+            row_desc = parse_fcsv_field(row, 'desc', row_label)
+
+            if EXPECTED_MAP[row_label] != row_desc:
+                raise InvalidFcsvError(f'Row label {row_label} does not ' +
+                    f'match row description {row_desc}')
+
+            row_x = parse_fcsv_field(row, 'x', row_label)
+            row_x_float = parse_fcsv_float(row_x, 'x', row_label)
         
-        # Is the description what it should be?
-        expected_desc = EXPECTED_MAP[expected_label]
-        if json_desc != expected_desc:
-            return {
-                    'valid': False,
-                    'reason': (f'Description {json_desc} for label ' +
-                        f'{expected_label} does not match expected description ' +
-                        f'{expected_desc}.')}
+            row_y = parse_fcsv_field(row, 'y', row_label)
+            row_y_float = parse_fcsv_float(row_y, 'y', row_label)
+        
+            row_z = parse_fcsv_field(row, 'z', row_label)
+            row_z_float = parse_fcsv_float(row_z, 'z', row_label)
 
-        # Are there floats for x, y, and, z?
-        if not frozenset(['x', 'y', 'z']) < frozenset(json_afid.keys()):
-            return {
-                    'valid': False,
-                    'reason': ('At least one of x, y, or z missing in record' +
-                        f'{expected_label}')}
-        for direction in ['x', 'y', 'z']:
-            try:
-                float(json_afid[direction])
-            except ValueError:
-                return {
-                        'valid': False,
-                        'reason': (f'Direction {direction} for label' +
-                            f'{expected_label} is not a real number')}
+            num_columns = len(row)
+            if num_columns != 14:
+                raise InvalidFcsvError('Incorrect number of columns '
+                        f'({num_columns}) in row {row_label}')
 
-    return {'valid': True}
+            json_data[row_label] = {'desc': row_desc, 'x': row_x, 'y': row_y,
+                                    'z': row_z}
+
+    if len(json_data) != 32:
+        # Incorrect number of rows
+        raise InvalidFcsvError('Incorrect number of rows.')
+
+    json_data = json.dumps(json_data, sort_keys=False, indent=4,
+                           separators=(',', ': '))
+
+    return json_data
 
