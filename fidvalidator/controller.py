@@ -3,7 +3,7 @@ from compute import calc
 from model import InputForm
 import os
 from compute_auto import compute_mean_std as compute_function
-from model_auto import Average, csvtojson
+from model_auto import Average, csv_to_json
 from werkzeug import secure_filename
 
 app = Flask(__name__)
