@@ -1,5 +1,5 @@
 import wtforms as wtf
-import csv, io, json
+import csv, json
 
 class Average(wtf.Form):
     filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
@@ -19,8 +19,7 @@ def csv_to_json(in_csv):
               None, None, 'label', 'desc', None)
 
     # Read CSV
-    csv_reader = csv.DictReader(io.StringIO(in_csv.read().decode('utf-8')),
-                                fields)
+    csv_reader = csv.DictReader(in_csv, fields)
 
     # Read csv file and dump to json object
     json_data = {}

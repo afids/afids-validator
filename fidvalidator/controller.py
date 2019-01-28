@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from compute import calc
 from model import InputForm
 import os
+import io
 from compute_auto import compute_mean_std as compute_function
 from model_auto import Average, csv_to_json
 from werkzeug import secure_filename
@@ -150,7 +151,7 @@ def index2():
 
                 # Need to find the file - currently cannot find on site
                 # Pressing upload will take to error page
-                jsonData = csv_to_json(file.stream)
+                jsonData = csv_to_json(io.StringIO(file.stream.read().decode('utf-8')))
 
                 result = "valid file"
             else:
