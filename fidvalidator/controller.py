@@ -3,7 +3,7 @@ from compute import calc
 from model import InputForm
 import os
 from compute_auto import compute_mean_std as compute_function
-from model_auto import Average, csvtojson
+from model_auto import Average, csv_to_json, InvalidFcsvError
 from werkzeug import secure_filename
 
 app = Flask(__name__)
@@ -141,19 +141,22 @@ def index2():
 
         # Save uploaded file on server if it exists and is valid
         if request.files:
-            file = request.files[form.filename.name]
-            if file and allowed_file(file.filename):
+            upload = request.files[form.filename.name]
+            if upload and allowed_file(upload.filename):
                 # Make a valid version of filename for any file ystem
-                filename = secure_filename(file.filename)
+                filename = secure_filename(upload.filename)
                 # file.save(os.path.join(app.config['UPLOAD_FOLDER'],
                 #                       filename))
-                result = "valid file"
+                try:
+                    jsonData = csv_to_json(filename)
+                    result = 'valid file'
+                except InvalidFcsvError as err:
+                    result = f'invalid file: {err.message}'
+                except Exception:
+                    result = 'invalid file: could not parse'
 
-                # Need to find the file - currently cannot find on site
-                # Pressing upload will take to error page
-                # jsonData = csvtojson(filename)
             else:
-                result = "invalid file"
+                result = "invalid file: extension not allowed"
 
     else:
         result = None
