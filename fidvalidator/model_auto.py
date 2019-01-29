@@ -71,7 +71,7 @@ def parse_fcsv_float(value, field, label):
     try:
         parsed_value = float(value)
     except ValueError:
-        raise InvalidFcsvError(f'{field} in row {label} is not a real number.')
+        raise InvalidFcsvError(f'{field} in row {label} is not a real number')
 
     if not math.isfinite(parsed_value):
         raise InvalidFcsvError(f'{field} in row {label} is not finite')
@@ -85,6 +85,22 @@ def csv_to_json(in_file):
     # Read CSV
     json_data = {}
     with open(in_file, 'r') as csv_file:
+        # Start by checking the file version
+        version_line = csv_file.readline()
+
+        # Assuming versions are always in the form x.y
+        parsed_version = None
+        try:
+            parsed_version = float(version_line[-4:])
+        except ValueError:
+            raise InvalidFcsvError('Invalid Markups fiducial file version')
+
+        if parsed_version < 4.6:
+            raise InvalidFcsvError('Markups fiducial file version ' +
+                    f'{parsed_version} too low')
+
+        csv_file.seek(0, 0)
+
         # Some fields are irrelevant, but we know they should be there
         fields = ('id', 'x', 'y', 'z', 'ow', 'ox', 'oy', 'oz', 'vis',
                   'sel', 'lock', 'label', 'desc', 'associatedNodeID')
@@ -94,6 +110,9 @@ def csv_to_json(in_file):
         # Read csv file and dump to json object
         expected_label = 1
         for row in _skip_first(csv_reader, 3):
+            if expected_label > 32:
+                raise InvalidFcsvError('Too many rows')
+
             row_label = parse_fcsv_field(row, 'label')
 
             if row_label != str(expected_label):
@@ -115,7 +134,13 @@ def csv_to_json(in_file):
             row_z = parse_fcsv_field(row, 'z', row_label)
             row_z_float = parse_fcsv_float(row_z, 'z', row_label)
 
-            num_columns = len(row)
+            missing_fields = 0
+            for value in row.values():
+                if value is None:
+                    # The fcsv is missing values
+                    missing_fields += 1
+
+            num_columns = len(row) - missing_fields
             if num_columns != 14:
                 raise InvalidFcsvError('Incorrect number of columns '
                         f'({num_columns}) in row {row_label}')
@@ -123,9 +148,9 @@ def csv_to_json(in_file):
             json_data[row_label] = {'desc': row_desc, 'x': row_x, 'y': row_y,
                                     'z': row_z}
 
-    if len(json_data) != 32:
+    if len(json_data) < 32:
         # Incorrect number of rows
-        raise InvalidFcsvError('Incorrect number of rows.')
+        raise InvalidFcsvError('Too few rows')
 
     json_data = json.dumps(json_data, sort_keys=False, indent=4,
                            separators=(',', ': '))
