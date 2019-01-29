@@ -1,2 +1,4 @@
 fidvenv/
 __pycache__/
+*.pyc
+venv/
