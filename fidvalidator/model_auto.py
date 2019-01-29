@@ -1,5 +1,5 @@
 import wtforms as wtf
-import csv, json, math, io
+import csv, json, math
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
