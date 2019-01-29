@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from compute import calc
 from model import InputForm
 import os
+import io
 from compute_auto import compute_mean_std as compute_function
 from model_auto import Average, csv_to_json, InvalidFcsvError
 from werkzeug import secure_filename
@@ -144,11 +145,16 @@ def index2():
             upload = request.files[form.filename.name]
             if upload and allowed_file(upload.filename):
                 # Make a valid version of filename for any file ystem
-                filename = secure_filename(upload.filename)
+                # filename = secure_filename(file.filename) ### DO WE NEED THIS LINE?
                 # file.save(os.path.join(app.config['UPLOAD_FOLDER'],
                 #                       filename))
+
+                # Need to find the file - currently cannot find on site
+                # Pressing upload will take to error page
+
                 try:
-                    jsonData = csv_to_json(filename)
+                    jsonData = csv_to_json(io.StringIO(
+                        upload.stream.read().decode('utf-8')))
                     result = 'valid file'
                 except InvalidFcsvError as err:
                     result = f'invalid file: {err.message}'
