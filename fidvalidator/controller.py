@@ -19,7 +19,7 @@ if not os.path.isdir(UPLOAD_DIR):
     os.mkdir(UPLOAD_DIR)
 
 # Allowed file types for file upload
-ALLOWED_EXTENSIONS = set(['txt', 'fcsv', 'csv'])
+ALLOWED_EXTENSIONS = set(['fcsv', 'csv'])
 
 def allowed_file(filename):
     """Does filename have the right extension?"""
