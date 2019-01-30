@@ -158,8 +158,6 @@ def index2():
                     result = 'valid file'
                 except InvalidFcsvError as err:
                     result = f'invalid file: {err.message}'
-                except Exception:
-                    result = 'invalid file: could not parse'
 
             else:
                 result = "invalid file: extension not allowed"
