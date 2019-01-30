@@ -2,8 +2,8 @@
 
 ### Website at fidvalidator.pythonanywhere.com/home
 
-#### Website update info
-1. Go to pythonanwhere.com and login
+#### Website update info:
+1. Go to pythonanywhere.com and login
 2. Open bash console
 3. Navigate to ~/fidvalidator/fidvalidator
 4. git pull
