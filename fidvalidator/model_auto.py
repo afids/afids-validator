@@ -64,7 +64,7 @@ def parse_fcsv_field(row, key, label=None):
         if label:
             return InvalidFcsvError(f'Row {label} has no {key} value')
         else:
-            return InvalidFcscError(f'Row has no {key} value')
+            return InvalidFcsvError(f'Row has no {key} value')
 
 def parse_fcsv_float(value, field, label):
     parsed_value = None
