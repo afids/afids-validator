@@ -2,9 +2,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Flask Average app</title>
+    <title>Flask app</title>
   </head>
   <body>
+  <h2>Template Selection</h2>
+  <select name= fid_templates method="GET" action="/">
+    {% for fid_template in fid_templates %}
+    <option value= "{{fid_template}}" SELECTED>{{fid_template}}</option>"
+    {% endfor %}
+</select>
 
   <!-- Input and Results are typeset as a two-column table -->
   <table>
