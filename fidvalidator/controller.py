@@ -138,7 +138,13 @@ def index():
 def index2():
     form = Average(request.form)
     filename = None  # default
+    msg = ''
+    result = None
     if request.method == 'POST':
+
+    	fid_template = request.form['fid_template']
+    	if fid_template == 'Agile12v2016':
+    		msg = 'Agile template selected'
 
         # Save uploaded file on server if it exists and is valid
         if request.files:
@@ -157,7 +163,7 @@ def index2():
                         upload.stream.read().decode('utf-8')))
                     result = 'valid file'
                 except InvalidFcsvError as err:
-                    result = f'invalid file: {err.message}'
+                    result = 'invalid file: {err.message}'
 
             else:
                 result = "invalid file: extension not allowed"
@@ -165,7 +171,9 @@ def index2():
     else:
         result = None
 
-    return render_template("view.html", form=form, result=result)
+    fid_templates = ['Agile12v2016', 'Colin27', 'MNI2009cAsym']
+
+    return render_template("view.html", form=form, result=result, fid_templates=fid_templates)
 
 if __name__ == '__main__':
 	app.run(debug=True)
