@@ -16,15 +16,15 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_DIR
 app.secret_key = 'MySecretKey'
 
 if not os.path.isdir(UPLOAD_DIR):
-	os.mkdir(UPLOAD_DIR)
+    os.mkdir(UPLOAD_DIR)
 
 # Allowed file types for file upload
 ALLOWED_EXTENSIONS = set(['fcsv', 'csv'])
 
 def allowed_file(filename):
-	"""Does filename have the right extension?"""
-	return '.' in filename and \
-		   filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+    """Does filename have the right extension?"""
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 @app.route('/home', methods=['GET', 'POST'])
 def index():
@@ -136,48 +136,52 @@ def index():
 # Path to the web application
 @app.route('/auto', methods=['GET', 'POST'])
 def index2():
-	form = Average(request.form)
-	filename = None  # default
-	msg = ''
-	result = None
-	if request.method == 'POST':
-		fid_template = request.form['fid_template']
-		if fid_template == 'Agile12v2016':
-			msg = 'Agile template selected'
-		# Save uploaded file on server if it exists and is valid
-		if request.files:
-			upload = request.files[form.filename.name]
-			if upload and allowed_file(upload.filename):
-				# Make a valid version of filename for any file ystem
-				# filename = secure_filename(file.filename) ### DO WE NEED THIS LINE?
-				# file.save(os.path.join(app.config['UPLOAD_FOLDER'],
-				#                       filename))
+    form = Average(request.form)
+    filename = None  # default
+    msg = ''
+    result = ''
+    if request.method == 'POST':
+        fid_template = request.form['fid_template']
+        if fid_template == 'Agile12v2016':
+            msg = 'Agile template selected'
+            # Save uploaded file on server if it exists and is valid
+        if request.files:
+            upload = request.files[form.filename.name]
+            if upload and allowed_file(upload.filename):
+                # Make a valid version of filename for any file ystem
+                # filename = secure_filename(file.filename) ### DO WE NEED THIS LINE?
+                # file.save(os.path.join(app.config['UPLOAD_FOLDER'],
+                #                       filename))
 
-				# Need to find the file - currently cannot find on site
-				# Pressing upload will take to error page
+                # Need to find the file - currently cannot find on site
+                # Pressing upload will take to error page
 
-				try:
-					jsonData = csv_to_json(io.StringIO(
-						upload.stream.read().decode('utf-8')))
-					result = 'valid file'
-				except InvalidFcsvError as err:
-					result = 'invalid file: {err.message}'
+                try:
+                    jsonData = csv_to_json(io.StringIO(
+                        upload.stream.read().decode('utf-8')))
+                    result = 'valid file'
+                except InvalidFcsvError as err:
+                    result = 'invalid file: {err_msg}'.format(
+                            err_msg=err.message)
 
-			else:
-				result = "invalid file: extension not allowed"
+            else:
+                result = "invalid file: extension not allowed"
 
-	else:
-		result = None
+        else:
+            result = None
 
-	# fid_templates = ['Agile12v2016', 'Colin27', 'MNI2009cAsym']
-	# find fid templates by searching afids-examples
-	dir_contents = os.listdir('./afids-examples/')
-	fid_templates = []
-	for d in dir_contents:
-		if 'sub' in d:
-			fid_templates.append(d[4:])
+    # fid_templates = ['Agile12v2016', 'Colin27', 'MNI2009cAsym']
+    # find fid templates by searching afids-examples
+    dir_contents = os.listdir('./afids-examples/')
+    fid_templates = []
+    for d in dir_contents:
+        if 'sub' in d:
+            fid_templates.append(d[4:])
 
-	return render_template("view.html", form=form, result=result, fid_templates=fid_templates)
+    result = '<br>'.join([result, msg])
+
+    return render_template("view.html", form=form, result=result, 
+        fid_templates=fid_templates)
 
 if __name__ == '__main__':
 	app.run(debug=True)
