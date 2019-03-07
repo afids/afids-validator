@@ -40,6 +40,7 @@ EXPECTED_MAP = dict(zip(EXPECTED_LABELS, EXPECTED_DESCS))
 
 class Average(wtf.Form):
     filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
+    submit = wtf.SubmitField(label='Submit')
 
 class InvalidFcsvError(Exception):
     """Exception raised when a csv to be parsed is invalid.

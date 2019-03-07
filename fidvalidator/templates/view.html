@@ -3,40 +3,47 @@
   <head>
     <meta charset="utf-8" />
     <title>Flask Average app</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='normalize.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='milligram.min.css')}}">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
   </head>
   <body>
 
   <!-- Input and Results are typeset as a two-column table -->
-  <table>
-  <tr>
-  <td valign="top">
-    <h2>Input:</h2>
+  <header class="container">
+    <h1>AFIDs Validator</h1>
+  </header>
 
+  <main class="container">
+
+    <section>
+      <h2>Input</h2>
       <form method=post action="" enctype="multipart/form-data">
-        <table>
+        <fieldset>
+          <legend>Select an FCSV to validate.</legend>
           {% for field in form %}
-            <tr><td>{{ field.name }}</td>
-                <td>{{ field(size=20) }}</td>
-                <td>{% if field.errors %}
-                  <ul class=errors>
-                  {% for error in field.errors %}
-                    <li>{{ error }}</li>
-                  {% endfor %}</ul>
-                {% endif %}</td></tr>
+            {{ field(size=20) }}
+            {% if field.errors %}
+              <ul class=errors>
+              {% for error in field.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+              </ul>
+            {% endif %}
           {% endfor %}
-        </table>
-        <p><input type="submit" value="Compute">
-    </form></p>
-  </td>
+        </fieldset>
+      </form>
+    </section>
 
-  <td valign="top">
-    {% if result != None %}
-      <h2>Results:</h2>
-        {{ result|safe }}
+    <section>
+      {% if result != None %}
+      <h2>Results</h2>
+      {{ result|safe }}
+      {% endif %}
+    </section>
 
-    {% endif %}
-  </td>
-  </tr>
-  </table>
-  </body>
+  </main>
+
+    </body>
 </html>
+
