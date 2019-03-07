@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Flask Average app</title>
+    <title>Flask app</title>
   </head>
   <body>
 
@@ -10,9 +10,15 @@
   <table>
   <tr>
   <td valign="top">
-    <h2>Input:</h2>
-
       <form method=post action="" enctype="multipart/form-data">
+        <h2>Template Selection</h2>
+        <select name="fid_template" method="GET" action="/">
+          {% for fid_template in fid_templates %}
+            <option value="{{fid_template}}">{{fid_template}}</option>"
+          {% endfor %}
+        </select>
+
+        <h2>Input</h2>
         <table>
           {% for field in form %}
             <tr><td>{{ field.name }}</td>
@@ -25,8 +31,8 @@
                 {% endif %}</td></tr>
           {% endfor %}
         </table>
-        <p><input type="submit" value="Compute">
-    </form></p>
+        <p><input type="submit" value="Compute"></p>
+    </form>
   </td>
 
   <td valign="top">
