@@ -62,19 +62,19 @@ def parse_fcsv_field(row, key, label=None):
         return row[key]
     except KeyError:
         if label:
-            return InvalidFcsvError(f'Row {label} has no {key} value')
+            return InvalidFcsvError('Row {label} has no {key} value')
         else:
-            return InvalidFcsvError(f'Row has no {key} value')
+            return InvalidFcsvError('Row has no {key} value')
 
 def parse_fcsv_float(value, field, label):
     parsed_value = None
     try:
         parsed_value = float(value)
     except ValueError:
-        raise InvalidFcsvError(f'{field} in row {label} is not a real number')
+        raise InvalidFcsvError('{field} in row {label} is not a real number')
 
     if not math.isfinite(parsed_value):
-        raise InvalidFcsvError(f'{field} in row {label} is not finite')
+        raise InvalidFcsvError('{field} in row {label} is not finite')
 
     return parsed_value
 
