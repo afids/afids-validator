@@ -116,14 +116,14 @@ def csv_to_json(in_csv):
         row_label = parse_fcsv_field(row, 'label')
 
         if row_label != str(expected_label):
-            raise InvalidFcsvError(f'Row label {row_label} out of order')
+            raise InvalidFcsvError('Row label {row_label} out of order')
         expected_label += 1
 
         row_desc = parse_fcsv_field(row, 'desc', row_label)
 
         if EXPECTED_MAP[row_label] != row_desc:
             raise InvalidFcsvError('Row label {row_label} does not ' +
-                f'match row description {row_desc}')
+                'match row description {row_desc}')
 
         row_x = parse_fcsv_field(row, 'x', row_label)
         row_x_float = parse_fcsv_float(row_x, 'x', row_label)
