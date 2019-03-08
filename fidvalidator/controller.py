@@ -172,7 +172,7 @@ def index2():
 
     # fid_templates = ['Agile12v2016', 'Colin27', 'MNI2009cAsym']
     # find fid templates by searching afids-examples
-    dir_contents = os.listdir('./afids-examples/')
+    dir_contents = os.listdir('../afids-examples/')
     fid_templates = []
     for d in dir_contents:
         if 'sub' in d:
