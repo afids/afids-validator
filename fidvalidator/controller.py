@@ -142,8 +142,7 @@ def index2():
     result = ''
     if request.method == 'POST':
         fid_template = request.form['fid_template']
-        if fid_template == 'Agile12v2016':
-            msg = 'Agile template selected'
+        msg = fid_template + ' selected'
             # Save uploaded file on server if it exists and is valid
         if request.files:
             upload = request.files[form.filename.name]
@@ -173,7 +172,7 @@ def index2():
     # fid_templates = ['Agile12v2016', 'Colin27', 'MNI2009cAsym']
     # find fid templates by searching afids-examples
     dir_contents = os.listdir('../afids-examples/')
-    fid_templates = []
+    fid_templates = [' ']
     for d in dir_contents:
         if 'sub' in d:
             fid_templates.append(d[4:])
