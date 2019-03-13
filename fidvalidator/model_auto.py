@@ -63,19 +63,23 @@ def parse_fcsv_field(row, key, label=None):
         return row[key]
     except KeyError:
         if label:
-            return InvalidFcsvError('Row {label} has no {key} value')
+            return InvalidFcsvError('Row {label} has no {key} value'
+                    .format(label=label, key=key))
         else:
-            return InvalidFcsvError('Row has no {key} value')
+            return InvalidFcsvError('Row has no {key} value'
+                .format(key=key))
 
 def parse_fcsv_float(value, field, label):
     parsed_value = None
     try:
         parsed_value = float(value)
     except ValueError:
-        raise InvalidFcsvError('{field} in row {label} is not a real number')
+        raise InvalidFcsvError('{field} in row {label} is not a real number'
+                .format(field=field, label=label))
 
     if not math.isfinite(parsed_value):
-        raise InvalidFcsvError('{field} in row {label} is not finite')
+        raise InvalidFcsvError('{field} in row {label} is not finite'
+                .format(field=field, label=label))
 
     return parsed_value
 
@@ -98,7 +102,8 @@ def csv_to_json(in_csv):
 
     if parsed_version < 4.6:
         raise InvalidFcsvError('Markups fiducial file version ' +
-                '{parsed_version} too low')
+                '{parsed_version} too low'
+                .format(parsed_version=parsed_version))
 
     in_csv.seek(0, 0)
 
@@ -117,14 +122,17 @@ def csv_to_json(in_csv):
         row_label = parse_fcsv_field(row, 'label')
 
         if row_label != str(expected_label):
-            raise InvalidFcsvError('Row label {row_label} out of order')
+            raise InvalidFcsvError('Row label {row_label} out of order'
+                    .format(row_label=row_label))
         expected_label += 1
 
         row_desc = parse_fcsv_field(row, 'desc', row_label)
 
         if EXPECTED_MAP[row_label] != row_desc:
-            raise InvalidFcsvError('Row label {row_label} does not ' +
-                'match row description {row_desc}')
+            raise InvalidFcsvError('Row label {row_label} does not '
+                    .format(row_label=row_label)
+                     + 'match row description {row_desc}'
+                     .format(row_desc=row_desc))
 
         row_x = parse_fcsv_field(row, 'x', row_label)
         row_x_float = parse_fcsv_float(row_x, 'x', row_label)
@@ -144,7 +152,8 @@ def csv_to_json(in_csv):
         num_columns = len(row) - missing_fields
         if num_columns != 14:
             raise InvalidFcsvError('Incorrect number of columns '
-                    '({num_columns}) in row {row_label}')
+                    '({num_columns}) in row {row_label}'
+                    .format(num_columns=num_columns, row_label=row_label))
 
         json_data[row_label] = {'desc': row_desc, 'x': row_x, 'y': row_y,
                                 'z': row_z}
