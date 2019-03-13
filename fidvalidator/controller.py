@@ -24,7 +24,7 @@ ALLOWED_EXTENSIONS = set(['fcsv', 'csv'])
 def allowed_file(filename):
     """Does filename have the right extension?"""
     return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+        filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 @app.route('/home', methods=['GET', 'POST'])
 def index():
@@ -138,9 +138,13 @@ def index():
 def index2():
     form = Average(request.form)
     filename = None  # default
+    msg = ''
+    result = ''
     if request.method == 'POST':
-
-        # Save uploaded file on server if it exists and is valid
+        fid_template = request.form['fid_template']
+        if fid_template == 'Agile12v2016':
+            msg = 'Agile template selected'
+            # Save uploaded file on server if it exists and is valid
         if request.files:
             upload = request.files[form.filename.name]
             if upload and allowed_file(upload.filename):
@@ -157,15 +161,27 @@ def index2():
                         upload.stream.read().decode('utf-8')))
                     result = 'valid file'
                 except InvalidFcsvError as err:
-                    result = f'invalid file: {err.message}'
+                    result = 'invalid file: {err_msg}'.format(
+                            err_msg=err.message)
 
             else:
                 result = "invalid file: extension not allowed"
 
-    else:
-        result = None
+        else:
+            result = None
 
-    return render_template("view.html", form=form, result=result)
+    # fid_templates = ['Agile12v2016', 'Colin27', 'MNI2009cAsym']
+    # find fid templates by searching afids-examples
+    dir_contents = os.listdir('../afids-examples/')
+    fid_templates = []
+    for d in dir_contents:
+        if 'sub' in d:
+            fid_templates.append(d[4:])
+
+    result = '<br>'.join([result, msg])
+
+    return render_template("view.html", form=form, result=result, 
+        fid_templates=fid_templates)
 
 if __name__ == '__main__':
 	app.run(debug=True)
