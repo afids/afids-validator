@@ -193,8 +193,6 @@ def index2():
 
 
 
-                    msg = str(template_Data_j['1']['x'])
-
                     result = 'valid file'
                 except InvalidFcsvError as err:
                     result = 'invalid file: {err_msg}'.format(
