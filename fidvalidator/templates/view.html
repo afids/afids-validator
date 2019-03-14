@@ -11,6 +11,7 @@
   <tr>
   <td valign="top">
       <form method=post action="" enctype="multipart/form-data">
+
         <h2>Template Selection</h2>
         <select name="fid_template" method="GET" action="/">
           {% for fid_template in fid_templates %}
@@ -31,7 +32,17 @@
                 {% endif %}</td></tr>
           {% endfor %}
         </table>
+
         <p><input type="submit" value="Compute"></p>
+
+        <h2>Distances</h2>
+        <table>
+          {% for i in index %}
+          <tr><td> {{labels[i]}} </td> <td> {{distances[i]}} </td> </tr>
+            {% endfor %}
+        </table>
+
+
     </form>
   </td>
 

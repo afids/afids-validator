@@ -6,6 +6,7 @@ import io
 from compute_auto import compute_mean_std as compute_function
 from model_auto import Average, csv_to_json, InvalidFcsvError
 from werkzeug import secure_filename
+import json
 
 app = Flask(__name__)
 
@@ -140,13 +141,17 @@ def index2():
     filename = None  # default
     msg = ''
     result = ''
+    index = []
+    distances = []
+    labels = []
     if request.method == 'POST':
         fid_template = request.form['fid_template']
-        if fid_template == 'Agile12v2016':
-            msg = 'Agile template selected'
+        msg = fid_template + ' selected'
             # Save uploaded file on server if it exists and is valid
         if request.files:
             upload = request.files[form.filename.name]
+            template_file_path = '../afids-examples/' + 'sub-' + str(fid_template) + '/sub-' + str(fid_template) + '_afids.fcsv'
+            template_file = open(template_file_path, 'r')
             if upload and allowed_file(upload.filename):
                 # Make a valid version of filename for any file ystem
                 # filename = secure_filename(file.filename) ### DO WE NEED THIS LINE?
@@ -157,8 +162,39 @@ def index2():
                 # Pressing upload will take to error page
 
                 try:
-                    jsonData = csv_to_json(io.StringIO(
-                        upload.stream.read().decode('utf-8')))
+                    jsonData = csv_to_json(io.StringIO(upload.stream.read().decode('utf-8')))
+                    template_Data = csv_to_json(template_file)
+                    user_Data_j = json.loads(jsonData)
+                    template_Data_j = json.loads(template_Data)
+
+                    for element in template_Data_j:
+                    	index.append(int(element)-1)
+
+                    	coordinate_name = template_Data_j[element]['desc']
+
+                    	template_x = float(template_Data_j[element]['x'])
+                    	template_y = float(template_Data_j[element]['y'])
+                    	template_z = float(template_Data_j[element]['z'])
+
+                    	user_x = float(user_Data_j[element]['x'])
+                    	user_y = float(user_Data_j[element]['y'])
+                    	user_z = float(user_Data_j[element]['z'])
+
+                    	diff = calc(template_x, template_y, template_z, user_x, user_y, user_z)
+
+
+
+                    	labels.append(coordinate_name)
+                    	distances.append(diff)
+
+                    	print(labels)
+                    	print(distances)
+
+
+
+
+                    msg = str(template_Data_j['1']['x'])
+
                     result = 'valid file'
                 except InvalidFcsvError as err:
                     result = 'invalid file: {err_msg}'.format(
@@ -173,7 +209,7 @@ def index2():
     # fid_templates = ['Agile12v2016', 'Colin27', 'MNI2009cAsym']
     # find fid templates by searching afids-examples
     dir_contents = os.listdir('../afids-examples/')
-    fid_templates = []
+    fid_templates = [' ']
     for d in dir_contents:
         if 'sub' in d:
             fid_templates.append(d[4:])
@@ -181,7 +217,7 @@ def index2():
     result = '<br>'.join([result, msg])
 
     return render_template("view.html", form=form, result=result, 
-        fid_templates=fid_templates)
+        fid_templates=fid_templates, template_Data_j=template_Data_j, index=index, labels=labels, distances=distances)
 
 if __name__ == '__main__':
 	app.run(debug=True)
