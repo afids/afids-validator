@@ -12,8 +12,8 @@ EXPECTED_DESCS = [
         'L superior LMS',
         'R inferior LMS',
         'L inferior LMS',
-        'culmen',
-        'intermammillary sulcus',
+        'Culmen',
+        'Intermammillary sulcus',
         'R MB',
         'L MB',
         'pineal gland',
@@ -21,8 +21,8 @@ EXPECTED_DESCS = [
         'L LV at AC',
         'R LV at PC',
         'L LV at PC',
-        'genu of CC',
-        'splenium',
+        'Genu of CC',
+        'Splenium of CC',
         'R AL temporal horn',
         'L AL temporal horn',
         'R superior AM temporal horn',
@@ -81,7 +81,7 @@ def parse_fcsv_float(value, field, label):
 
 def csv_to_json(in_csv):
     """ Parse .fscv / .csv files and write to json object """
-    
+
     # Read CSV
     json_data = {}
 
@@ -127,10 +127,10 @@ def csv_to_json(in_csv):
 
         row_x = parse_fcsv_field(row, 'x', row_label)
         row_x_float = parse_fcsv_float(row_x, 'x', row_label)
-        
+
         row_y = parse_fcsv_field(row, 'y', row_label)
         row_y_float = parse_fcsv_float(row_y, 'y', row_label)
-        
+
         row_z = parse_fcsv_field(row, 'z', row_label)
         row_z_float = parse_fcsv_float(row_z, 'z', row_label)
 
@@ -156,4 +156,3 @@ def csv_to_json(in_csv):
                            separators=(',', ': '))
 
     return json_data
-
