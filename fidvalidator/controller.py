@@ -136,12 +136,14 @@ def index():
 @app.route('/auto', methods=['GET', 'POST'])
 def index2():
     form = Average(request.form)
+    
     msg = ''
     result = ''
     index = []
     distances = []
     labels = []
     template_data_j = None
+
     if request.method == 'POST':
         fid_template = request.form['fid_template']
         msg = fid_template + ' selected'
@@ -156,7 +158,12 @@ def index2():
 
             if upload and allowed_file(upload.filename):
                 try:
-                    user_data = csv_to_json(io.StringIO(upload.stream.read().decode('utf-8')))
+                    user_data = csv_to_json(io.Simport sys
+path = '/home/fidvalidator'
+path = '/home/tkai/git/fidvalidator/fidvalidator'
+
+if path not in sys.path:
+    sys.path.append(path)tringIO(upload.stream.read().decode('utf-8')))
                     user_data_j = json.loads(user_data)
                     template_data = csv_to_json(template_file)
                     template_data_j = json.loads(template_data)
