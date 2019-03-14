@@ -4,9 +4,7 @@ from model import InputForm
 import os
 import io
 import json
-from compute_auto import compute_mean_std as compute_function
 from model_auto import Average, csv_to_json, InvalidFcsvError
-from werkzeug import secure_filename
 
 app = Flask(__name__)
 
@@ -154,6 +152,7 @@ def index2():
                                                 'sub-' + str(fid_template) +
                                                 '_afids.fcsv')
             template_file = open(template_file_path, 'r')
+
             if upload and allowed_file(upload.filename):
                 try:
                     user_data = csv_to_json(io.StringIO(upload.stream.read().decode('utf-8')))
@@ -183,9 +182,10 @@ def index2():
                         print(distances)
 
                     result = 'valid file'
+                    
                 except InvalidFcsvError as err:
                     result = 'invalid file: {err_msg}'.format(
-                            err_msg=err.message)
+                        err_msg=err.message)
 
             else:
                 result = "invalid file: extension not allowed"
