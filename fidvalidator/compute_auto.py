@@ -38,7 +38,7 @@ Data from file <tt>%s</tt>:
 <tr><td> L olfactory sulcal fundus </td><td> %.3g </td></tr>
 
 
-""" % (filename, np.mean(data), np.std(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), 
-	np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), 
-	np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), 
-	np.mean(data), np.mean(data), np.mean(data), np.mean(data))
+""" % (filename, np.mean(data), np.std(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data),
+    np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data),
+    np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data), np.mean(data),
+    np.mean(data), np.mean(data), np.mean(data), np.mean(data))
