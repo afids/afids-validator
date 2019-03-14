@@ -129,7 +129,7 @@ def index():
         L_vent_occ_result=L_vent_occ_result,
         R_olf_sulc_result=R_olf_sulc_result,
         L_olf_sulc_result=L_olf_sulc_result)
-        # need to complete this list
+    # need to complete this list
 
 
 # Path to the web application
@@ -141,6 +141,7 @@ def index2():
     index = []
     distances = []
     labels = []
+    template_data_j = None
     if request.method == 'POST':
         fid_template = request.form['fid_template']
         msg = fid_template + ' selected'
@@ -156,8 +157,8 @@ def index2():
             if upload and allowed_file(upload.filename):
                 try:
                     user_data = csv_to_json(io.StringIO(upload.stream.read().decode('utf-8')))
-                    template_data = csv_to_json(template_file)
                     user_data_j = json.loads(user_data)
+                    template_data = csv_to_json(template_file)
                     template_data_j = json.loads(template_data)
 
                     for element in template_data_j:
@@ -182,7 +183,7 @@ def index2():
                         print(distances)
 
                     result = 'valid file'
-                    
+
                 except InvalidFcsvError as err:
                     result = 'invalid file: {err_msg}'.format(
                         err_msg=err.message)
