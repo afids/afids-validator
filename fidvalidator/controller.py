@@ -151,7 +151,7 @@ def index2():
             upload = request.files[form.filename.name]
             template_file_path = os.path.join(os.path.join('../afids-examples',
                                                 'sub-' + str(fid_template)),
-                                                '/sub-' + str(fid_template) +
+                                                'sub-' + str(fid_template) +
                                                 '_afids.fcsv')
             template_file = open(template_file_path, 'r')
             if upload and allowed_file(upload.filename):
