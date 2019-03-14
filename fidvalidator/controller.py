@@ -175,6 +175,7 @@ def index2():
                         user_z = float(user_data_j[element]['z'])
 
                         diff = calc(template_x, template_y, template_z, user_x, user_y, user_z)
+                        diff = float("{0:.5f}".format(diff))
 
                         labels.append(coordinate_name)
                         distances.append(diff)
