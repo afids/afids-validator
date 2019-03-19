@@ -35,8 +35,9 @@
 
         <p><input type="submit" value="Compute"></p>
 
-        <h2>Distances</h2>
+        <h2>Result</h2>
         <table>
+          <tr><td><u>{{"Fiducial"}}</u></td> <td><u>{{"Distance [mm]"}}</u></td></tr>
           {% for i in index %}
           <tr><td> {{labels[i]}} </td> <td> {{distances[i]}} </td> </tr>
             {% endfor %}
