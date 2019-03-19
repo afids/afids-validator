@@ -18,6 +18,7 @@
     <section>
       <h2>Setup</h2>
       <form method=post action="" enctype="multipart/form-data">
+
         <fieldset>
           <legend>Select a template to compare against.</legend>
           <select name="fid_template" method="GET" action="/">
@@ -26,7 +27,6 @@
             {% endfor %}
           </select>
         </fieldset>
-
         <fieldset>
           <legend>Select the AFIDs FCSV to validate.</legend>
           {% for field in form %}
@@ -39,15 +39,21 @@
               </ul>
             {% endif %}
           {% endfor %}
+
         </fieldset>
       </form>
     </section>
-
     <section>
       <h2>Results</h2>
       {% if result != None %}
       {{ result|safe }}
       {% endif %}
+      <table>
+          <tr><td><u>{{"Fiducial"}}</u></td> <td><u>{{"Distance [mm]"}}</u></td></tr>
+          {% for i in index %}
+          <tr><td> {{labels[i]}} </td> <td> {{distances[i]}} </td> </tr>
+            {% endfor %}
+        </table>
     </section>
   </main>
 </body>
