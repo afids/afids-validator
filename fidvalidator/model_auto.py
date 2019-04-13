@@ -121,7 +121,7 @@ def csv_to_json(in_csv):
 
         row_desc = parse_fcsv_field(row, 'desc', row_label)
 
-        if EXPECTED_MAP[row_label] != row_desc:
+        if EXPECTED_MAP[row_label].casefold() != row_desc.casefold():
             raise InvalidFcsvError('Row label {row_label} does not ' +
                 'match row description {row_desc}')
 
