@@ -10,6 +10,7 @@ app = Flask(__name__)
 
 # Relative path of directory for uploaded files
 UPLOAD_DIR = 'uploads/'
+AFIDS_DIR = '../afids-examples'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_DIR
 app.secret_key = 'MySecretKey'
@@ -143,14 +144,14 @@ def index2():
     distances = []
     labels = []
     template_data_j = None
-    
+
     if request.method == 'POST':
         fid_template = request.form['fid_template']
         msg = fid_template + ' selected'
 
         if request.files:
             upload = request.files[form.filename.name]
-            template_file_path = os.path.join(os.path.join('../afids-examples',
+            template_file_path = os.path.join(os.path.join(AFIDS_DIR,
                                                 'sub-' + str(fid_template)),
                                                 'sub-' + str(fid_template) +
                                                 '_afids.fcsv')
@@ -197,7 +198,7 @@ def index2():
         else:
             result = None
 
-    dir_contents = os.listdir('../afids-examples/')
+    dir_contents = os.listdir(AFIDS_DIR)
     fid_templates = [' ']
     for d in dir_contents:
         if 'sub' in d:
