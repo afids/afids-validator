@@ -198,7 +198,7 @@ def index2():
         else:
             result = None
 
-    dir_contents = os.listdir('AFIDS_DIR')
+    dir_contents = os.listdir(AFIDS_DIR)
     fid_templates = [' ']
     for d in dir_contents:
         if 'sub' in d:
