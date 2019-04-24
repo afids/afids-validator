@@ -26,7 +26,7 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-@app.route('/home', methods=['GET', 'POST'])
+@app.route('/manual', methods=['GET', 'POST'])
 def index():
     form = InputForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -134,7 +134,7 @@ def index():
 
 
 # Path to the web application
-@app.route('/auto', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def index2():
     form = Average(request.form)
 
