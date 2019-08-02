@@ -1,5 +1,6 @@
 import wtforms as wtf
 import csv, json, math
+import re
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
@@ -96,11 +97,11 @@ def csv_to_json(in_csv):
     # Assuming versions are always in the form x.y
     parsed_version = None
     try:
-        parsed_version = float(version_line[-4:])
+        parsed_version = re.findall("\d+\.\d+", version_line)[0]
     except ValueError:
         raise InvalidFcsvError('Invalid Markups fiducial file version')
 
-    if parsed_version < 4.6:
+    if parsed_version < '4.6':
         raise InvalidFcsvError('Markups fiducial file version ' +
                 '{parsed_version} too low'
                 .format(parsed_version=parsed_version))
