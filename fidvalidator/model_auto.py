@@ -1,6 +1,7 @@
 import wtforms as wtf
 import csv, json, math
 import re
+from pkg_resources import parse_version
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
@@ -101,7 +102,7 @@ def csv_to_json(in_csv):
     except ValueError:
         raise InvalidFcsvError('Invalid Markups fiducial file version')
 
-    if parsed_version < '4.6':
+    if parse_version(parsed_version) < parse_version('4.6'):
         raise InvalidFcsvError('Markups fiducial file version ' +
                 '{parsed_version} too low'
                 .format(parsed_version=parsed_version))
