@@ -1,5 +1,6 @@
 import wtforms as wtf
 import csv, json, math
+from controller import db
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
@@ -167,3 +168,37 @@ def csv_to_json(in_csv):
                            separators=(',', ': '))
 
     return json_data
+
+class Fiducial_set(db.Model):
+    __tablename__ = 'books_pg2'
+
+    id = db.Column(db.Integer, primary_key=True)
+    AC_x = db.Column(db.Float())
+    AC_y = db.Column(db.Float())
+    AC_z = db.Column(db.Float())
+    PC_x = db.Column(db.Float())
+    PC_y = db.Column(db.Float())
+    PC_z = db.Column(db.Float())
+
+    def __init__(self, AC_x, AC_y, AC_z, PC_x, PC_y, PC_z):
+        self.AC_x = AC_x
+        self.AC_y = AC_y
+        self.AC_z = AC_z
+        self.PC_x = PC_x
+        self.PC_y = PC_y
+        self.PC_z = PC_z
+
+    def __repr__(self):
+        return '<id {}>'.format(self.id)
+
+    def serialize(self):
+        return {
+            'id': self.id, 
+            'AC_x': self.AC_x,
+            'AC_y': self.AC_y,
+            'AC_z': self.AC_z,
+            'PC_x': self.PC_x,
+            'PC_y': self.PC_y,
+            'PC_z': self.PC_z,
+
+        }
