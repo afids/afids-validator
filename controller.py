@@ -1,16 +1,50 @@
 from flask import Flask, render_template, request
-from compute import calc
-from model import InputForm
+from flask import Flask, request, jsonify, render_template
+from flask_sqlalchemy import SQLAlchemy
 import os
-import io
-import json
-from model_auto import Average, csv_to_json, InvalidFcsvError
 
 app = Flask(__name__)
 
+app.config.from_object(os.environ['APP_SETTINGS'])
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+class Fiducial_set(db.Model):
+    __tablename__ = 'fid_db'
+
+    id = db.Column(db.Integer, primary_key=True)
+    AC_x = db.Column(db.Float())
+    AC_y = db.Column(db.Float())
+    AC_z = db.Column(db.Float())
+    PC_x = db.Column(db.Float())
+    PC_y = db.Column(db.Float())
+    PC_z = db.Column(db.Float())
+
+    def __repr__(self):
+        return '<id {}>'.format(self.id)
+
+    def serialize(self):
+        return {
+            'id': self.id, 
+            'AC_x': self.AC_x,
+            'AC_y': self.AC_y,
+            'AC_z': self.AC_z,
+            'PC_x': self.PC_x,
+            'PC_y': self.PC_y,
+            'PC_z': self.PC_z,
+
+        }
+
+from model_auto import Average, csv_to_json, InvalidFcsvError
+from compute import calc
+from model import InputForm
+import io
+import json
+
 # Relative path of directory for uploaded files
 UPLOAD_DIR = 'uploads/'
-AFIDS_DIR = '../afids-examples'
+AFIDS_DIR = 'afids-examples/'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_DIR
 app.secret_key = 'MySecretKey'
@@ -20,7 +54,6 @@ if not os.path.isdir(UPLOAD_DIR):
 
 # Allowed file types for file upload
 ALLOWED_EXTENSIONS = set(['fcsv', 'csv'])
-
 def allowed_file(filename):
     """Does filename have the right extension?"""
     return '.' in filename and \
@@ -163,6 +196,17 @@ def index2():
                     user_data_j = json.loads(user_data)
                     template_data = csv_to_json(template_file)
                     template_data_j = json.loads(template_data)
+                    fiducial_set=Fiducial_set(
+                    	AC_x = user_data_j['1']['x'],
+                    	AC_y = user_data_j['1']['y'],
+                    	AC_z = user_data_j['1']['z'],
+                    	PC_x = user_data_j['2']['x'],
+                    	PC_y = user_data_j['2']['y'],
+                    	PC_z = user_data_j['2']['z'],
+                    )
+                    db.session.add(fiducial_set)
+                    db.session.commit()
+                    print("fiducial set added")
 
                     for element in template_data_j:
                         index.append(int(element)-1)
@@ -183,8 +227,9 @@ def index2():
                         labels.append(coordinate_name)
                         distances.append(diff)
 
-                        print(labels)
-                        print(distances)
+                        # print(labels)
+                        # print(distances)
+                        # print(element)
 
                     result = 'valid file'
 
@@ -209,6 +254,20 @@ def index2():
     return render_template("view.html", form=form, result=result,
         fid_templates=fid_templates, template_data_j=template_data_j,
         index=index, labels=labels, distances=distances)
+
+@app.route("/getall")
+def get_all():
+    try:
+        fiducial_sets=Fiducial_set.query.all()
+        serialized_fset = []
+        for i in range(len(fiducial_sets)):
+            serialized_fset.append(fiducial_sets[i].serialize())
+            print(serialized_fset[i])
+        # jsonify([e.serialize() for e in fiducial_sets]), can be used instead of template
+
+        return render_template("db.html", serialized_fset=serialized_fset)
+    except Exception as e:
+	    return(str(e))
 
 
 if __name__ == '__main__':
