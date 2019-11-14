@@ -1,7 +1,6 @@
 import wtforms as wtf
 import csv, json, math
 import re
-from controller import db
 from pkg_resources import parse_version
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
