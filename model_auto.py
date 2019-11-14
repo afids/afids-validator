@@ -1,6 +1,8 @@
 import wtforms as wtf
 import csv, json, math
+import re
 from controller import db
+from pkg_resources import parse_version
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
@@ -97,11 +99,11 @@ def csv_to_json(in_csv):
     # Assuming versions are always in the form x.y
     parsed_version = None
     try:
-        parsed_version = float(version_line[-4:])
+        parsed_version = re.findall("\d+\.\d+", version_line)[0]
     except ValueError:
         raise InvalidFcsvError('Invalid Markups fiducial file version')
 
-    if parsed_version < 4.6:
+    if parse_version(parsed_version) < parse_version('4.6'):
         raise InvalidFcsvError('Markups fiducial file version ' +
                 '{parsed_version} too low'
                 .format(parsed_version=parsed_version))
@@ -122,14 +124,14 @@ def csv_to_json(in_csv):
 
         row_label = parse_fcsv_field(row, 'label')
 
-        if row_label != str(expected_label):
-            raise InvalidFcsvError('Row label {row_label} out of order'
-                    .format(row_label=row_label))
+#        if row_label != str(expected_label):
+#            raise InvalidFcsvError('Row label {row_label} out of order'
+#                    .format(row_label=row_label))
         expected_label += 1
 
         row_desc = parse_fcsv_field(row, 'desc', row_label)
 
-        if EXPECTED_MAP[row_label].casefold() != row_desc.casefold():
+        if EXPECTED_MAP[row_label].lower() != row_desc.lower():
             raise InvalidFcsvError('Row label {row_label} does not ' 
                 .format(row_label=row_label) +
                 'match row description {row_desc}'
@@ -163,6 +165,11 @@ def csv_to_json(in_csv):
     if len(json_data) < 32:
         # Incorrect number of rows
         raise InvalidFcsvError('Too few rows')
+
+    # Sort dict based on fid number
+    lst = list(json_data.items())
+    lst.sort(key = lambda k: int(k[0]))
+    json_data = dict(lst)
 
     json_data = json.dumps(json_data, sort_keys=False, indent=4,
                            separators=(',', ': '))
