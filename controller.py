@@ -3,6 +3,22 @@ from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 import os
 
+import io
+
+import random
+
+from flask import Flask, Response, render_template
+
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+
+from matplotlib.figure import Figure
+
+import matplotlib
+
+import matplotlib.pyplot as plt
+
+import numpy as np
+
 app = Flask(__name__)
 
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -269,6 +285,67 @@ def get_all():
     except Exception as e:
 	    return(str(e))
 
+labels = ['Eucllidean', 'X_error', 'Y_error', 'Z_error']
+
+individ_values = [4.0, 3.4, 3.0, 3.5]
+
+population_values = [4.5, 3.2, 3.4, 2.0]
+
+
+x = np.arange(len(labels))  # the label locations
+
+width = 0.35  # the width of the bars
+
+
+fig, ax = plt.subplots()
+
+rects1 = ax.bar(x - width/2, individ_values, width, label='Your errors')
+
+rects2 = ax.bar(x + width/2, population_values, width, label='Average errors')
+
+@app.route('/plot.png')
+
+def plot_png():
+
+    fig = create_figure()
+
+    output = io.BytesIO()
+
+    FigureCanvas(fig).print_png(output)
+
+    return Response(output.getvalue(), mimetype='image/png')
+
+
+def create_figure():
+
+    fig = Figure()
+
+    fig, ax = plt.subplots()
+
+    rects1 = ax.bar(x - width/2, individ_values, width, label='Your errors')
+
+    rects2 = ax.bar(x + width/2, population_values, width, label='Average errors')
+
+    ax.set_ylabel('mm')
+
+    ax.set_title('Errors by category')
+
+    ax.set_xticks(x)
+
+    ax.set_xticklabels(labels)
+
+    ax.legend()
+
+    fig.tight_layout()
+
+    return fig
+
+
+@app.route('/analytics')
+
+def chartTest():
+
+    return render_template('view_analytics.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
