@@ -170,7 +170,7 @@ def csv_to_json(in_csv):
     return json_data
 
 class Fiducial_set(db.Model):
-    __tablename__ = 'books_pg2'
+    __tablename__ = 'fid_db'
 
     id = db.Column(db.Integer, primary_key=True)
     AC_x = db.Column(db.Float())
