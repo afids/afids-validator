@@ -85,7 +85,6 @@ def parse_fcsv_float(value, field, label):
 
     return parsed_value
 
-
 def csv_to_json(in_csv):
     """ Parse .fscv / .csv files and write to json object """
 
@@ -123,14 +122,14 @@ def csv_to_json(in_csv):
 
         row_label = parse_fcsv_field(row, 'label')
 
-        if row_label != str(expected_label):
-            raise InvalidFcsvError('Row label {row_label} out of order'
-                    .format(row_label=row_label))
+#        if row_label != str(expected_label):
+#            raise InvalidFcsvError('Row label {row_label} out of order'
+#                    .format(row_label=row_label))
         expected_label += 1
 
         row_desc = parse_fcsv_field(row, 'desc', row_label)
 
-        if EXPECTED_MAP[row_label].casefold() != row_desc.casefold():
+        if EXPECTED_MAP[row_label].lower() != row_desc.lower():
             raise InvalidFcsvError('Row label {row_label} does not ' 
                 .format(row_label=row_label) +
                 'match row description {row_desc}'
@@ -160,11 +159,17 @@ def csv_to_json(in_csv):
 
         json_data[row_label] = {'desc': row_desc, 'x': row_x, 'y': row_y,
                                 'z': row_z}
-
+    
+        
     if len(json_data) < 32:
         # Incorrect number of rows
         raise InvalidFcsvError('Too few rows')
-
+    
+    # Sort dict based on fid number
+    lst = list(json_data.items())
+    lst.sort(key = lambda k: int(k[0]))
+    json_data = dict(lst)
+    
     json_data = json.dumps(json_data, sort_keys=False, indent=4,
                            separators=(',', ': '))
 
