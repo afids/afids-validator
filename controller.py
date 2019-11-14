@@ -181,7 +181,6 @@ def index():
         L_olf_sulc_result=L_olf_sulc_result)
     # need to complete this list
 
-
 # Path to the web application
 @app.route('/', methods=['GET', 'POST'])
 def index2():
@@ -194,76 +193,99 @@ def index2():
     labels = []
     template_data_j = None
 
-    if request.method == 'POST':
-        fid_template = request.form['fid_template']
-        msg = fid_template + ' selected'
-
-        if request.files:
-            upload = request.files[form.filename.name]
-            template_file_path = os.path.join(os.path.join(AFIDS_DIR,
-                                                'sub-' + str(fid_template)),
-                                                'sub-' + str(fid_template) +
-                                                '_afids.fcsv')
-            template_file = open(template_file_path, 'r')
-
-            if upload and allowed_file(upload.filename):
-                try:
-                    user_data = csv_to_json(io.StringIO(upload.stream.read().decode('utf-8')))
-                    user_data_j = json.loads(user_data)
-                    template_data = csv_to_json(template_file)
-                    template_data_j = json.loads(template_data)
-                    fiducial_set=Fiducial_set(
-                    	AC_x = user_data_j['1']['x'],
-                    	AC_y = user_data_j['1']['y'],
-                    	AC_z = user_data_j['1']['z'],
-                    	PC_x = user_data_j['2']['x'],
-                    	PC_y = user_data_j['2']['y'],
-                    	PC_z = user_data_j['2']['z'],
-                    )
-                    db.session.add(fiducial_set)
-                    db.session.commit()
-                    print("fiducial set added")
-
-                    for element in template_data_j:
-                        index.append(int(element)-1)
-
-                        coordinate_name = template_data_j[element]['desc']
-
-                        template_x = float(template_data_j[element]['x'])
-                        template_y = float(template_data_j[element]['y'])
-                        template_z = float(template_data_j[element]['z'])
-
-                        user_x = float(user_data_j[element]['x'])
-                        user_y = float(user_data_j[element]['y'])
-                        user_z = float(user_data_j[element]['z'])
-
-                        diff = calc(template_x, template_y, template_z, user_x, user_y, user_z)
-                        diff = float("{0:.5f}".format(diff))
-
-                        labels.append(coordinate_name)
-                        distances.append(diff)
-
-                        # print(labels)
-                        # print(distances)
-                        # print(element)
-
-                    result = 'valid file'
-
-                except InvalidFcsvError as err:
-                    result = 'invalid file: {err_msg}'.format(
-                        err_msg=err.message)
-
-            else:
-                result = "invalid file: extension not allowed"
-
-        else:
-            result = None
-
     dir_contents = os.listdir(AFIDS_DIR)
     fid_templates = [' ']
     for d in dir_contents:
         if 'sub' in d:
             fid_templates.append(d[4:])
+
+    if not request.method == 'POST':
+        result = '<br>'.join([result, msg])
+
+        return render_template("view.html", form=form, result=result,
+            fid_templates=fid_templates, template_data_j=template_data_j,
+            index=index, labels=labels, distances=distances)
+
+    if not request.files:
+        result = '<br>'.join([result, msg])
+
+        return render_template("view.html", form=form, result=result,
+            fid_templates=fid_templates, template_data_j=template_data_j,
+            index=index, labels=labels, distances=distances)
+
+    upload = request.files[form.filename.name]
+
+
+    if not (upload and allowed_file(upload.filename)):
+        result = "invalid file: extension not allowed"
+        result = '<br>'.join([result, msg])
+
+        return render_template("view.html", form=form, result=result,
+            fid_templates=fid_templates, template_data_j=template_data_j,
+            index=index, labels=labels, distances=distances)
+
+    try:
+        user_data = csv_to_json(io.StringIO(upload.stream.read().decode('utf-8')))
+    except InvalidFcsvError as err:
+        result = 'invalid file: {err_msg}'.format(err_msg=err.message)
+        return render_template("view.html", form=form, result=result,
+            fid_templates=fid_templates, template_data_j=template_data_j,
+            index=index, labels=labels, distances=distances)
+
+    result = 'valid file'
+    user_data_j = json.loads(user_data)
+
+    fid_template = request.form['fid_template']
+
+    if fid_template == ' ':
+        result = "valid file"
+        result = '<br>'.join([result, msg])
+
+        return render_template("view.html", form=form, result=result,
+            fid_templates=fid_templates, template_data_j=template_data_j,
+            index=index, labels=labels, distances=distances)
+
+    msg = fid_template + ' selected'
+
+    template_file_path = os.path.join(os.path.join(AFIDS_DIR,
+                                        'sub-' + str(fid_template)),
+                                        'sub-' + str(fid_template) +
+                                        '_afids.fcsv')
+
+    template_file = open(template_file_path, 'r')
+
+    template_data = csv_to_json(template_file)
+    template_data_j = json.loads(template_data)
+    fiducial_set=Fiducial_set(
+        AC_x = user_data_j['1']['x'],
+        AC_y = user_data_j['1']['y'],
+        AC_z = user_data_j['1']['z'],
+        PC_x = user_data_j['2']['x'],
+        PC_y = user_data_j['2']['y'],
+        PC_z = user_data_j['2']['z'],
+    )
+    db.session.add(fiducial_set)
+    db.session.commit()
+    print("fiducial set added")
+
+    for element in template_data_j:
+        index.append(int(element)-1)
+
+        coordinate_name = template_data_j[element]['desc']
+
+        template_x = float(template_data_j[element]['x'])
+        template_y = float(template_data_j[element]['y'])
+        template_z = float(template_data_j[element]['z'])
+
+        user_x = float(user_data_j[element]['x'])
+        user_y = float(user_data_j[element]['y'])
+        user_z = float(user_data_j[element]['z'])
+
+        diff = calc(template_x, template_y, template_z, user_x, user_y, user_z)
+        diff = float("{0:.5f}".format(diff))
+
+        labels.append(coordinate_name)
+        distances.append(diff)
 
     result = '<br>'.join([result, msg])
 
