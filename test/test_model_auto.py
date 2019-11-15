@@ -1,5 +1,5 @@
 import unittest
-from fidvalidator import model_auto
+import model_auto
 
 class TestFcsvValidation(unittest.TestCase):
     def test_valid(self):
@@ -73,7 +73,7 @@ class TestFcsvValidation(unittest.TestCase):
             with self.assertRaises(model_auto.InvalidFcsvError) as cm:
                 fcsv_json = model_auto.csv_to_json(fcsv)
 
-        self.assertEqual(cm.exception.message, 'Row label 11 out of order')
+        self.assertEqual(cm.exception.message, 'Too few rows')
 
 if __name__ == '__main__':
     unittest.main()
