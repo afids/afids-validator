@@ -5,38 +5,38 @@ from pkg_resources import parse_version
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
-        'AC',
-        'PC',
-        'infracollicular sulcus',
-        'PMJ',
-        'superior interpeduncular fossa',
-        'R superior LMS',
-        'L superior LMS',
-        'R inferior LMS',
-        'L inferior LMS',
-        'Culmen',
-        'Intermammillary sulcus',
-        'R MB',
-        'L MB',
-        'pineal gland',
-        'R LV at AC',
-        'L LV at AC',
-        'R LV at PC',
-        'L LV at PC',
-        'Genu of CC',
-        'Splenium of CC',
-        'R AL temporal horn',
-        'L AL temporal horn',
-        'R superior AM temporal horn',
-        'L superior AM temporal horn',
-        'R inferior AM temporal horn',
-        'L inferior AM temporal horn',
-        'R indusium griseum origin',
-        'L indusium griseum origin',
-        'R ventral occipital horn',
-        'L ventral occipital horn',
-        'R olfactory sulcal fundus',
-        'L olfactory sulcal fundus']
+        ['AC'],
+        ['PC'],
+        ['infracollicular sulcus','ICS'],
+        ['PMJ'],
+        ['superior interpeduncular fossa','SIPF'],
+        ['R superior LMS','RSLMS'],
+        ['L superior LMS','LSLMS'],
+        ['R inferior LMS','RILMS'],
+        ['L inferior LMS','LILMS'],
+        ['Culmen','CUL'],
+        ['Intermammillary sulcus','IMS'],
+        ['R MB','RMB'],
+        ['L MB','LMB'],
+        ['pineal gland','PG'],
+        ['R LV at AC','RLVAC'],
+        ['L LV at AC','LLVAC'],
+        ['R LV at PC','RLVPC'],
+        ['L LV at PC','LLVPC'],
+        ['Genu of CC','GENU'],
+        ['Splenium of CC','SPLE'],
+        ['R AL temporal horn','RALTH'],
+        ['L AL temporal horn','LALTH'],
+        ['R superior AM temporal horn','RSAMTH'],
+        ['L superior AM temporal horn','LSAMTH'],
+        ['R inferior AM temporal horn','RIAMTH'],
+        ['L inferior AM temporal horn','RIAMTH'],
+        ['R indusium griseum origin','RIGO'],
+        ['L indusium griseum origin','LIGO'],
+        ['R ventral occipital horn','RVOH'],
+        ['L ventral occipital horn','LVOH'],
+        ['R olfactory sulcal fundus','ROSF'],
+        ['L olfactory sulcal fundus','LOSF']]
 
 EXPECTED_MAP = dict(zip(EXPECTED_LABELS, EXPECTED_DESCS))
 
@@ -127,16 +127,16 @@ def csv_to_json(in_csv):
 #            raise InvalidFcsvError('Row label {row_label} out of order'
 #                    .format(row_label=row_label))
         expected_label += 1
-
         row_desc = parse_fcsv_field(row, 'desc', row_label)
-
-        if EXPECTED_MAP[row_label].lower() != row_desc.lower():
+        if not any(x.lower() == row_desc.lower() for x in EXPECTED_MAP[row_label]):
             raise InvalidFcsvError('Row label {row_label} does not ' 
                 .format(row_label=row_label) +
                 'match row description {row_desc}'
                 .format(row_desc=row_desc))
-
-
+        
+        # Ensure the full FID name is used
+        row_desc = EXPECTED_MAP[row_label][0]
+        
         row_x = parse_fcsv_field(row, 'x', row_label)
         row_x_float = parse_fcsv_float(row_x, 'x', row_label)
 
