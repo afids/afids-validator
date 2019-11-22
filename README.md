@@ -32,10 +32,13 @@ If there are no errors, you can test it out locally at http://localhost:5000
 
 ### Development
 **Ensure local repository is up-to-date prior to making changes and/or pushing back to Git. Best practice is to test locally on a new branch, and make a pull request (PR) to pull in new changes**
-1. Make changes on local repository 
+1. `git checkout master`
+2. `git pull`
+3. `git checkout -b feature-branch`
+4. Make changes on local repository 
 2. Test changes by running `heroku local`, which will set up the server locally \
 _If the migrations folder has been changed, run `python manage.py db upgrade`_
-3. Push to git (`git push`) and create a PR if needed
+3. Push to git (`git push -u origin feature-branch`) and create a PR if needed
 4. Push to heroku `git push heroku master`
 
 
