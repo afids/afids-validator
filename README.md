@@ -42,11 +42,6 @@ _If the migrations folder has been changed, run `python manage.py db upgrade`_
 4. Push to heroku `git push heroku master`
 
 
-## Update Templates
-Templates for the validator are based off of the repository https://github.com/afids/afids-examples. As templates are added, the submodule linked in this repository should also be added.
-`git pull --recurse-submodules`
-
-
 ## To Do List:
 * continuous integration with Github
 * additional stats / insights availible for the user
