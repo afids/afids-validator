@@ -35,7 +35,7 @@ jobs:
 
     review:
         name: Assign reviewer if CI passes
-        needs: [build, test]
+        needs: [test]
         runs-on: ubuntu-latest
 
         steps:
