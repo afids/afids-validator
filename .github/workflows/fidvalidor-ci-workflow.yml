@@ -6,7 +6,7 @@ on:
 
 jobs:
     test:
-        name: Setup environment
+        name: Setup environment & test
         runs-on: ubuntu-latest
 
         steps:
@@ -32,6 +32,7 @@ jobs:
             - name: Test afids-validator
               shell: bash
               run: |
+                source `pwd`/.venv/bin/activate
                 python -m unittest
 
     review:
