@@ -476,7 +476,7 @@ def create_figure():
 flx.assets.associate_asset(__name__, 'https://d3js.org/d3.v4.min.js')
 flx.assets.associate_asset(__name__, 'https://unpkg.com/d3-3d/build/d3-3d.min.js')
 
-with open('./afids-templates/human/sub-MNI2009cAsym') as MNI:
+with open('./afids-templates/human/sub-MNI2009cAsym_afids.fcsv') as MNI:
     rdr = csv.reader(MNI, delimiter=',')
     MNI_data = []
     for n, row in enumerate(rdr):
