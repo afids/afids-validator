@@ -268,10 +268,8 @@ def index2():
 
     msg = fid_template + ' selected'
 
-    template_file_path = os.path.join(os.path.join(AFIDS_HUMAN_DIR,
-                                        'sub-' + str(fid_template)),
-                                        'sub-' + str(fid_template) +
-                                        '_afids.fcsv')
+    template_file_path = os.path.join(AFIDS_HUMAN_DIR,
+                                      'sub-' + str(fid_template))
 
     template_file = open(template_file_path, 'r')
 
