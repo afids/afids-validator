@@ -6,6 +6,7 @@ on:
 
 jobs:
     build:
+        name: Setup environment
         runs-on: ubuntu-latest
 
         steps:
@@ -25,6 +26,7 @@ jobs:
                 python -m pip install --upgrade pip
                 pip install -r requirements.txt --no-cache-dir
 
+
     test:
         name: Test afids-validator
         needs: [build]
@@ -35,3 +37,15 @@ jobs:
               shell: bash
               run: |
                 python -m unittest
+
+
+    review:
+        name: Assign reviewer if CI passes
+        needs: [build, test]
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Assign a reviewer
+              uses: kentaro-m/auto-assign-action@v1.0.1
+              with:
+                  repo-token: "${{ secrets.GITHUB_TOKEN }}"
