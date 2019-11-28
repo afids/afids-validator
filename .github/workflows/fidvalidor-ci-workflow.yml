@@ -11,7 +11,8 @@ jobs:
         steps:
             - name: Checkout pull request branch
               uses: actions/checkout@master
-              with: ${{ github.ref }}
+              with:
+                  ref: refs/head/master
 
             - name: Check branch
               env:
