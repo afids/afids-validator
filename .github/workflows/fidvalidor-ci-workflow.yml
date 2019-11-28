@@ -5,7 +5,7 @@ on:
         types: [opened]
 
 jobs:
-    build:
+    test:
         name: Setup environment
         runs-on: ubuntu-latest
 
@@ -23,21 +23,15 @@ jobs:
             - name: Setup python environment
               shell: bash
               run: |
+                virtualenv venv
+                source venv/bin/actions
                 python -m pip install --upgrade pip
                 pip install -r requirements.txt --no-cache-dir
 
-
-    test:
-        name: Test afids-validator
-        needs: [build]
-        runs-on: ubuntu-latest
-
-        steps:
-            - name: Run unit test
+            - name: Test afids-validator
               shell: bash
               run: |
                 python -m unittest
-
 
     review:
         name: Assign reviewer if CI passes
