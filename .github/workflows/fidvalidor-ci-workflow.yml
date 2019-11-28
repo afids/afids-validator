@@ -12,11 +12,11 @@ jobs:
             - name: Checkout pull request branch
               uses: actions/checkout@master
               with:
-                  ref: refs/head/master
+                  ref: ${{ github.sha }}
 
             - name: Check branch
               env:
-                PR_BRANCH: ${{ github.ref }}
+                PR_BRANCH: ${{ github.sha }}
               run: |
                 echo 'Checkout branch $PR_BRANCH'
 
