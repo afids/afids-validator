@@ -1,0 +1,40 @@
+name: AFIDS Validator Continuous Integration
+
+on:
+    pull_request:
+        types: [opened]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout pull request branch
+              uses: actions/checkout@master
+              with: ${{ github.ref }}
+              env: PR_BRANCH: ${{ github.ref }}
+              run: |
+                echo 'Checkout branch $PR_BRANCH'
+
+            - name: Setup python environment
+              uses: actions/setup-python@v1
+              with:
+                  python-version: '3.x'
+              shell: bash
+              run: |
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt --no-cache-dir
+
+    test:
+        name: Test afids-validator
+        needs: [build]
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Run unit test
+              uses: actions/setup-python@v1
+              woth:
+                  python-version: '3.x'
+              shell: bash
+              run: |
+                python -m unittest
