@@ -70,7 +70,7 @@ class Fiducial_set(db.Model):
          "ROSF": coords,
          "LOSF": coords
          }
-    
+
     for k,v in c.items():
         exec("%s=%s"%(k+v[0], "db.Column(db.Float())"))
         exec("%s=%s"%(k+v[1], "db.Column(db.Float())"))
@@ -177,7 +177,7 @@ class Fiducial_set(db.Model):
                         "LOSF_y": self.LOSF_y,
                         "LOSF_z": self.LOSF_z
                         }
-        
+
         return serialized
 
 from model_auto import Average, csv_to_json, InvalidFcsvError
@@ -188,7 +188,7 @@ import json
 
 # Relative path of directory for uploaded files
 UPLOAD_DIR = 'uploads/'
-AFIDS_DIR = 'afids-examples/'
+AFIDS_HUMAN_DIR = 'afids-templates/human/'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_DIR
 app.secret_key = 'MySecretKey'
@@ -214,7 +214,7 @@ def index2():
     distances = []
     labels = []
     template_data_j = None
-    dir_contents = os.listdir(AFIDS_DIR)
+    dir_contents = os.listdir(AFIDS_HUMAN_DIR)
     fid_templates = [' ']
     for d in dir_contents:
         if 'sub' in d:
@@ -268,7 +268,7 @@ def index2():
 
     msg = fid_template + ' selected'
 
-    template_file_path = os.path.join(os.path.join(AFIDS_DIR,
+    template_file_path = os.path.join(os.path.join(AFIDS_HUMAN_DIR,
                                         'sub-' + str(fid_template)),
                                         'sub-' + str(fid_template) +
                                         '_afids.fcsv')
@@ -476,7 +476,7 @@ def create_figure():
 flx.assets.associate_asset(__name__, 'https://d3js.org/d3.v4.min.js')
 flx.assets.associate_asset(__name__, 'https://unpkg.com/d3-3d/build/d3-3d.min.js')
 
-with open('./afids-examples/sub-MNI2009cAsym/sub-MNI2009cAsym_afids.fcsv') as MNI:
+with open('./afids-templates/human/sub-MNI2009cAsym/sub-MNI2009cAsym_afids.fcsv') as MNI:
     rdr = csv.reader(MNI, delimiter=',')
     MNI_data = []
     for n, row in enumerate(rdr):
