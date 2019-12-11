@@ -16,7 +16,7 @@ body {
 hr {
     position: relative;
     border-top: .3em solid;
-    margin-top: 0.5%;
+    margin-top: -1%;
     color: #00ff01;
 }
 
@@ -29,7 +29,7 @@ figcaption {
 
 /* Header + Navigation */
 #banner {
-    margin-bottom: .5em;
+    margin-bottom: .1em;
 }
 #nav-wrapper {
     z-index: 1000;
@@ -47,8 +47,8 @@ figcaption {
 .nav li, a {
     display: inline;
     margin: 0 15px;
-    font-family: "Roboto", serif;
-    font-size: 1.25em;
+    font-family: "Bebas Neue", serif;
+    font-size: 1.75em;
     text-transform: uppercase;
     text-decoration: none;
     color: #fff;
