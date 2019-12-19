@@ -205,7 +205,7 @@ def allowed_file(filename):
 
 # Path to the web application
 @app.route('/', methods=['GET', 'POST'])
-def index2():
+def index():
     form = Average(request.form)
 
     msg = ''
