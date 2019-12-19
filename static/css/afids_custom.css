@@ -36,7 +36,7 @@ figcaption {
     width: 100%;
 }
 
-div .nav {
+.nav div {
     display: flex;
     justify-content: center;
 }
@@ -80,12 +80,27 @@ div .nav {
 
 #text {
     text-align: justify;
+    font-family: "Roboto", serif;
+}
+
+#contact {
+    text-align: justify;
+    font-family: "Roboto", serif;
+    font-size: 1vw;
+}
+
+.contact a {
+    text-align: justify;
+    font-family: "Roboto", serif;
+    font-size: 1vw;
+    text-transform: none;
+    margin: 0;
+    color: #00ff01;
 }
 
 #login {
     width: 100%;
     text-align: center;
-    font-size: 2vw;
     margin-top: -3vw;
     margin-bottom: 1vw;
 }
