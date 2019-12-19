@@ -7,15 +7,14 @@ body {
     background-color: #000;
 }
 
-/* Misc */
-.border-bottom {
-    border-bottom: .3em solid;
-    color: #00ff01;
+.container {
+    width: 100%;
 }
 
+/* Misc */
 hr {
     position: relative;
-    border-top: .3em solid;
+    border-top: .2vw solid;
     margin-top: -1%;
     color: #00ff01;
 }
@@ -29,7 +28,7 @@ figcaption {
 
 /* Header + Navigation */
 #banner {
-    margin-bottom: .1em;
+    margin-bottom: .1vw;
 }
 #nav-wrapper {
     z-index: 1000;
@@ -37,18 +36,21 @@ figcaption {
     width: 100%;
 }
 
+div .nav {
+    display: flex;
+    justify-content: center;
+}
+
 .nav {
     margin: 0 auto;
     padding: 0;
-    list-style: none;
-    text-align: center;
 }
 
 .nav li, a {
     display: inline;
-    margin: 0 15px;
+    margin: 0 1vw;
     font-family: "Bebas Neue", serif;
-    font-size: 1.75em;
+    font-size: 4vw;
     text-transform: uppercase;
     text-decoration: none;
     color: #fff;
