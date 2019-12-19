@@ -209,6 +209,16 @@ def allowed_file(filename):
 def index():
     return render_template("index.html")
 
+## Contact
+@app.route('/contact.html')
+def contact():
+    return render_template("contact.html")
+
+## Login
+@app.route('/login.html')
+def login():
+    return render_template("login.html")
+
 ## Validator
 @app.route('/validator.html', methods=['GET', 'POST'])
 def validator():
@@ -420,7 +430,7 @@ def get_all():
     except Exception as e:
         return(str(e))
 
-labels = ['Eucllidean', 'X_error', 'Y_error', 'Z_error']
+labels = ['Euclidean', 'X_error', 'Y_error', 'Z_error']
 
 individ_values = [4.0, 3.4, 3.0, 3.5]
 
