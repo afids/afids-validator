@@ -203,9 +203,15 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-# Path to the web application
-@app.route('/', methods=['GET', 'POST'])
+# Routes to web pages / application
+## Homepage
+@app.route('/')
 def index():
+    return render_template("index.html")
+
+## Validator
+@app.route('/validator.html', methods=['GET', 'POST'])
+def validator():
     form = Average(request.form)
 
     msg = ''
@@ -223,14 +229,14 @@ def index():
     if not request.method == 'POST':
         result = '<br>'.join([result, msg])
 
-        return render_template("view.html", form=form, result=result,
+        return render_template("validator.html", form=form, result=result,
             fid_templates=fid_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
     if not request.files:
         result = '<br>'.join([result, msg])
 
-        return render_template("view.html", form=form, result=result,
+        return render_template("validator.html", form=form, result=result,
             fid_templates=fid_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
@@ -241,7 +247,7 @@ def index():
         result = "invalid file: extension not allowed"
         result = '<br>'.join([result, msg])
 
-        return render_template("view.html", form=form, result=result,
+        return render_template("validator.html", form=form, result=result,
             fid_templates=fid_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
@@ -249,7 +255,7 @@ def index():
         user_data = csv_to_json(io.StringIO(upload.stream.read().decode('utf-8')))
     except InvalidFcsvError as err:
         result = 'invalid file: {err_msg}'.format(err_msg=err.message)
-        return render_template("view.html", form=form, result=result,
+        return render_template("validator.html", form=form, result=result,
             fid_templates=fid_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
@@ -262,7 +268,7 @@ def index():
         result = "valid file"
         result = '<br>'.join([result, msg])
 
-        return render_template("view.html", form=form, result=result,
+        return render_template("validator.html", form=form, result=result,
             fid_templates=fid_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
