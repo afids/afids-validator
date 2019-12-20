@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Metadata & CSS -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Anatomical Fiducials Validator">
+    <meta name="author" content="Patrick Park, Geetika Gupta, Jak Lee-Spacek, Tristan Kuehn, Olivia Stanley, Jason Kai">
+
+    <title>VALIDATOR | Anatomical Fiducials</title>
+
+    <!-- favicon - to be added -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/afid.png') }}">
+
+    <!-- Boostrap Core CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta.3/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom/Other CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/milligram.min.css') }}">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Bebas+Neue|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/afids_custom.css') }}">
+</head>
+
+<!-- Header -->
+<header class="container">
+    <div id="banner">
+        <img src="{{ url_for('static', filename='images/banner.png') }}" alt="AFIDs Validator Banner">
+    </div>
+</header>
+
+<!-- Body -->
+<body class="body">
+    <div class="container">
+        <br>
+        <h2>Results</h2>
+        {% if result != None %}
+        {{ result|safe }}
+        {% endif %}
+
+        <div class="row">
+            <!-- Numerical results -->
+            <div class="text col-sm-6">
+                <table>
+                    <tr><td><strong>{{"Fiducial Name"}}</strong></td> <td><strong>{{"Distance [mm]"}}</strong></td></tr>
+                    {% for i in index %}
+                    <tr><td> {{labels[i]}} </td> <td> {{distances[i]}} </td> </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <!-- Visual results -->
+            <div class="col-sm-6">
+                test
+            </div>
+        </div>
+
+
+    <!-- Footer -->
+    <div class="container">
+        <div class="copyright">
+            &copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> Anatomical Fiducials
+            <ul class="fa-ul social-nav text-center">
+                <span class="fa-ul">
+                    <li class="fa-li"><a href="https://twitter.com/afids_project" target="_blank"><i class="fa fa-twitter fa-xs"></i></a></li>
+                    <li class="fa-li"><a href="https://github.com/afids" target="_blank"><i class="fa fa-github fa-xs"></i></a></li>
+                </span>
+            </ul>
+        </div>
+    </div>
+
+</body>
+</html>
