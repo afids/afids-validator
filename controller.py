@@ -1,5 +1,4 @@
-from flask import Flask, render_template, request
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, Response, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 import os
 
@@ -7,14 +6,10 @@ import io
 
 import random
 
-from flask import Flask, Response, render_template
-
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-
 from matplotlib.figure import Figure
 
 import matplotlib
-
 import matplotlib.pyplot as plt
 
 import numpy as np
@@ -264,18 +259,18 @@ def validator():
     try:
         user_data = csv_to_json(io.StringIO(upload.stream.read().decode('utf-8')))
     except InvalidFcsvError as err:
-        result = 'invalid file: {err_msg}'.format(err_msg=err.message)
+        result = 'Invalid file: {err_msg}'.format(err_msg=err.message)
         return render_template("validator.html", form=form, result=result,
             fid_templates=fid_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
-    result = 'valid file'
+    result = 'Valid file'
     user_data_j = json.loads(user_data)
 
     fid_template = request.form['fid_template']
 
     if fid_template == ' ':
-        result = "valid file"
+        result = "Valid file"
         result = '<br>'.join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
@@ -412,7 +407,7 @@ def validator():
 
     result = '<br>'.join([result, msg])
 
-    return render_template("view.html", form=form, result=result,
+    return render_template("validator.html", form=form, result=result,
         fid_templates=fid_templates, template_data_j=template_data_j,
         index=index, labels=labels, distances=distances)
 

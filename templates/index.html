@@ -9,7 +9,7 @@
     <meta name="description" content="Anatomical Fiducials Validator">
     <meta name="author" content="Patrick Park, Geetika Gupta, Jak Lee-Spacek, Tristan Kuehn, Olivia Stanley, Jason Kai">
 
-    <title>ABOUT | AFIDs Validator</title>
+    <title>ABOUT | Anatomical Fiducials</title>
 
     <!-- favicon - to be added -->
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/afid.png') }}">
@@ -19,8 +19,9 @@
 
     <!-- Custom/Other CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/milligram.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/afids_custom.css') }}">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Bebas+Neue|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/afids_custom.css') }}">
   </head>
 
   <!-- Header -->
@@ -31,11 +32,11 @@
 
         <div id="nav-wrapper" class="nav">
             <ul class="nav">
-                <li><a href="#">About</a></li>
+                <li><a href="/">About</a></li>
                 <li><a href="https://afids.readthedocs.io/en/latest/" target="_blank">Protocol</a></li>
                 <li><a href="validator.html">Validator</a></li>
-                <li><a href="#">Contact</a></li>
-                <li><a href="#">Login</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="login.html">Login</a></li>
             </ul>
         </div>
         <hr>
@@ -76,8 +77,12 @@
         <div class="container">
             <div class="copyright">
                 &copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> Anatomical Fiducials
-                <br>
-
+                <ul class="fa-ul social-nav text-center">
+                    <span class="fa-ul">
+                        <li class="fa-li"><a href="https://twitter.com/afids_project" target="_blank"><i class="fa fa-twitter fa-xs"></i></a></li>
+                        <li class="fa-li"><a href="https://github.com/afids" target="_blank"><i class="fa fa-github fa-xs"></i></a></li>
+                    </span>
+                </ul>
             </div>
         </div>
   </body>

@@ -81,6 +81,37 @@ figcaption {
 #text {
     text-align: justify;
     font-family: "Roboto", serif;
+    font-size: 1vw;
+}
+
+#template legend {
+    text-align: justify;
+    font-family: "Roboto", serif;
+    font-size: 1vw;
+}
+
+#template select {
+    border: #00ff01 .1vw solid;
+    background-color: #000;
+    color: #fff;
+}
+
+#template input[type=submit] {
+    background-color: #00ff01;
+    border-color: #000;
+    color: #fff;
+    text-shadow: .05vw .05vw #000;
+}
+
+#analytics form {
+    display: inline;
+}
+
+#analytics input[type=submit] {
+    background-color: #00ff01;
+    border-color: #000;
+    color: #fff;
+    text-shadow: .05vw .05vw #000;
 }
 
 #contact {
