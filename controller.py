@@ -214,7 +214,7 @@ def contact():
 def login():
     return render_template("login.html")
 
-## Validator
+# Validator
 @app.route('/validator.html', methods=['GET', 'POST'])
 def validator():
     form = Average(request.form)
