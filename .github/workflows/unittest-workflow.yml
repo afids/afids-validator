@@ -1,4 +1,4 @@
-name: AFIDs Validator Continuous Integration
+name: AFIDs Validator PR Unit Testing
 
 on:
     pull_request:
@@ -35,13 +35,3 @@ jobs:
                 source `pwd`/.venv/bin/activate
                 python -m unittest
 
-    review:
-        name: Assign reviewer if CI passes
-        needs: [test]
-        runs-on: ubuntu-latest
-
-        steps:
-            - name: Assign a reviewer
-              uses: kentaro-m/auto-assign-action@v1.0.1
-              with:
-                  repo-token: "${{ secrets.GITHUB_TOKEN }}"
