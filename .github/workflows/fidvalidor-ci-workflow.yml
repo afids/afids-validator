@@ -1,0 +1,47 @@
+name: AFIDs Validator Continuous Integration
+
+on:
+    pull_request:
+        types: [opened, reopened, synchronize]
+
+jobs:
+    test:
+        name: Setup environment & test
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout pull request branch
+              uses: actions/checkout@master
+              with:
+                  ref: ${{ github.sha }}
+
+            - name: Select python version
+              uses: actions/setup-python@v1
+              with:
+                  python-version: '3.6.x'
+
+            - name: Setup python environment
+              shell: bash
+              run: |
+                python -m pip install --upgrade pip
+                pip install virtualenv --no-cache-dir
+                python -m virtualenv `pwd`/.venv
+                source `pwd`/.venv/bin/activate
+                pip install -r requirements.txt --no-cache-dir
+
+            - name: Test afids-validator
+              shell: bash
+              run: |
+                source `pwd`/.venv/bin/activate
+                python -m unittest
+
+    review:
+        name: Assign reviewer if CI passes
+        needs: [test]
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Assign a reviewer
+              uses: kentaro-m/auto-assign-action@v1.0.1
+              with:
+                  repo-token: "${{ secrets.GITHUB_TOKEN }}"

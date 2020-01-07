@@ -48,7 +48,6 @@ Templates for the validator are based off of the repository https://github.com/a
 
 
 ## To Do List:
-* continuous integration with Github
 * additional stats / insights availible for the user
 * direct slicer connection
 `
