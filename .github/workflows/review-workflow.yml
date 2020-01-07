@@ -1,0 +1,16 @@
+name: AFIDs Validator PR Review
+
+on:
+    pull_request:
+        types: [opened, reopened]
+
+jobs:
+    review:
+        name: Assign reviewer
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Assign a reviewer
+              uses: kentaro-m/auto-assign-action@v1.0.1
+              with:
+                  repo-token: "${{ secrets.GITHUB_TOKEN }}"
