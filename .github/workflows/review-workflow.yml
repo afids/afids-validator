@@ -6,7 +6,7 @@ on:
 
 jobs:
     review:
-        name: Assign reviewer if CI passes
+        name: Assign reviewer
         runs-on: ubuntu-latest
 
         steps:
