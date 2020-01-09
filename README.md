@@ -41,12 +41,9 @@ _If the migrations folder has been changed, run `python manage.py db upgrade`_
 3. Push to git (`git push -u origin feature-branch`) and create a PR if needed
 4. Push to heroku `git push heroku master`
 
-
 ## Update Templates
 Templates for the validator stored under the `afids-templates` directory. Within this directory, there are sub-folders. Human-based templates are stored under the `human` sub-directory. To add templates to the validator, add them to the appropriate directory under `afids-templates` and create a pull request.
-
 
 ## To Do List:
 * additional stats / insights availible for the user
 * direct slicer connection
-`
