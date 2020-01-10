@@ -107,7 +107,7 @@ figcaption {
     display: inline;
 }
 
-#analytics input[type=submit] {
+#analytics > .button  {
     background-color: #00ff01;
     border-color: #000;
     color: #fff;

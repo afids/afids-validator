@@ -1,31 +1,13 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>AFIDs Validator</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='normalize.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='milligram.min.css')}}">
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
-  </head>
-  <body>
+{% extends "base.html" %}
+{% block title %} | DATABASE{% endblock %}
 
-
-  <!-- Input and Results are typeset as a two-column table -->
-  <header class="container">
-    <h1>AFIDs Data</h1>
-  </header>
-
-  <main class="container">
-    <section>
-    	<table>
-            {% for fiducial_set in serialized_fset %}
-              <tr><td> {{fiducial_set}} </td> </tr>
-            {% endfor %}
-</table>
-     
+{% block content %}
+    <section class="container">
+      <table>
+        {% for fiducial_set in serialized_fset %}
+          <tr><td> {{fiducial_set}} </td> </tr>
+        {% endfor %}
+      </table>
     </section>
-    
-  </main>
-</body>
-</html>
+{% endblock %}
 
