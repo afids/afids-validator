@@ -371,9 +371,12 @@ def index2():
                               LOSF_x = user_data_j['32']['x'],
                               LOSF_y = user_data_j['32']['y'],
                               LOSF_z = user_data_j['32']['z'])
-    db.session.add(fiducial_set)
-    db.session.commit()
-    print("fiducial set added")
+    if request.form.get('db_checkbox'):
+        db.session.add(fiducial_set)
+        db.session.commit()
+        print("fiducial set added")
+    else:
+        print("DB option unchecked, user data not saved")
 
     for element in template_data_j:
         index.append(int(element)-1)
