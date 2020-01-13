@@ -46,7 +46,7 @@ figcaption {
     padding: 0;
 }
 
-.nav li, a {
+.nav li, .nav a {
     display: inline;
     margin: 0 1vw;
     font-family: "Bebas Neue", serif;
@@ -127,13 +127,6 @@ figcaption {
     text-transform: none;
     margin: 0;
     color: #00ff01;
-}
-
-#login {
-    width: 100%;
-    text-align: center;
-    margin-top: -3vw;
-    margin-bottom: 1vw;
 }
 
 /* Footer */
