@@ -1,4 +1,4 @@
-# [fidvalidator (https://fidvalidator.herokuapp.com)](fidvalidator.herokuapp.com)
+# [fidvalidator (https://fidvalidator.herokuapp.com)](https://fidvalidator.herokuapp.com)
 
 ## Development
 ### Required Packages
