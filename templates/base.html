@@ -16,8 +16,6 @@
   <!-- Boostrap Core CSS -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta.3/css/bootstrap.css" rel="stylesheet">
 
-  <!-- Custom/Other CSS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/milligram.min.css') }}">
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Bebas+Neue|Roboto&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/afids_custom.css') }}">
@@ -41,15 +39,19 @@
 
   <main>{% block content %}{% endblock %}</main>
 
-  <footer>
-    <div class="copyright">
-      &copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> Anatomical Fiducials
-      <ul class="fa-ul social-nav text-center">
-        <span class="fa-ul">
-          <li class="fa-li"><a href="https://twitter.com/afids_project" target="_blank"><i class="fa fa-twitter fa-xs"></i></a></li>
-          <li class="fa-li"><a href="https://github.com/afids" target="_blank"><i class="fa fa-github fa-xs"></i></a></li>
-        </span>
+  <footer class="navbar navbar-expand-xl justify-content-center">
+    <nav class="navbar-nav">
+      <div class="navbar-text mr-3">
+        &copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> Anatomical Fiducials
+      </div>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="https://twitter.com/afids_project" target="_blank"><i class="fa fa-twitter fa-xs"></i></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/afids" target="_blank"><i class="fa fa-github fa-xs"></i></a>
+        </li>
       </ul>
-    </div>
+    </nav>
   </footer>
 </body>
