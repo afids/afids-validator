@@ -3,74 +3,75 @@
 
 {% block content %}
     <div class="container">
-      <p>Use the following form to compare user placed fiducials to one of the available templates!
-      </p>
+      <div class="row">
+        <section class="col-9">
+          <div class="row">
+            <p>Use the following form to compare user placed fiducials to one of the available templates!
+            </p>
+          </div>
 
-      <!-- Template submission form -->
-      <section id="template">
-        <form method=post action="" enctype="multipart/form-data">
-          <!-- Dropdown for template selection -->
-          <fieldset>
-            <legend>Select a template to compare against.</legend>
-            <select name="fid_template" method="GET" action="/">
-              {% for fid_template in fid_templates %}
-              <option value="{{fid_template}}">{{fid_template}}</option>
-              {% endfor %}
-            </select>
-          </fieldset>
+          <!-- Template submission form -->
+          <form method=post action="" enctype="multipart/form-data">
+            <!-- Dropdown for template selection -->
+            <fieldset class="form-group">
+              <legend>Select a template to compare against.</legend>
+              <select class="form-control" name="fid_template" method="GET" action="/">
+                {% for fid_template in fid_templates %}
+                <option value="{{fid_template}}">{{fid_template}}</option>
+                {% endfor %}
+              </select>
+            </fieldset>
 
-          <!-- User template "upload" -->
-          <fieldset>
-            <legend>Select the AFIDs FCSV to validate.</legend>
-            {% for field in form %}
+            <!-- User template "upload" -->
+            <fieldset class="form-group">
+              <legend>Select the AFIDs FCSV to validate.</legend>
+              {% for field in form %}
               {{ field }}
               {% if field.errors %}
-                <ul class=errors>
-                  {% for error in field.errors %}
-                    <li>{{ error }}</li>
-                  {% endfor %}
-                </ul>
+              <ul class="errors">
+                {% for error in field.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
               {% endif %}
-            {% endfor %}
-          </fieldset>
-        </form>
-      </section>
-
-      <!-- Analytics -->
-      <section id="analytics">
-        <a class="button" href="/getall">View DB</a>
-        <a class="button" href="/analytics">Analytics</a>
-        <!--<form action="/getall" method="GET">
-          <input type="submit" value="VIEW_DB" name="Submit" id="frm1_submit" />
-        </form>
-        <form action="/analytics" method="GET">
-          <input type="submit" value="ANALYTICS" name="Submit" id="analytics_submit" />
-        </form>-->
-      </section>
-
-      <section id="results">
-        <h2>Results</h2>
-        {% if result != None %}
-          {{ result|safe }}
-        {% endif %}
-
-        <div class="row">
-          <!-- Numerical results -->
-          <div class="text col-sm-6">
-            <table>
-              <tr><td><strong>{{"Fiducial Name"}}</strong></td> <td><strong>{{"Distance [mm]"}}</strong></td></tr>
-              {% for i in index %}
-                <tr><td> {{labels[i]}} </td> <td> {{distances[i]}} </td> </tr>
               {% endfor %}
-            </table>
-          </div>
+            </fieldset>
+          </form>
 
-          <!-- Visual results -->
-          <div class="col-sm-6">
-
+          <div class="row">
+            <h2>Results</h2>
           </div>
-        </div>
-      </section>
+          <div class="row mb-3">
+            {% if result != None %}
+            {{ result|safe }}
+            {% endif %}
+          </div>
+          <div class="row">
+            <!-- Numerical results -->
+            <div class="text col-sm-6">
+              <table class="table table-dark table-sm">
+                <tr>
+                  <th scope="col">{{"Fiducial Name"}}</th> 
+                  <th scope="col">{{"Distance [mm]"}}</th></tr>
+                {% for i in index %}
+                <tr><td>{{labels[i]}}</td><td>{{distances[i]}}</td></tr>
+                {% endfor %}
+              </table>
+            </div>
+
+            <!-- Visual results -->
+            <div class="col-sm-6">
+
+            </div>
+          </div>
+        </section>
+
+        <!-- Analytics -->
+        <section class="col">
+          <a class="btn btn-light" href="/getall">View DB</a>
+          <a class="btn btn-light" href="/analytics">Analytics</a>
+        </section>
+      </div>
     </div>
 {% endblock %}
 

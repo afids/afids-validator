@@ -9,6 +9,11 @@ html, body {
 
 footer {
     background-color: #00ff01;
+    color: #000;
+}
+
+footer a {
+    color: #000;
 }
 
 /* Misc */
@@ -26,23 +31,14 @@ figcaption {
 }
 
 .nav a {
-    display: inline;
-    margin: 0 1vw;
     font-family: "Bebas Neue", serif;
-    font-size: 2.5vw;
     text-transform: uppercase;
     text-decoration: none;
     color: #fff;
 }
 
-.nav li a {
-    text-decoration: none;
-    color: #fff;
-}
-
-.nav li a:hover {
+.nav a:hover {
     text-decoration: none;
     color: #00ff01;
-    font-weight: bold;
 }
 
