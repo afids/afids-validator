@@ -1,5 +1,4 @@
-from flask import Flask, render_template, request
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, Response, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 import os
 
@@ -7,14 +6,10 @@ import io
 
 import random
 
-from flask import Flask, Response, render_template
-
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-
 from matplotlib.figure import Figure
 
 import matplotlib
-
 import matplotlib.pyplot as plt
 
 import numpy as np
@@ -203,9 +198,25 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-# Path to the web application
-@app.route('/', methods=['GET', 'POST'])
-def index2():
+# Routes to web pages / application
+## Homepage
+@app.route('/')
+def index():
+    return render_template("index.html")
+
+## Contact
+@app.route('/contact.html')
+def contact():
+    return render_template("contact.html")
+
+## Login
+@app.route('/login.html')
+def login():
+    return render_template("login.html")
+
+# Validator
+@app.route('/validator.html', methods=['GET', 'POST'])
+def validator():
     form = Average(request.form)
 
     msg = ''
@@ -223,14 +234,14 @@ def index2():
     if not request.method == 'POST':
         result = '<br>'.join([result, msg])
 
-        return render_template("view.html", form=form, result=result,
+        return render_template("validator.html", form=form, result=result,
             fid_templates=fid_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
     if not request.files:
         result = '<br>'.join([result, msg])
 
-        return render_template("view.html", form=form, result=result,
+        return render_template("validator.html", form=form, result=result,
             fid_templates=fid_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
@@ -241,28 +252,28 @@ def index2():
         result = "invalid file: extension not allowed"
         result = '<br>'.join([result, msg])
 
-        return render_template("view.html", form=form, result=result,
+        return render_template("validator.html", form=form, result=result,
             fid_templates=fid_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
     try:
         user_data = csv_to_json(io.StringIO(upload.stream.read().decode('utf-8')))
     except InvalidFcsvError as err:
-        result = 'invalid file: {err_msg}'.format(err_msg=err.message)
-        return render_template("view.html", form=form, result=result,
+        result = 'Invalid file: {err_msg}'.format(err_msg=err.message)
+        return render_template("validator.html", form=form, result=result,
             fid_templates=fid_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
-    result = 'valid file'
+    result = 'Valid file'
     user_data_j = json.loads(user_data)
 
     fid_template = request.form['fid_template']
 
     if fid_template == ' ':
-        result = "valid file"
+        result = "Valid file"
         result = '<br>'.join([result, msg])
 
-        return render_template("view.html", form=form, result=result,
+        return render_template("validator.html", form=form, result=result,
             fid_templates=fid_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
@@ -396,7 +407,7 @@ def index2():
 
     result = '<br>'.join([result, msg])
 
-    return render_template("view.html", form=form, result=result,
+    return render_template("validator.html", form=form, result=result,
         fid_templates=fid_templates, template_data_j=template_data_j,
         index=index, labels=labels, distances=distances)
 
@@ -414,7 +425,7 @@ def get_all():
     except Exception as e:
         return(str(e))
 
-labels = ['Eucllidean', 'X_error', 'Y_error', 'Z_error']
+labels = ['Euclidean', 'X_error', 'Y_error', 'Z_error']
 
 individ_values = [4.0, 3.4, 3.0, 3.5]
 
