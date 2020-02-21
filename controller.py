@@ -1,7 +1,14 @@
 from flask import Flask, Response, render_template, request
 from flask_sqlalchemy import SQLAlchemy
+
+from flexx import flx
+from pscript import RawJS
+from pscript.stubs import Math, d3, window
+
 import os
 import io
+import csv
+import json
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -9,10 +16,8 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-from flexx import flx
-from pscript import RawJS
-from pscript.stubs import Math, d3, window
-import csv
+from model_auto import Average, csv_to_json, InvalidFcsvError
+from compute import calc
 
 
 app = Flask(__name__)
@@ -169,12 +174,6 @@ class Fiducial_set(db.Model):
 
         return serialized
 
-
-from model_auto import Average, csv_to_json, InvalidFcsvError
-from compute import calc
-from model import InputForm
-import io
-import json
 
 # Relative path of directory for uploaded files
 UPLOAD_DIR = 'uploads/'
@@ -439,7 +438,6 @@ rects1 = ax.bar(x - width/2, individ_values, width, label='Your errors')
 rects2 = ax.bar(x + width/2, population_values, width, label='Average errors')
 
 @app.route('/plot.png')
-
 def plot_png():
     fig = create_figure()
 
@@ -497,17 +495,18 @@ class DataStore(flx.Component):
 
     viz_limits = [[-50, 50], [-50, 50], [-30, 30]]
 
-    points = [{'x': 0.1, 'y': 0.2, 'z':0.3, 'id': 'id0'},
+    points = [{'x': 0.1, 'y': 0.2, 'z': 0.3, 'id': 'id0'},
         {'x': 2.1, 'y': 8.2, 'z': 4.3, 'id': 'id1'},
-        {'x': 9 , 'y': 9, 'z': 9, 'id': 'id1'}]
+        {'x': 9, 'y': 9, 'z': 9, 'id': 'id1'}]
 
     points = MNI_data
 
-    linedata = [[{'x':1,'y':2,'z':3},{'x':3,'y':2,'z':1}],
-        [{'x':4,'y':4,'z':4}, {'x':5,'y':5,'z':5}]]
+    linedata = [[{'x': 1, 'y': 2, 'z': 3}, {'x': 3, 'y': 2, 'z': 1}],
+        [{'x': 4, 'y': 4, 'z': 4}, {'x': 5, 'y': 5, 'z': 5}]]
 
 class Validator(flx.Widget):
     data=flx.ComponentProp()
+
     def init(self):
         self._mutate_data(DataStore())
         Layout()
@@ -515,15 +514,16 @@ class Validator(flx.Widget):
 class Layout(flx.Widget):
     titletext = flx.StringProp('(No File Uploaded.)')
     #'[Filename of Upload] // Registered against [some reference]'
+
     def init(self):
         with flx.VBox(style='text-align:center'):
-            flx.Label(text = lambda:str(self.titletext), style='background:#cfc;font-size:20px')
+            flx.Label(text=lambda: str(self.titletext), style='background:#cfc;font-size:20px')
             with flx.HBox(style='background:#cfc;'):
-                self.c1 = flx.CheckBox(text = "option 1", flex=1)
-                self.c2 = flx.CheckBox(text = "option 2", flex=1)
-                self.c3 = flx.CheckBox(text = "option 3", flex=1)
-                self.zoom = flx.Slider(min = 0.1, max = 5.0, value=1.0, text=lambda:'{:.0f}%'.format(self.zoom.value * 100), flex=3)
-            PointCloud(self.zoom, flex = 1)
+                self.c1 = flx.CheckBox(text="option 1", flex=1)
+                self.c2 = flx.CheckBox(text="option 2", flex=1)
+                self.c3 = flx.CheckBox(text="option 3", flex=1)
+                self.zoom = flx.Slider(min=0.1, max=5.0, value=1.0, text=lambda: '{:.0f}%'.format(self.zoom.value * 100), flex=3)
+            PointCloud(self.zoom, flex=1)
 
 class PointCloud(flx.Widget):
 
@@ -531,7 +531,7 @@ class PointCloud(flx.Widget):
 
     def init(self, zoom):
         self.node.id = self.id
-        window.setTimeout(self.load_viz, 500) # don't know what this does
+        window.setTimeout(self.load_viz, 500)  # don't know what this does
         self.zoom = zoom
 
     '''
@@ -580,37 +580,37 @@ class PointCloud(flx.Widget):
         #drag = d3.drag().on('drag', RawJS("console.log('fff')")).on('start', RawJS("console.log('skfghsdfh')")).on('end', RawJS("console.log('asdasda')"))
         #svg.call(drag).append('g')
 
-        color  = d3.scaleOrdinal(d3.schemeCategory20)
+        color = d3.scaleOrdinal(d3.schemeCategory20)
 
-        key = lambda d:d.id
+        key = lambda d: d.id
 
         grid3d = d3._3d()           \
             .shape('GRID', 20)      \
             .origin(origin)         \
-            .rotateY( startAngle)   \
+            .rotateY(startAngle)    \
             .rotateX(-startAngle)   \
             .scale(scale)
         point3d = d3._3d()          \
-            .x(lambda d:d.x)        \
-            .y(lambda d:d.y)        \
-            .z(lambda d:d.z)        \
+            .x(lambda d: d.x)        \
+            .y(lambda d: d.y)        \
+            .z(lambda d: d.z)        \
             .origin(origin)         \
-            .rotateY( startAngle)   \
+            .rotateY(startAngle)   \
             .rotateX(-startAngle)   \
             .scale(scale)
         line = d3._3d()             \
             .origin(origin)         \
-            .rotateY( startAngle)   \
+            .rotateY(startAngle)   \
             .rotateX(-startAngle)   \
             .scale(scale)           \
             .shape('LINE')          \
-            .x(lambda d:d.x)        \
-            .y(lambda d:d.y)        \
-            .z(lambda d:d.z)
+            .x(lambda d: d.x)        \
+            .y(lambda d: d.y)        \
+            .z(lambda d: d.z)
         yScale3d = d3._3d()         \
             .shape('LINE_STRIP')    \
             .origin(origin)         \
-            .rotateY( startAngle)   \
+            .rotateY(startAngle)   \
             .rotateX(-startAngle)   \
             .scale(scale)
 
@@ -629,8 +629,8 @@ class PointCloud(flx.Widget):
                     xGrid.append([x, 1, z])
                     #broken...RawJS(scatter.append({x: x, y: d3.randomUniform(0, -10)(), z: z, id: 'point_' + cnt})
                     cnt += 1
-            scatter = pts;
-            d3.range(-1, 11, 1).forEach(lambda d:yLine.append([-j, -d, -j]))
+            scatter = pts
+            d3.range(-1, 11, 1).forEach(lambda d: yLine.append([-j, -d, -j]))
 
             data = [
                 grid3d(xGrid),
@@ -746,12 +746,12 @@ class PointCloud(flx.Widget):
         init()
     #end
 
+
 testapp = flx.App(Validator)
-testapp.export("templates/pointcloud.html", link = 0)
+testapp.export("templates/pointcloud.html", link=0)
 #assets = testapp.dump('templates/pointcloud.html', link=0)
 
 @app.route('/analytics')
-
 def chartTest():
 
     return render_template('view_analytics.html')
@@ -759,6 +759,7 @@ def chartTest():
 @app.route('/pointcloud.html', methods=['GET'])
 def cloud():
     return render_template("pointcloud.html")
+
 
 if __name__ == '__main__':
     app.run(debug=True)
