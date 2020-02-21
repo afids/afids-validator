@@ -138,13 +138,8 @@ def csv_to_json(in_csv):
         row_desc = EXPECTED_MAP[row_label][0]
 
         row_x = parse_fcsv_field(row, 'x', row_label)
-        row_x_float = parse_fcsv_float(row_x, 'x', row_label)
-
         row_y = parse_fcsv_field(row, 'y', row_label)
-        row_y_float = parse_fcsv_float(row_y, 'y', row_label)
-
         row_z = parse_fcsv_field(row, 'z', row_label)
-        row_z_float = parse_fcsv_float(row_z, 'z', row_label)
 
         missing_fields = 0
         for value in row.values():
@@ -167,7 +162,7 @@ def csv_to_json(in_csv):
 
     # Sort dict based on fid number
     lst = list(json_data.items())
-    lst.sort(key = lambda k: int(k[0]))
+    lst.sort(key=lambda k: int(k[0]))
     json_data = dict(lst)
 
     json_data = json.dumps(json_data, sort_keys=False, indent=4,
