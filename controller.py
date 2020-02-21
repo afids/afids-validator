@@ -1,15 +1,10 @@
 from flask import Flask, Response, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 import os
-
 import io
-
-import random
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
-
-import matplotlib
 import matplotlib.pyplot as plt
 
 import numpy as np
@@ -66,10 +61,10 @@ class Fiducial_set(db.Model):
          "LOSF": coords
          }
 
-    for k,v in c.items():
-        exec("%s=%s"%(k+v[0], "db.Column(db.Float())"))
-        exec("%s=%s"%(k+v[1], "db.Column(db.Float())"))
-        exec("%s=%s"%(k+v[2], "db.Column(db.Float())"))
+    for k, v in c.items():
+        exec("%s=%s" % (k+v[0], "db.Column(db.Float())"))
+        exec("%s=%s" % (k+v[1], "db.Column(db.Float())"))
+        exec("%s=%s" % (k+v[2], "db.Column(db.Float())"))
 
     def __repr__(self):
         return '<id {}>'.format(self.id)
@@ -170,10 +165,10 @@ class Fiducial_set(db.Model):
                         "ROSF_z": self.ROSF_z,
                         "LOSF_x": self.LOSF_x,
                         "LOSF_y": self.LOSF_y,
-                        "LOSF_z": self.LOSF_z
-                        }
+                        "LOSF_z": self.LOSF_z}
 
         return serialized
+
 
 from model_auto import Average, csv_to_json, InvalidFcsvError
 from compute import calc
@@ -199,17 +194,17 @@ def allowed_file(filename):
         filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 # Routes to web pages / application
-## Homepage
+# Homepage
 @app.route('/')
 def index():
     return render_template("index.html")
 
-## Contact
+# Contact
 @app.route('/contact.html')
 def contact():
     return render_template("contact.html")
 
-## Login
+# Login
 @app.route('/login.html')
 def login():
     return render_template("login.html")
@@ -246,7 +241,6 @@ def validator():
             index=index, labels=labels, distances=distances)
 
     upload = request.files[form.filename.name]
-
 
     if not (upload and allowed_file(upload.filename)):
         result = "invalid file: extension not allowed"
@@ -286,102 +280,102 @@ def validator():
 
     template_data = csv_to_json(template_file)
     template_data_j = json.loads(template_data)
-    fiducial_set=Fiducial_set(AC_x = user_data_j['1']['x'],
-                              AC_y = user_data_j['1']['y'],
-                              AC_z = user_data_j['1']['z'],
-                              PC_x = user_data_j['2']['x'],
-                              PC_y = user_data_j['2']['y'],
-                              PC_z = user_data_j['2']['z'],
-                              ICS_x = user_data_j['3']['x'],
-                              ICS_y = user_data_j['3']['y'],
-                              ICS_z = user_data_j['3']['z'],
-                              PMJ_x = user_data_j['4']['x'],
-                              PMJ_y = user_data_j['4']['y'],
-                              PMJ_z = user_data_j['4']['z'],
-                              SIPF_x = user_data_j['5']['x'],
-                              SIPF_y = user_data_j['5']['y'],
-                              SIPF_z = user_data_j['5']['z'],
-                              RSLMS_x = user_data_j['6']['x'],
-                              RSLMS_y = user_data_j['6']['y'],
-                              RSLMS_z = user_data_j['6']['z'],
-                              LSLMS_x = user_data_j['7']['x'],
-                              LSLMS_y = user_data_j['7']['y'],
-                              LSLMS_z = user_data_j['7']['z'],
-                              RILMS_x = user_data_j['8']['x'],
-                              RILMS_y = user_data_j['8']['y'],
-                              RILMS_z = user_data_j['8']['z'],
-                              LILMS_x = user_data_j['9']['x'],
-                              LILMS_y = user_data_j['9']['y'],
-                              LILMS_z = user_data_j['9']['z'],
-                              CUL_x = user_data_j['10']['x'],
-                              CUL_y = user_data_j['10']['y'],
-                              CUL_z = user_data_j['10']['z'],
-                              IMS_x = user_data_j['11']['x'],
-                              IMS_y = user_data_j['11']['y'],
-                              IMS_z = user_data_j['11']['z'],
-                              RMB_x = user_data_j['12']['x'],
-                              RMB_y = user_data_j['12']['y'],
-                              RMB_z = user_data_j['12']['z'],
-                              LMB_x = user_data_j['13']['x'],
-                              LMB_y = user_data_j['13']['y'],
-                              LMB_z = user_data_j['13']['z'],
-                              PG_x = user_data_j['14']['x'],
-                              PG_y = user_data_j['14']['y'],
-                              PG_z = user_data_j['14']['z'],
-                              RLVAC_x = user_data_j['15']['x'],
-                              RLVAC_y = user_data_j['15']['y'],
-                              RLVAC_z = user_data_j['15']['z'],
-                              LLVAC_x = user_data_j['16']['x'],
-                              LLVAC_y = user_data_j['16']['y'],
-                              LLVAC_z = user_data_j['16']['z'],
-                              RLVPC_x = user_data_j['17']['x'],
-                              RLVPC_y = user_data_j['17']['y'],
-                              RLVPC_z = user_data_j['17']['z'],
-                              LLVPC_x = user_data_j['18']['x'],
-                              LLVPC_y = user_data_j['18']['y'],
-                              LLVPC_z = user_data_j['18']['z'],
-                              GENU_x = user_data_j['19']['x'],
-                              GENU_y = user_data_j['19']['y'],
-                              GENU_z = user_data_j['19']['z'],
-                              SPLE_x = user_data_j['20']['x'],
-                              SPLE_y = user_data_j['20']['y'],
-                              SPLE_z = user_data_j['20']['z'],
-                              RALTH_x = user_data_j['21']['x'],
-                              RALTH_y = user_data_j['21']['y'],
-                              RALTH_z = user_data_j['21']['z'],
-                              LALTH_x = user_data_j['22']['x'],
-                              LALTH_y = user_data_j['22']['y'],
-                              LALTH_z = user_data_j['22']['z'],
-                              RSAMTH_x = user_data_j['23']['x'],
-                              RSAMTH_y = user_data_j['23']['y'],
-                              RSAMTH_z = user_data_j['23']['z'],
-                              LSAMTH_x = user_data_j['24']['x'],
-                              LSAMTH_y = user_data_j['24']['y'],
-                              LSAMTH_z = user_data_j['24']['z'],
-                              RIAMTH_x = user_data_j['25']['x'],
-                              RIAMTH_y = user_data_j['25']['y'],
-                              RIAMTH_z = user_data_j['25']['z'],
-                              LIAMTH_x = user_data_j['26']['x'],
-                              LIAMTH_y = user_data_j['26']['y'],
-                              LIAMTH_z = user_data_j['26']['z'],
-                              RIGO_x = user_data_j['27']['x'],
-                              RIGO_y = user_data_j['27']['y'],
-                              RIGO_z = user_data_j['27']['z'],
-                              LIGO_x = user_data_j['28']['x'],
-                              LIGO_y = user_data_j['28']['y'],
-                              LIGO_z = user_data_j['28']['z'],
-                              RVOH_x = user_data_j['29']['x'],
-                              RVOH_y = user_data_j['29']['y'],
-                              RVOH_z = user_data_j['29']['z'],
-                              LVOH_x = user_data_j['30']['x'],
-                              LVOH_y = user_data_j['30']['y'],
-                              LVOH_z = user_data_j['30']['z'],
-                              ROSF_x = user_data_j['31']['x'],
-                              ROSF_y = user_data_j['31']['y'],
-                              ROSF_z = user_data_j['31']['z'],
-                              LOSF_x = user_data_j['32']['x'],
-                              LOSF_y = user_data_j['32']['y'],
-                              LOSF_z = user_data_j['32']['z'])
+    fiducial_set=Fiducial_set(AC_x=user_data_j['1']['x'],
+                              AC_y=user_data_j['1']['y'],
+                              AC_z=user_data_j['1']['z'],
+                              PC_x=user_data_j['2']['x'],
+                              PC_y=user_data_j['2']['y'],
+                              PC_z=user_data_j['2']['z'],
+                              ICS_x=user_data_j['3']['x'],
+                              ICS_y=user_data_j['3']['y'],
+                              ICS_z=user_data_j['3']['z'],
+                              PMJ_x=user_data_j['4']['x'],
+                              PMJ_y=user_data_j['4']['y'],
+                              PMJ_z=user_data_j['4']['z'],
+                              SIPF_x=user_data_j['5']['x'],
+                              SIPF_y=user_data_j['5']['y'],
+                              SIPF_z=user_data_j['5']['z'],
+                              RSLMS_x=user_data_j['6']['x'],
+                              RSLMS_y=user_data_j['6']['y'],
+                              RSLMS_z=user_data_j['6']['z'],
+                              LSLMS_x=user_data_j['7']['x'],
+                              LSLMS_y=user_data_j['7']['y'],
+                              LSLMS_z=user_data_j['7']['z'],
+                              RILMS_x=user_data_j['8']['x'],
+                              RILMS_y=user_data_j['8']['y'],
+                              RILMS_z=user_data_j['8']['z'],
+                              LILMS_x=user_data_j['9']['x'],
+                              LILMS_y=user_data_j['9']['y'],
+                              LILMS_z=user_data_j['9']['z'],
+                              CUL_x=user_data_j['10']['x'],
+                              CUL_y=user_data_j['10']['y'],
+                              CUL_z=user_data_j['10']['z'],
+                              IMS_x=user_data_j['11']['x'],
+                              IMS_y=user_data_j['11']['y'],
+                              IMS_z=user_data_j['11']['z'],
+                              RMB_x=user_data_j['12']['x'],
+                              RMB_y=user_data_j['12']['y'],
+                              RMB_z=user_data_j['12']['z'],
+                              LMB_x=user_data_j['13']['x'],
+                              LMB_y=user_data_j['13']['y'],
+                              LMB_z=user_data_j['13']['z'],
+                              PG_x=user_data_j['14']['x'],
+                              PG_y=user_data_j['14']['y'],
+                              PG_z=user_data_j['14']['z'],
+                              RLVAC_x=user_data_j['15']['x'],
+                              RLVAC_y=user_data_j['15']['y'],
+                              RLVAC_z=user_data_j['15']['z'],
+                              LLVAC_x=user_data_j['16']['x'],
+                              LLVAC_y=user_data_j['16']['y'],
+                              LLVAC_z=user_data_j['16']['z'],
+                              RLVPC_x=user_data_j['17']['x'],
+                              RLVPC_y=user_data_j['17']['y'],
+                              RLVPC_z=user_data_j['17']['z'],
+                              LLVPC_x=user_data_j['18']['x'],
+                              LLVPC_y=user_data_j['18']['y'],
+                              LLVPC_z=user_data_j['18']['z'],
+                              GENU_x=user_data_j['19']['x'],
+                              GENU_y=user_data_j['19']['y'],
+                              GENU_z=user_data_j['19']['z'],
+                              SPLE_x=user_data_j['20']['x'],
+                              SPLE_y=user_data_j['20']['y'],
+                              SPLE_z=user_data_j['20']['z'],
+                              RALTH_x=user_data_j['21']['x'],
+                              RALTH_y=user_data_j['21']['y'],
+                              RALTH_z=user_data_j['21']['z'],
+                              LALTH_x=user_data_j['22']['x'],
+                              LALTH_y=user_data_j['22']['y'],
+                              LALTH_z=user_data_j['22']['z'],
+                              RSAMTH_x=user_data_j['23']['x'],
+                              RSAMTH_y=user_data_j['23']['y'],
+                              RSAMTH_z=user_data_j['23']['z'],
+                              LSAMTH_x=user_data_j['24']['x'],
+                              LSAMTH_y=user_data_j['24']['y'],
+                              LSAMTH_z=user_data_j['24']['z'],
+                              RIAMTH_x=user_data_j['25']['x'],
+                              RIAMTH_y=user_data_j['25']['y'],
+                              RIAMTH_z=user_data_j['25']['z'],
+                              LIAMTH_x=user_data_j['26']['x'],
+                              LIAMTH_y=user_data_j['26']['y'],
+                              LIAMTH_z=user_data_j['26']['z'],
+                              RIGO_x=user_data_j['27']['x'],
+                              RIGO_y=user_data_j['27']['y'],
+                              RIGO_z=user_data_j['27']['z'],
+                              LIGO_x=user_data_j['28']['x'],
+                              LIGO_y=user_data_j['28']['y'],
+                              LIGO_z=user_data_j['28']['z'],
+                              RVOH_x=user_data_j['29']['x'],
+                              RVOH_y=user_data_j['29']['y'],
+                              RVOH_z=user_data_j['29']['z'],
+                              LVOH_x=user_data_j['30']['x'],
+                              LVOH_y=user_data_j['30']['y'],
+                              LVOH_z=user_data_j['30']['z'],
+                              ROSF_x=user_data_j['31']['x'],
+                              ROSF_y=user_data_j['31']['y'],
+                              ROSF_z=user_data_j['31']['z'],
+                              LOSF_x=user_data_j['32']['x'],
+                              LOSF_y=user_data_j['32']['y'],
+                              LOSF_z=user_data_j['32']['z'])
     db.session.add(fiducial_set)
     db.session.commit()
     print("fiducial set added")
@@ -425,6 +419,7 @@ def get_all():
     except Exception as e:
         return(str(e))
 
+
 labels = ['Euclidean', 'X_error', 'Y_error', 'Z_error']
 
 individ_values = [4.0, 3.4, 3.0, 3.5]
@@ -446,7 +441,6 @@ rects2 = ax.bar(x + width/2, population_values, width, label='Average errors')
 @app.route('/plot.png')
 
 def plot_png():
-
     fig = create_figure()
 
     output = io.BytesIO()
@@ -481,7 +475,6 @@ def create_figure():
     return fig
 
 
-
 flx.assets.associate_asset(__name__, 'https://d3js.org/d3.v4.min.js')
 flx.assets.associate_asset(__name__, 'https://unpkg.com/d3-3d/build/d3-3d.min.js')
 
@@ -489,7 +482,8 @@ with open(os.path.join(AFIDS_HUMAN_DIR, 'sub-MNI2009cAsym_afids.fcsv')) as MNI:
     rdr = csv.reader(MNI, delimiter=',')
     MNI_data = []
     for n, row in enumerate(rdr):
-        if n < 3: continue;
+        if n < 3:
+            continue
         entry = {}
         entry['x']=row[1]
         entry['y']=row[2]
@@ -499,13 +493,13 @@ with open(os.path.join(AFIDS_HUMAN_DIR, 'sub-MNI2009cAsym_afids.fcsv')) as MNI:
 #print(MNI_data)
 
 class DataStore(flx.Component):
-    fileuploaded=flx.IntProp(0, settable = True)
+    fileuploaded=flx.IntProp(0, settable=True)
 
-    viz_limits = [[-50, 50],[-50, 50],[-30, 30]]
+    viz_limits = [[-50, 50], [-50, 50], [-30, 30]]
 
-    points = [{'x':0.1, 'y':0.2, 'z':0.3, 'id':'id0'},
-        {'x':2.1, 'y':8.2, 'z':4.3, 'id':'id1'},
-        {'x':9 , 'y':9, 'z':9, 'id':'id1'}]
+    points = [{'x': 0.1, 'y': 0.2, 'z':0.3, 'id': 'id0'},
+        {'x': 2.1, 'y': 8.2, 'z': 4.3, 'id': 'id1'},
+        {'x': 9 , 'y': 9, 'z': 9, 'id': 'id1'}]
 
     points = MNI_data
 
