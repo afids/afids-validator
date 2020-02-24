@@ -75,6 +75,6 @@ class TestFcsvValidation(unittest.TestCase):
 
         self.assertEqual(cm.exception.message, 'Too few rows')
 
+
 if __name__ == '__main__':
     unittest.main()
-
