@@ -123,9 +123,6 @@ def csv_to_json(in_csv):
 
         row_label = parse_fcsv_field(row, 'label')
 
-#        if row_label != str(expected_label):
-#            raise InvalidFcsvError('Row label {row_label} out of order'
-#                    .format(row_label=row_label))
         expected_label += 1
         row_desc = parse_fcsv_field(row, 'desc', row_label)
         if not any(x.lower() == row_desc.lower() for x in EXPECTED_MAP[row_label]):
