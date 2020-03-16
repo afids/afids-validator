@@ -6,8 +6,10 @@
       <div class="row">
         <section class="col-9">
           <div class="row">
-            <p>Use the following form to compare user placed fiducials to one of the available templates!
-            </p>
+              <div class="col-9">
+                  <p>Use the following form to compare user placed fiducials to one of the available templates!
+                  </p>
+              </div>
           </div>
 
           <!-- Template submission form -->
@@ -39,7 +41,9 @@
           </form>
 
           <div class="row">
-            <h2>Results</h2>
+              <div class="col-sm-7">
+                  <h2>Results</h2>
+              </div>
           </div>
           <div class="row mb-3">
             {% if result != None %}
@@ -51,7 +55,7 @@
             <div class="text col-sm-6">
               <table class="table table-dark table-sm">
                 <tr>
-                  <th scope="col">{{"Fiducial Name"}}</th> 
+                  <th scope="col">{{"Fiducial Name"}}</th>
                   <th scope="col">{{"Distance [mm]"}}</th></tr>
                 {% for i in index %}
                 <tr><td>{{labels[i]}}</td><td>{{distances[i]}}</td></tr>
@@ -67,11 +71,10 @@
         </section>
 
         <!-- Analytics -->
-        <section class="col">
+        <!-- <section class="col">
           <a class="btn btn-light" href="/getall">View DB</a>
           <a class="btn btn-light" href="/analytics">Analytics</a>
-        </section>
+        </section> -->
       </div>
     </div>
 {% endblock %}
-

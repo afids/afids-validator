@@ -7,36 +7,36 @@ EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
         ['AC'],
         ['PC'],
-        ['infracollicular sulcus','ICS'],
+        ['infracollicular sulcus', 'ICS'],
         ['PMJ'],
-        ['superior interpeduncular fossa','SIPF'],
-        ['R superior LMS','RSLMS'],
-        ['L superior LMS','LSLMS'],
-        ['R inferior LMS','RILMS'],
-        ['L inferior LMS','LILMS'],
-        ['Culmen','CUL'],
-        ['Intermammillary sulcus','IMS'],
-        ['R MB','RMB'],
-        ['L MB','LMB'],
-        ['pineal gland','PG'],
-        ['R LV at AC','RLVAC'],
-        ['L LV at AC','LLVAC'],
-        ['R LV at PC','RLVPC'],
-        ['L LV at PC','LLVPC'],
-        ['Genu of CC','GENU'],
-        ['Splenium of CC','SPLE'],
-        ['R AL temporal horn','RALTH'],
-        ['L AL temporal horn','LALTH'],
-        ['R superior AM temporal horn','RSAMTH'],
-        ['L superior AM temporal horn','LSAMTH'],
-        ['R inferior AM temporal horn','RIAMTH'],
-        ['L inferior AM temporal horn','RIAMTH'],
-        ['R indusium griseum origin','RIGO'],
-        ['L indusium griseum origin','LIGO'],
-        ['R ventral occipital horn','RVOH'],
-        ['L ventral occipital horn','LVOH'],
-        ['R olfactory sulcal fundus','ROSF'],
-        ['L olfactory sulcal fundus','LOSF']]
+        ['superior interpeduncular fossa', 'SIPF'],
+        ['R superior LMS', 'RSLMS'],
+        ['L superior LMS', 'LSLMS'],
+        ['R inferior LMS', 'RILMS'],
+        ['L inferior LMS', 'LILMS'],
+        ['Culmen', 'CUL'],
+        ['Intermammillary sulcus', 'IMS'],
+        ['R MB', 'RMB'],
+        ['L MB', 'LMB'],
+        ['pineal gland', 'PG'],
+        ['R LV at AC', 'RLVAC'],
+        ['L LV at AC', 'LLVAC'],
+        ['R LV at PC', 'RLVPC'],
+        ['L LV at PC', 'LLVPC'],
+        ['Genu of CC', 'GENU'],
+        ['Splenium of CC', 'SPLE'],
+        ['R AL temporal horn', 'RALTH'],
+        ['L AL temporal horn', 'LALTH'],
+        ['R superior AM temporal horn', 'RSAMTH'],
+        ['L superior AM temporal horn', 'LSAMTH'],
+        ['R inferior AM temporal horn', 'RIAMTH'],
+        ['L inferior AM temporal horn', 'RIAMTH'],
+        ['R indusium griseum origin', 'RIGO'],
+        ['L indusium griseum origin', 'LIGO'],
+        ['R ventral occipital horn', 'RVOH'],
+        ['L ventral occipital horn', 'LVOH'],
+        ['R olfactory sulcal fundus', 'ROSF'],
+        ['L olfactory sulcal fundus', 'LOSF']]
 
 EXPECTED_MAP = dict(zip(EXPECTED_LABELS, EXPECTED_DESCS))
 
@@ -123,28 +123,23 @@ def csv_to_json(in_csv):
 
         row_label = parse_fcsv_field(row, 'label')
 
-#        if row_label != str(expected_label):
-#            raise InvalidFcsvError('Row label {row_label} out of order'
-#                    .format(row_label=row_label))
         expected_label += 1
         row_desc = parse_fcsv_field(row, 'desc', row_label)
         if not any(x.lower() == row_desc.lower() for x in EXPECTED_MAP[row_label]):
-            raise InvalidFcsvError('Row label {row_label} does not ' 
+            raise InvalidFcsvError('Row label {row_label} does not '
                 .format(row_label=row_label) +
                 'match row description {row_desc}'
                 .format(row_desc=row_desc))
-        
+
         # Ensure the full FID name is used
         row_desc = EXPECTED_MAP[row_label][0]
-        
+
         row_x = parse_fcsv_field(row, 'x', row_label)
-        row_x_float = parse_fcsv_float(row_x, 'x', row_label)
-
+        parse_fcsv_float(row_x, 'x', row_label)
         row_y = parse_fcsv_field(row, 'y', row_label)
-        row_y_float = parse_fcsv_float(row_y, 'y', row_label)
-
+        parse_fcsv_float(row_y, 'y', row_label)
         row_z = parse_fcsv_field(row, 'z', row_label)
-        row_z_float = parse_fcsv_float(row_z, 'z', row_label)
+        parse_fcsv_float(row_z, 'z', row_label)
 
         missing_fields = 0
         for value in row.values():
@@ -167,11 +162,10 @@ def csv_to_json(in_csv):
 
     # Sort dict based on fid number
     lst = list(json_data.items())
-    lst.sort(key = lambda k: int(k[0]))
+    lst.sort(key=lambda k: int(k[0]))
     json_data = dict(lst)
 
     json_data = json.dumps(json_data, sort_keys=False, indent=4,
                            separators=(',', ': '))
 
     return json_data
-
