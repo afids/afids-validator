@@ -279,6 +279,7 @@ def validator():
 
     template_data = csv_to_json(template_file)
     template_data_j = json.loads(template_data)
+
     fiducial_set=Fiducial_set(AC_x=user_data_j['1']['x'],
                               AC_y=user_data_j['1']['y'],
                               AC_z=user_data_j['1']['z'],
@@ -375,9 +376,12 @@ def validator():
                               LOSF_x=user_data_j['32']['x'],
                               LOSF_y=user_data_j['32']['y'],
                               LOSF_z=user_data_j['32']['z'])
-    db.session.add(fiducial_set)
-    db.session.commit()
-    print("fiducial set added")
+    if request.form.get('db_checkbox'):
+        db.session.add(fiducial_set)
+        db.session.commit()
+        print("fiducial set added")
+    else:
+        print("DB option unchecked, user data not saved")
 
     for element in template_data_j:
         index.append(int(element)-1)

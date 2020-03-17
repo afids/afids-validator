@@ -7,7 +7,7 @@ _Install via `apt-get` or `snap`_
 * heroku
 
 ### Setup for local testing
-1. Git clone the fid-validator repository `git clone https://github.com/Park-Patrick/fidvalidator.git`
+1. Git clone the fid-validator repository `git clone https://github.com/afids/fidvalidator.git`
 2. Add heroku as a remote `heroku git:remote -a fidvalidator`
 3. Set up python virtual environment `python -m virtualenv <venv directory>`
 4. In virtual environment, install required modules `pip install -r requirements.txt --no-cache-dir`
