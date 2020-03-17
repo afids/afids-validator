@@ -45,10 +45,12 @@
                   <h2>Results</h2>
               </div>
           </div>
-          <div class="row mb-3">
-            {% if result != None %}
-            {{ result|safe }}
-            {% endif %}
+          <div class="row">
+              <div class="col-sm-7">
+                  {% if result != None %}
+                  {{ result|safe }}
+                  {% endif %}
+              </div>
           </div>
           <div class="row">
             <!-- Numerical results -->
