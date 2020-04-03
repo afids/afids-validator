@@ -1,4 +1,6 @@
-# [fidvalidator (https://fidvalidator.herokuapp.com)](https://fidvalidator.herokuapp.com)
+[![AFIDs](https://github.com/afids/afids-validator/blob/master/static/images/banner.png)](./static/images/banner.png)
+
+# [afids-validator (https://fidvalidator.herokuapp.com)](https://fidvalidator.herokuapp.com)
 
 ## Development
 ### Required Packages
