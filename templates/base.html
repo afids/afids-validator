@@ -11,19 +11,19 @@
   <title>Anatomical Fiducials{% block title %}{% endblock %}</title>
 
   <!-- favicon - to be added -->
-  <link rel="shortcut icon" href="{{ url_for('static', filename='images/afid.png') }}">
+  <link rel="shortcut icon" href="{{ url_for('resources', filename='images/afid.png') }}">
 
   <!-- Boostrap Core CSS -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta.3/css/bootstrap.css" rel="stylesheet">
 
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Bebas+Neue|Roboto&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/afids_custom.css') }}">
+  <link rel="stylesheet" href="{{ url_for('resources', filename='css/afids_custom.css') }}">
 </head>
 
 <body>
   <header class="container">
-    <img class="img-fluid" src="{{ url_for('static', filename='images/banner.png') }}" alt="AFIDs Validator Banner">
+    <img class="img-fluid" src="{{ url_for('resources', filename='images/banner.png') }}" alt="AFIDs Validator Banner">
     <nav id="nav-wrapper">
       <ul class="nav justify-content-center">
         <li class="nav-item"><a class="nav-link" href="/"><h1>About</h1></a></li>
