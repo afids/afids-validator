@@ -20,7 +20,7 @@ class TestFcsvValidation(unittest.TestCase):
                 fcsv_json = model_auto.csv_to_json(fcsv)
 
         self.assertEqual(cm.exception.message,
-             'Invalid content / structure')
+             'Content / structure of fiducial file incorrect')
 
     def test_too_few_rows(self):
         with open('test/resources/too_few_rows.fcsv', 'r') as fcsv:
