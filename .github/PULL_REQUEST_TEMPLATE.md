@@ -23,4 +23,4 @@ Put an `x` in the boxes that apply. You can also fill these out after creating t
 ## Notes
 All PRs will undergo the unit testing before being reviewed. You may be requested to explain or make additional changes before the PR is accepted.
 
-_PR template was adopted from [appium](https://github.com/appium/appium/blob/master/.github/PULL_REQUEST_TEMPLATE.md)
+_PR template was adopted from [appium](https://github.com/appium/appium/blob/master/.github/PULL_REQUEST_TEMPLATE.md)_
