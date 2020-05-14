@@ -99,8 +99,8 @@ def csv_to_json(in_csv):
     parsed_version = None
     try:
         parsed_version = re.findall("\d+\.\d+", version_line)[0]
-    except ValueError:
-        raise InvalidFcsvError('Invalid Markups fiducial file version')
+    except IndexError:
+        raise InvalidFcsvError('Content / structure of fiducial file incorrect')
 
     if parse_version(parsed_version) < parse_version('4.6'):
         raise InvalidFcsvError('Markups fiducial file version ' +
