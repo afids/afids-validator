@@ -6,6 +6,10 @@ class TestFcsvValidation(unittest.TestCase):
         with open('test/resources/valid.fcsv', 'r') as fcsv:
             fcsv_json = model_auto.csv_to_json(fcsv)
 
+    def test_valid_flip(self):
+        with open('test/resources/valid_flip.fcsv', 'r') as fcsv:
+            fcsv_json = model_auto.csv_to_json(fcsv)
+
     def test_invalid_version(self):
         with open('test/resources/invalid_version.fcsv', 'r') as fcsv:
             with self.assertRaises(model_auto.InvalidFcsvError) as cm:
