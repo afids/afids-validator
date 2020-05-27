@@ -1,4 +1,11 @@
-# [fidvalidator (https://fidvalidator.herokuapp.com)](https://fidvalidator.herokuapp.com)
+[![AFIDs](https://github.com/afids/afids-validator/blob/master/static/images/banner.png)](./static/images/banner.png)
+
+[![](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fafids_project)](https://twitter.com/afids_project)
+[![](https://github.com/afids/afids-validator/workflows/AFIDs%20Validator%20PR%20Unit%20Testing/badge.svg)](https://github.com/afids/afids-validator/actions?query=workflow%3A%22AFIDs+Validator+PR+Unit+Testing%22)
+
+Anatomical fiducials (AFIDs) is an open framework for evaluating correspondence in brain images and teaching neuroanatomy using anatomical fiducial placement. The AFIDs Validator project aims to build a web application that allows the user to upload an FCSV file generated using the AFIDs protocol, and validate that it conforms to the protocol.
+
+# [afids-validator (https://fidvalidator.herokuapp.com)](https://fidvalidator.herokuapp.com)
 
 ## Development
 ### Required Packages
@@ -43,7 +50,3 @@ _If the migrations folder has been changed, run `python manage.py db upgrade`_
 
 ## Update Templates
 Templates for the validator stored under the `afids-templates` directory. Within this directory, there are sub-folders. Human-based templates are stored under the `human` sub-directory. To add templates to the validator, add them to the appropriate directory under `afids-templates` and create a pull request.
-
-## To Do List:
-* additional stats / insights availible for the user
-* direct slicer connection
