@@ -1,0 +1,22 @@
+name: AFIDs Validator App Deployment
+
+on:
+  merge:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Set up environment & deploy to heroku
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch
+      - uses: actions/checkout@master
+
+      - name: Deploy heroku app
+      - uses: akhileshns/heroku-deploy@v3.0.4
+        with:
+          heroku_api_key: # ADD HEROKU API
+          heroku_app_name: # UPDATE APP NAME
+          heroku_email: # ADD HEROKU EMAIL
