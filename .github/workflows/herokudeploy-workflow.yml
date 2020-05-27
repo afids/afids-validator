@@ -12,10 +12,10 @@ jobs:
 
     steps:
       - name: Checkout branch
-      - uses: actions/checkout@master
+        uses: actions/checkout@master
 
       - name: Deploy heroku app
-      - uses: akhileshns/heroku-deploy@v3.0.4
+        uses: akhileshns/heroku-deploy@v3.0.4
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}} # Heroku API Key 
           heroku_app_name: afids-validator # Heroku app name
