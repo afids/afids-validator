@@ -17,6 +17,6 @@ jobs:
       - name: Deploy heroku app
       - uses: akhileshns/heroku-deploy@v3.0.4
         with:
-          heroku_api_key: # ADD HEROKU API
-          heroku_app_name: # UPDATE APP NAME
-          heroku_email: # ADD HEROKU EMAIL
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}} # Heroku API Key 
+          heroku_app_name: fidvalidator # Heroku app name
+          heroku_email: ${{secrets.HEROKU_EMAIL}} # Heroku email
