@@ -215,24 +215,26 @@ def validator():
     distances = []
     labels = []
     template_data_j = None
-    dir_contents = os.listdir(AFIDS_HUMAN_DIR)
-    fid_templates = [' ']
-    for d in dir_contents:
+    human_dir = os.listdir(AFIDS_HUMAN_DIR)
+    human_templates = []
+    for d in human_dir:
         if 'sub' in d:
-            fid_templates.append(d[4:])
+            d = d[4:]
+        
+        human_templates.append(d.split('_')[0])
 
     if not request.method == 'POST':
         result = '<br>'.join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
-            fid_templates=fid_templates, template_data_j=template_data_j,
+            human_templates=human_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
     if not request.files:
         result = '<br>'.join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
-            fid_templates=fid_templates, template_data_j=template_data_j,
+            human_templates=human_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
     upload = request.files[form.filename.name]
@@ -242,7 +244,7 @@ def validator():
         result = '<br>'.join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
-            fid_templates=fid_templates, template_data_j=template_data_j,
+            human_templates=human_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
     try:
@@ -250,7 +252,7 @@ def validator():
     except InvalidFcsvError as err:
         result = 'Invalid file: {err_msg}'.format(err_msg=err.message)
         return render_template("validator.html", form=form, result=result,
-            fid_templates=fid_templates, template_data_j=template_data_j,
+            human_templates=human_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
     result = 'Valid file'
@@ -258,18 +260,19 @@ def validator():
 
     fid_template = request.form['fid_template']
 
-    if fid_template == ' ':
+    if fid_template == ' ' or fid_template == 'Validate .fcsv file structure':
         result = "Valid file"
         result = '<br>'.join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
-            fid_templates=fid_templates, template_data_j=template_data_j,
+            human_templates=human_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
     msg = fid_template + ' selected'
 
-    template_file_path = os.path.join(AFIDS_HUMAN_DIR,
-                                      'sub-' + str(fid_template))
+    # Need to pull from correct folder when more templates are added
+    if fid_template in human_templates:
+        template_file_path = os.path.join(AFIDS_HUMAN_DIR, 'sub-' + str(fid_template) + '_afids.fcsv')
 
     template_file = open(template_file_path, 'r')
 
@@ -401,7 +404,7 @@ def validator():
     result = '<br>'.join([result, msg])
 
     return render_template("validator.html", form=form, result=result,
-        fid_templates=fid_templates, template_data_j=template_data_j,
+        human_templates=human_templates, template_data_j=template_data_j,
         index=index, labels=labels, distances=distances)
 
 @app.route("/getall")
