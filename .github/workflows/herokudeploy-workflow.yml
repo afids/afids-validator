@@ -1,9 +1,10 @@
 name: AFIDs Validator App Deployment
 
 on:
-  push:
+  pull_request:
     branches:
       - master
+    types: [closed]
 
 jobs:
   build:
@@ -13,8 +14,11 @@ jobs:
     steps:
       - name: Checkout branch
         uses: actions/checkout@master
+        with:
+          ref: refs/heads/master
 
       - name: Deploy heroku app
+        if: github.event.pull_request.merged == true 
         uses: akhileshns/heroku-deploy@v3.0.4
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}} # Heroku API Key 
