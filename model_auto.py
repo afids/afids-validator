@@ -62,13 +62,21 @@ def _skip_first(seq, n):
 
 def parse_fcsv_field(row, key, label=None):
     try:
-        return row[key]
+        value = row[key]
+        if value is None:
+            if label:
+                raise InvalidFcsvError('Row {label} has no value {key}'
+                    .format(label=label, key=key))
+            else:
+                raise InvalidFcsvError('Row has no value {key}'
+                    .format(key=key))
+        return value
     except KeyError:
         if label:
-            return InvalidFcsvError('Row {label} has no {key} value'
+            raise InvalidFcsvError('Row {label} has no value {key}'
                     .format(label=label, key=key))
         else:
-            return InvalidFcsvError('Row has no {key} value'
+            raise InvalidFcsvError('Row has no value {key}'
                 .format(key=key))
 
 def parse_fcsv_float(value, field, label):
@@ -100,7 +108,7 @@ def csv_to_json(in_csv):
     try:
         parsed_version = re.findall("\d+\.\d+", version_line)[0]
     except IndexError:
-        raise InvalidFcsvError('Content / structure of fiducial file incorrect')
+        raise InvalidFcsvError('Missing or invalid header in fiducial file')
 
     if parse_version(parsed_version) < parse_version('4.6'):
         raise InvalidFcsvError('Markups fiducial file version ' +
