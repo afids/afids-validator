@@ -14,6 +14,22 @@ class TestFcsvValidation(unittest.TestCase):
         self.assertEqual(cm.exception.message,
             'Markups fiducial file version 3.5 too low')
 
+    def test_invalid_content(self):
+        with open('test/resources/invalid_content.fcsv', 'r') as fcsv:
+            with self.assertRaises(model_auto.InvalidFcsvError) as cm:
+                fcsv_json = model_auto.csv_to_json(fcsv)
+
+        self.assertEqual(cm.exception.message,
+            'Missing or invalid header in fiducial file')
+
+        with open('test/resources/invalid_content_valid_header.fcsv',
+                'r') as fcsv:
+            with self.assertRaises(model_auto.InvalidFcsvError) as cm:
+                fcsv_json = model_auto.csv_to_json(fcsv)
+
+        self.assertEqual(cm.exception.message,
+            'Row has no value label')
+
     def test_too_few_rows(self):
         with open('test/resources/too_few_rows.fcsv', 'r') as fcsv:
             with self.assertRaises(model_auto.InvalidFcsvError) as cm:
