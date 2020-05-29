@@ -6,7 +6,7 @@ class TestFcsvValidation(unittest.TestCase):
         with open('test/resources/valid.fcsv', 'r') as fcsv:
             fcsv_json = model_auto.csv_to_json(fcsv)
 
-        with open('test/resources/valid_nonhuman.fcsv', 'r') as fcsv:
+        with open('test/resources/valid_nhp.fcsv', 'r') as fcsv:
                 fcsv_json = model_auto.csv_to_json(fcsv)
 
     def test_invalid_version(self):
