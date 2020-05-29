@@ -3,17 +3,11 @@ import model_auto
 
 class TestFcsvValidation(unittest.TestCase):
     def test_valid(self):
-        try:
-            with open('test/resources/valid.fcsv', 'r') as fcsv:
-                fcsv_json = model_auto.csv_to_json(fcsv)
-        except:
-            print("Non-valid human fcsv file")
+        with open('test/resources/valid.fcsv', 'r') as fcsv:
+            fcsv_json = model_auto.csv_to_json(fcsv)
 
-        try:
-            with open('test/resources/valid_nonhuman.fcsv', 'r') as fcsv:
+        with open('test/resources/valid_nonhuman.fcsv', 'r') as fcsv:
                 fcsv_json = model_auto.csv_to_json(fcsv)
-        except:
-            print("Non-valid NHP fcsv file")
 
     def test_invalid_version(self):
         with open('test/resources/invalid_version.fcsv', 'r') as fcsv:
