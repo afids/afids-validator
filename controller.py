@@ -242,7 +242,7 @@ def validator():
     upload = request.files[form.filename.name]
 
     if not (upload and allowed_file(upload.filename)):
-        result = "Invalid file: extension not allowed (%s)" % timestamp
+        result = "Invalid file: extension not allowed ({time_stamp})".format(time_stamp=timestamp)
         result = '<br>'.join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
@@ -252,18 +252,18 @@ def validator():
     try:
         user_data = csv_to_json(io.StringIO(upload.stream.read().decode('utf-8')))
     except InvalidFcsvError as err:
-        result = 'Invalid file: {err_msg} (%s)'.format(err_msg=err.message) % timestamp
+        result = 'Invalid file: {err_msg} ({time_stamp})'.format(err_msg=err.message, time_stamp=timestamp)
         return render_template("validator.html", form=form, result=result,
             human_templates=human_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
-    result = 'Valid file (%s)' % timestamp 
+    result = 'Valid file ({time_stamp})'.format(time_stamp=timestamp)
     user_data_j = json.loads(user_data)
 
     fid_template = request.form['fid_template']
 
     if fid_template == 'Validate .fcsv file structure':
-        result = "Valid file (%s)" % timestamp
+        result = "Valid file  ({time_stamp})".format(time_stamp=timestamp)
         result = '<br>'.join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
