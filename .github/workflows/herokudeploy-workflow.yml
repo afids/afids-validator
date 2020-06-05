@@ -1,0 +1,26 @@
+name: AFIDs Validator App Deployment
+
+on:
+  pull_request:
+    branches:
+      - master
+    types: [closed]
+
+jobs:
+  build:
+    name: Set up environment & deploy to heroku
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@master
+        with:
+          ref: refs/heads/master
+
+      - name: Deploy heroku app
+        if: github.event.pull_request.merged == true 
+        uses: akhileshns/heroku-deploy@v3.0.4
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }} # Heroku API Key 
+          heroku_app_name: afids-validator # Heroku app name
+          heroku_email: ${{ secrets.HEROKU_EMAIL }} # Heroku email

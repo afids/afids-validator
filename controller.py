@@ -260,7 +260,7 @@ def validator():
 
     fid_template = request.form['fid_template']
 
-    if fid_template == ' ' or fid_template == 'Validate .fcsv file structure':
+    if fid_template == 'Validate .fcsv file structure':
         result = "Valid file"
         result = '<br>'.join([result, msg])
 
