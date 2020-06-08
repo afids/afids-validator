@@ -7,10 +7,6 @@ class TestFcsvValidation(unittest.TestCase):
         with open('test/resources/valid.fcsv', 'r') as fcsv:
             fcsv_json = model_auto.csv_to_json(fcsv)
 
-<<<<<<< HEAD
-        with open('test/resources/valid_nhp.fcsv', 'r') as fcsv:
-                fcsv_json = model_auto.csv_to_json(fcsv)
-=======
     def test_valid_flip(self):
         with open('test/resources/valid_flip.fcsv', 'r') as fcsv:
             fcsv_json = model_auto.csv_to_json(fcsv)
@@ -18,7 +14,6 @@ class TestFcsvValidation(unittest.TestCase):
 
         self.assertEqual(float(fcsv_data["1"]["x"]), -0.07077182344203692)
         self.assertEqual(float(fcsv_data["1"]["y"]), 0.2548674381652525)
->>>>>>> master
 
     def test_invalid_version(self):
         with open('test/resources/invalid_version.fcsv', 'r') as fcsv:
