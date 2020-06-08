@@ -60,9 +60,15 @@ def _skip_first(seq, n):
         if i >= n:
             yield item
 
-def parse_fcsv_field(row, key, label=None):
+def parse_fcsv_field(row, key, label=None, parsed_version=None):
     try:
-        value = row[key]
+        if parsed_version is None or parse_version(parsed_version) < parse_version('4.11'):
+            value = row[key]
+        elif key == 'x' or key == 'y':
+            value = str(-float(row[key]))
+        else:
+            value = row[key]
+
         if value is None:
             if label:
                 raise InvalidFcsvError('Row {label} has no value {key}'
@@ -142,11 +148,11 @@ def csv_to_json(in_csv):
         # Ensure the full FID name is used
         row_desc = EXPECTED_MAP[row_label][0]
 
-        row_x = parse_fcsv_field(row, 'x', row_label)
+        row_x = parse_fcsv_field(row, 'x', row_label, parsed_version)
         parse_fcsv_float(row_x, 'x', row_label)
-        row_y = parse_fcsv_field(row, 'y', row_label)
+        row_y = parse_fcsv_field(row, 'y', row_label, parsed_version)
         parse_fcsv_float(row_y, 'y', row_label)
-        row_z = parse_fcsv_field(row, 'z', row_label)
+        row_z = parse_fcsv_field(row, 'z', row_label, parsed_version)
         parse_fcsv_float(row_z, 'z', row_label)
 
         missing_fields = 0

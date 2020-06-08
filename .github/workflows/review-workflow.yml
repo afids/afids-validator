@@ -8,6 +8,7 @@ jobs:
     review:
         name: Assign reviewer
         runs-on: ubuntu-latest
+        if: github.event.pull_request.draft == false
 
         steps:
             - name: Assign a reviewer
