@@ -7,7 +7,7 @@ import csv
 #                                          ^ "reference"                      ^ "user"
 
 def generate_visualizations(fname1='.\\afids-templates\\human\\sub-MNI2009cAsym_afids.fcsv',
-    fname2='.\\afids-sampledata\\MNI2009b_T1_JKai_1_20170530.fcsv'):
+    fname2='.\\afids-sampledata\\MNI2009b_T1_JKai_1_20170530.fcsv', outputpath='twofigs.html'):
     ''' first argument: filename of fcsv containing "reference" AFIDs
         second argument: filename of fcsv containing "user" AFIDs for comparison '''
     with open(fname1) as reference, open(fname2) as user:
@@ -162,7 +162,8 @@ def generate_visualizations(fname1='.\\afids-templates\\human\\sub-MNI2009cAsym_
 
     #pdb.set_trace()
 
-    bigfig.write_html('twofigs.html')
+    bigfig.write_html(outputpath)
+
 
 def do_binning(input, nbins=6):
     # min is always 0
