@@ -1,15 +1,15 @@
+from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import pandas as pd
 import csv
-import random # remove this once we dont need "fake" user data
 
 # INPUT:     FCSVs corresponding to (the "true" points to compare) and (the user data)
 #                                          ^ "reference"                      ^ "user"
 
-def generate_visualizations(fname1='../afids-examples/sub-MNI2009cAsym/sub-MNI2009cAsym_afids.fcsv',
-    fname2=''):
+def generate_visualizations(fname1='.\\afids-templates\\human\\sub-MNI2009cAsym_afids.fcsv',
+    fname2='.\\afids-sampledata\\MNI2009b_T1_JKai_1_20170530.fcsv'):
     ''' first argument: filename of fcsv containing "reference" AFIDs
         second argument: filename of fcsv containing "user" AFIDs for comparison '''
-
     with open(fname1) as reference, open(fname2) as user:
         ref_rdr = csv.reader(reference, delimiter=',')
         user_rdr = csv.reader(user, delimiter=',')
@@ -67,7 +67,7 @@ def generate_visualizations(fname1='../afids-examples/sub-MNI2009cAsym/sub-MNI20
         lines_magnitudes.append(d)
         lines_magnitudes.append(0)
 
-    fig = go.Figure(data=[
+    dset1 = [
         go.Scatter3d(
             x=[i['x'] for i in ref_data],
             y=[i['y'] for i in ref_data],
@@ -101,12 +101,86 @@ def generate_visualizations(fname1='../afids-examples/sub-MNI2009cAsym/sub-MNI20
             line=dict(color=lines_magnitudes, colorscale="Bluered", width = 8)
             ),
         ]
-        )
+    fig1 = go.Figure(data=dset1)
 
     #
-    fig.update_layout(autosize = False, height = 650, width = 1250)
+    fig1.update_layout(autosize = False, height = 650, width = 1250)
     # currently the renderer simply embeds the figure in an html document and puts
     # it in /iframe_figures/
     # This can be changed to make it output directly into another webpage, for example.
     # (I think.)
-    fig.show(renderer = 'iframe')
+    #fig1.show(renderer = 'iframe')
+    #fig1.write_html('fig1.html')
+
+    ## next figure: histogram of distances
+    lines_magnitudes_unique = [i for ix, i in enumerate(lines_magnitudes) if not ix%4]
+    #dset2 = go.Histogram(x=lines_magnitudes_unique, showlegend=False,
+    #nbinsx = 10)
+
+    xvals = ['a','b']
+    dset2 = [go.Bar(x=xvals,y=[12,45]),
+    go.Bar(x=xvals, y=[22, 33])
+    ]
+
+    #fig2 = go.Figure(data = [dset2])
+    #fig2.update_layout(autosize = False, height = 650, width = 1250)
+    #fig2.write_html('fig2.html')
+    howtosort = sorted(range(len(lines_magnitudes_unique)), key = lambda k:lines_magnitudes_unique[k])
+    dists_sorted = [lines_magnitudes_unique[i] for i in howtosort]
+    ids_sorted = [ids[i] for i in howtosort]
+
+    '''
+    ourdf = pd.DataFrame(data={'ids':ids,'Distance':lines_magnitudes_unique,
+        'Distance (Binned)':do_binning(lines_magnitudes_unique), 'Height':[1 for i in ids]})
+    fig3 = px.bar( ourdf , x='Distance (Binned)', y='Height', color = 'Distance',
+        text = "ids", hover_data = ['ids', 'Distance'],
+        color_continuous_scale=px.colors.sequential.Bluered,
+        labels={"Distance":"Euclidean Distance", "ids":"ID"})
+    '''
+
+    bigfig = make_subplots(rows=2, cols=1, specs=[[{"type": "scene"}], [{"type": "xy"}]],
+        subplot_titles=("3D Map of Placed AFIDs", "Histogram of Placement Error") )
+
+    bigfig.add_trace(dset1[0], row=1,col=1)
+    bigfig.add_trace(dset1[1], row=1,col=1)
+    bigfig.add_trace(dset1[2], row=1,col=1)
+
+    #bigfig.add_trace(dset2[0], row=2,col=1)
+    #bigfig.add_trace(dset2[1], row=2,col=1)
+
+    fig4 = go.Bar(x=do_binning(dists_sorted), y=[1 for i in ids],
+        text = [str(i)+'<br>'+str(round(dists_sorted[ix],3))+' mm' for ix, i in enumerate(ids_sorted)],
+        textposition='inside',
+        #hovertemplate = '%{text}<br>x: %{x:.4f}<br>y: %{y:.4f}<br>z: %{z:.4f}',
+        marker_color = dists_sorted, marker_colorscale="Bluered", showlegend=False)
+
+    #bigfig.add_trace(fig3['data'][0], row=2,col=1)
+    bigfig.add_trace(fig4, row=2,col=1)
+
+    bigfig.update_layout(autosize = False, height=1600, width=1350, barmode = "stack",
+        coloraxis = dict(colorscale='Bluered'))
+
+    #pdb.set_trace()
+
+    bigfig.write_html('twofigs.html')
+
+def do_binning(input, nbins=6):
+    # min is always 0
+    output = []
+
+    fullrange = int(max(input)) + 1
+    interval = fullrange/nbins
+    for i in input:
+        cpy = i
+        for j in range(nbins):
+            cpy -= interval
+            if cpy < 0:
+                out = interval * j
+                break
+        #
+        outformatted = str(round(out,2)) + "-" + str(round(out + interval,2))
+        output.append(outformatted)
+    #
+    return output
+
+generate_visualizations()
