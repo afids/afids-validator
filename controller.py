@@ -5,7 +5,7 @@ import os
 import io
 import csv
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -224,7 +224,7 @@ def validator():
         
         human_templates.append(d.split('_')[0])
 
-    timestamp = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    timestamp = str(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z"))
     if not request.method == 'POST':
         result = '<br>'.join([result, msg])
 
