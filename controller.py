@@ -225,6 +225,7 @@ def validator():
         human_templates.append(d.split('_')[0])
 
     timestamp = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    timestamp = timestamp + " UTC"
     if not request.method == 'POST':
         result = '<br>'.join([result, msg])
 
