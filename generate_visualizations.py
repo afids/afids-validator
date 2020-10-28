@@ -56,6 +56,7 @@ def generate_visualizations(ref_json, user_json):
             x=[float(i['x']) for i in ref_json.values()],
             y=[float(i['y']) for i in ref_json.values()],
             z=[float(i['z']) for i in ref_json.values()],
+            showlegend=False,
             mode="markers",
             marker=dict(
                 size=4,
@@ -69,6 +70,7 @@ def generate_visualizations(ref_json, user_json):
             x=[float(i['x']) for i in user_json.values()],
             y=[float(i['y']) for i in user_json.values()],
             z=[float(i['z']) for i in user_json.values()],
+            showlegend=False,
             mode="markers",
             marker=dict(
                 size=4,
@@ -95,17 +97,8 @@ def generate_visualizations(ref_json, user_json):
                 colorscale="Bluered",
                 width=8)),
         ]
-    fig1 = go.Figure(data=dset1)
-    fig1.update_layout(autosize=False, height=650, width=1250)
 
-    # currently the renderer simply embeds the figure in an html document
-    # and puts it in /iframe_figures/
-    # This can be changed to make it output directly into another webpage,
-    # for example. (I think.)
-    # fig1.show(renderer = 'iframe')
-    # fig1.write_html('fig1.html')
-
-    ## next figure: histogram of distances
+    # next figure: histogram of distances
     lines_magnitudes_unique = [
         i for ix, i in enumerate(lines_magnitudes) if not ix % 4]
 
@@ -139,13 +132,14 @@ def generate_visualizations(ref_json, user_json):
     bigfig.add_trace(fig4, row=2, col=1)
 
     bigfig.update_layout(
-        autosize=False,
-        height=1600,
-        width=1350,
+        autosize=True,
         barmode="stack",
         coloraxis=dict(colorscale='Bluered'))
 
-    return bigfig.to_html(include_plotlyjs="cdn", full_html=False)
+    return bigfig.to_html(
+        include_plotlyjs="cdn",
+        full_html=False,
+        default_height=1000)
 
 def do_binning(in_data, nbins=6):
     # min is always 0
@@ -160,10 +154,9 @@ def do_binning(in_data, nbins=6):
             if cpy < 0:
                 out = interval * j
                 break
-        #
+
         outformatted = str(round(out, 2)) + "-" + str(round(out + interval, 2))
         output.append(outformatted)
-    #
     return output
 
 if __name__ == "__main__":

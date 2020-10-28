@@ -46,32 +46,20 @@
           </form>
 
           <div class="row">
-              <div class="col-sm-7">
+              <div class="col-9">
                   <h2>Results</h2>
               </div>
           </div>
           <div class="row">
-              <div class="col-sm-7">
+              <div class="col-9">
                   {% if result != None %}
                   {{ result|safe }}
                   {% endif %}
               </div>
           </div>
           <div class="row">
-            <!-- Numerical results -->
-            <div class="text col-sm-6">
-              <table class="table table-dark table-sm">
-                <tr>
-                  <th scope="col">{{"Fiducial Name"}}</th>
-                  <th scope="col">{{"Distance [mm]"}}</th></tr>
-                {% for i in index %}
-                <tr><td>{{labels[i]}}</td><td>{{distances[i]}}</td></tr>
-                {% endfor %}
-              </table>
-            </div>
-
             <!-- Visual results -->
-            <div class="col-sm-6">
+            <div class="col-9">
                 {{visualization_html|safe}}
             </div>
           </div>
