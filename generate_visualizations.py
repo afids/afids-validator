@@ -21,25 +21,7 @@ def generate_visualizations(
         ref_json = json.loads(csv_to_json(ref_file))
         user_json = json.loads(csv_to_json(user_file))
 
-    ref_data = []
-    user_data = []
     connecting_lines = []
-    for i, row in enumerate(ref_json.values()):
-        entry = {}
-        entry['x'] = float(row['x'])
-        entry['y'] = float(row['y'])
-        entry['z'] = float(row['z'])
-        entry['id'] = row['desc']
-        ref_data.append(entry)
-
-    for i, row in enumerate(user_json.values()):
-        entry = {}
-        entry['x'] = float(row['x'])
-        entry['y'] = float(row['y'])
-        entry['z'] = float(row['z'])
-        entry['id'] = row['desc']
-        user_data.append(entry)
-
     for _, entry_pair in enumerate(
             zip(ref_json.values(), user_json.values())):
         ref_entry = entry_pair[0]
@@ -56,7 +38,7 @@ def generate_visualizations(
     lines_y = []
     lines_z = []
     lines_magnitudes = []
-    ids = [entry['id'] for entry in ref_data]
+    ids = [entry['desc'] for entry in ref_json.values()]
     for line in connecting_lines:
         lines_x.append(line[0]['x'])
         lines_x.append((line[0]['x'] + line[1]['x'])/2)
@@ -83,9 +65,9 @@ def generate_visualizations(
 
     dset1 = [
         go.Scatter3d(
-            x=[i['x'] for i in ref_data],
-            y=[i['y'] for i in ref_data],
-            z=[i['z'] for i in ref_data],
+            x=[float(i['x']) for i in ref_json.values()],
+            y=[float(i['y']) for i in ref_json.values()],
+            z=[float(i['z']) for i in ref_json.values()],
             mode="markers",
             marker=dict(
                 size=4,
@@ -96,9 +78,9 @@ def generate_visualizations(
             text=['<b>{0}</b>'.format(ids[int(i)]) for i in range(len(ids))],
             name="Reference AFIDs"),
         go.Scatter3d(
-            x=[i['x'] for i in user_data],
-            y=[i['y'] for i in user_data],
-            z=[i['z'] for i in user_data],
+            x=[float(i['x']) for i in user_json.values()],
+            y=[float(i['y']) for i in user_json.values()],
+            z=[float(i['z']) for i in user_json.values()],
             mode="markers",
             marker=dict(
                 size=4,
@@ -112,7 +94,6 @@ def generate_visualizations(
             x=lines_x,
             y=lines_y,
             z=lines_z,
-
             showlegend=False,
             mode="lines",
             hovertemplate='%{text}',
@@ -175,8 +156,6 @@ def generate_visualizations(
         width=1350,
         barmode="stack",
         coloraxis=dict(colorscale='Bluered'))
-
-    #pdb.set_trace()
 
     bigfig.write_html(outputpath)
 
