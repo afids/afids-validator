@@ -2,16 +2,12 @@
 
 import json
 
-#import pandas as pd
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 from model_auto import csv_to_json
 
-def generate_visualizations(
-        ref_fname,
-        user_fname,
-        outputpath='twofigs.html'):
+def generate_visualizations(ref_fname, user_fname):
     """first argument: filename of fcsv containing "reference" AFIDs
     second argument: filename of fcsv containing "user" AFIDs for
     comparison
@@ -157,7 +153,7 @@ def generate_visualizations(
         barmode="stack",
         coloraxis=dict(colorscale='Bluered'))
 
-    bigfig.write_html(outputpath)
+    return bigfig.to_html(include_plotlyjs="cdn")
 
 def do_binning(in_data, nbins=6):
     # min is always 0
@@ -179,6 +175,6 @@ def do_binning(in_data, nbins=6):
     return output
 
 if __name__ == "__main__":
-    generate_visualizations(
+    print(generate_visualizations(
         "./afids-templates/human/sub-MNI2009cAsym_afids.fcsv",
-        "./afids-templates/human/sub-PD25_afids.fcsv")
+        "./afids-templates/human/sub-PD25_afids.fcsv"))
