@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
+from generate_visualizations import generate_visualizations
 from model_auto import Average, csv_to_json, InvalidFcsvError
 from compute import calc
 
@@ -403,9 +404,12 @@ def validator():
 
     result = '<br>'.join([result, msg])
 
+    visualization_html = generate_visualizations(template_data_j, user_data_j)
+
     return render_template("validator.html", form=form, result=result,
         human_templates=human_templates, template_data_j=template_data_j,
-        index=index, labels=labels, distances=distances)
+        index=index, labels=labels, distances=distances,
+        visualization_html=visualization_html)
 
 @app.route("/getall")
 def get_all():

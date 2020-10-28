@@ -1,21 +1,13 @@
 """Utilities for generating AFIDs-related graphics"""
 
-import json
-
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
-from model_auto import csv_to_json
-
-def generate_visualizations(ref_fname, user_fname):
+def generate_visualizations(ref_json, user_json):
     """first argument: filename of fcsv containing "reference" AFIDs
     second argument: filename of fcsv containing "user" AFIDs for
     comparison
     """
-
-    with open(ref_fname, "r") as ref_file, open(user_fname, "r") as user_file:
-        ref_json = json.loads(csv_to_json(ref_file))
-        user_json = json.loads(csv_to_json(user_file))
 
     connecting_lines = []
     for _, entry_pair in enumerate(
@@ -153,7 +145,7 @@ def generate_visualizations(ref_fname, user_fname):
         barmode="stack",
         coloraxis=dict(colorscale='Bluered'))
 
-    return bigfig.to_html(include_plotlyjs="cdn")
+    return bigfig.to_html(include_plotlyjs="cdn", full_html=False)
 
 def do_binning(in_data, nbins=6):
     # min is always 0
