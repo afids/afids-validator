@@ -5,6 +5,7 @@ import os
 import io
 import csv
 import json
+from datetime import datetime, timezone
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -224,6 +225,7 @@ def validator():
         
         human_templates.append(d.split('_')[0])
 
+    timestamp = str(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z"))
     if not request.method == 'POST':
         return render_template("validator.html", form=form, result=result,
             human_templates=human_templates, template_data_j=template_data_j,
@@ -239,7 +241,7 @@ def validator():
     upload = request.files[form.filename.name]
 
     if not (upload and allowed_file(upload.filename)):
-        result = "invalid file: extension not allowed"
+        result = "Invalid file: extension not allowed ({time_stamp})".format(time_stamp=timestamp)
         result = '<br>'.join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
@@ -249,18 +251,18 @@ def validator():
     try:
         user_data = csv_to_json(io.StringIO(upload.stream.read().decode('utf-8')))
     except InvalidFcsvError as err:
-        result = 'Invalid file: {err_msg}'.format(err_msg=err.message)
+        result = 'Invalid file: {err_msg} ({time_stamp})'.format(err_msg=err.message, time_stamp=timestamp)
         return render_template("validator.html", form=form, result=result,
             human_templates=human_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
 
-    result = 'Valid file'
+    result = 'Valid file ({time_stamp})'.format(time_stamp=timestamp)
     user_data_j = json.loads(user_data)
 
     fid_template = request.form['fid_template']
 
     if fid_template == 'Validate .fcsv file structure':
-        result = "Valid file"
+        result = "Valid file  ({time_stamp})".format(time_stamp=timestamp)
         result = '<br>'.join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
@@ -406,7 +408,7 @@ def validator():
 
     return render_template("validator.html", form=form, result=result,
         human_templates=human_templates, template_data_j=template_data_j,
-        index=index, labels=labels, distances=distances,
+        index=index, labels=labels, distances=distances, timestamp=timestamp,
         scatter_html=visualization_html["scatter"],
         histogram_html=visualization_html["histogram"])
 
