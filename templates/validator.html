@@ -45,6 +45,7 @@
 	    <label for="db_checkbox">Upload to Database</label>
           </form>
 
+          {% if result != "" %}
           <div class="row">
               <div class="col-9">
                   <h2>Results</h2>
@@ -52,17 +53,26 @@
           </div>
           <div class="row">
               <div class="col-9">
-                  {% if result != None %}
-                  {{ result|safe }}
+                  {% if result[0:5] == "Valid" %}
+                  <div class="alert alert-success">
+                  {% else %}
+                  <div class="alert alert-danger">
                   {% endif %}
+                      {{ result|safe }}
+                  </div>
               </div>
           </div>
           <div class="row">
-            <!-- Visual results -->
             <div class="col-9">
-                {{visualization_html|safe}}
+                {{scatter_html|safe}}
             </div>
           </div>
+          <div class="row">
+            <div class="col-9">
+                {{histogram_html|safe}}
+            </div>
+          </div>
+          {% endif %}
         </section>
 
         <!-- Analytics -->

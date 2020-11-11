@@ -1,6 +1,5 @@
 """Utilities for generating AFIDs-related graphics"""
 
-from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 def generate_visualizations(ref_json, user_json):
@@ -89,8 +88,7 @@ def generate_visualizations(ref_json, user_json):
             hovertemplate='%{text}',
             text=[
                 '<b>{0}</b><br>Euclidean Distance: {1:.3f} mm'.format(
-                    ids[int(i/4)],
-                    lines_magnitudes[i])
+                    ids[int(i/4)], lines_magnitudes[i])
                 for i in range(len(lines_x))],
             line=dict(
                 color=lines_magnitudes,
@@ -107,19 +105,12 @@ def generate_visualizations(ref_json, user_json):
     dists_sorted = [lines_magnitudes_unique[i] for i in howtosort]
     ids_sorted = [ids[i] for i in howtosort]
 
-    bigfig = make_subplots(
-        rows=2,
-        cols=1,
-        specs=[[{"type": "scene"}], [{"type": "xy"}]],
-        subplot_titles=(
-            "3D Map of Placed AFIDs",
-            "Histogram of Placement Error"))
+    bigfig = go.Figure()
+    bigfig.add_trace(dset1[0])
+    bigfig.add_trace(dset1[1])
+    bigfig.add_trace(dset1[2])
 
-    bigfig.add_trace(dset1[0], row=1, col=1)
-    bigfig.add_trace(dset1[1], row=1, col=1)
-    bigfig.add_trace(dset1[2], row=1, col=1)
-
-    fig4 = go.Bar(
+    fig4 = go.Figure(data=go.Bar(
         x=do_binning(dists_sorted),
         y=[1 for i in ids],
         text=[str(i) + '<br>' + str(round(dists_sorted[ix], 3)) + ' mm'
@@ -127,26 +118,35 @@ def generate_visualizations(ref_json, user_json):
         textposition='inside',
         marker_color=dists_sorted,
         marker_colorscale="Bluered",
-        showlegend=False)
+        showlegend=False))
 
-    bigfig.add_trace(fig4, row=2, col=1)
-
+    fig4.update_layout(
+        title_text="Template vs. provided AFIDs",
+        autosize=True,
+        barmode="stack",
+        coloraxis=dict(colorscale='Bluered'))
     bigfig.update_layout(
+        title_text="Euclidean distances from template",
         autosize=True,
         barmode="stack",
         coloraxis=dict(colorscale='Bluered'))
 
-    return bigfig.to_html(
-        include_plotlyjs="cdn",
-        full_html=False,
-        default_height=1000)
+    return {
+        "scatter":
+            bigfig.to_html(
+                include_plotlyjs="cdn",
+                full_html=False),
+        "histogram":
+            fig4.to_html(
+                include_plotlyjs="cdn",
+                full_html=False)}
 
 def do_binning(in_data, nbins=6):
     # min is always 0
     output = []
 
     fullrange = int(max(in_data)) + 1
-    interval = fullrange/nbins
+    interval = fullrange / nbins
     for i in in_data:
         cpy = i
         for j in range(nbins):

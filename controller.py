@@ -225,8 +225,6 @@ def validator():
         human_templates.append(d.split('_')[0])
 
     if not request.method == 'POST':
-        result = '<br>'.join([result, msg])
-
         return render_template("validator.html", form=form, result=result,
             human_templates=human_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
@@ -409,7 +407,8 @@ def validator():
     return render_template("validator.html", form=form, result=result,
         human_templates=human_templates, template_data_j=template_data_j,
         index=index, labels=labels, distances=distances,
-        visualization_html=visualization_html)
+        scatter_html=visualization_html["scatter"],
+        histogram_html=visualization_html["histogram"])
 
 @app.route("/getall")
 def get_all():
@@ -447,7 +446,6 @@ def plot_png():
 
     return Response(output.getvalue(), mimetype='image/png')
 
-
 def create_figure():
     fig = Figure()
     fig, ax = plt.subplots()
@@ -480,12 +478,7 @@ with open(os.path.join(AFIDS_HUMAN_DIR, 'sub-MNI2009cAsym_afids.fcsv')) as MNI:
 
 @app.route('/analytics')
 def chartTest():
-
     return render_template('view_analytics.html')
-
-@app.route('/pointcloud.html', methods=['GET'])
-def cloud():
-    return render_template("pointcloud.html")
 
 if __name__ == '__main__':
     app.run(debug=True)
