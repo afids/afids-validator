@@ -55,30 +55,30 @@ def generate_visualizations(ref_json, user_json):
             x=[float(i['x']) for i in ref_json.values()],
             y=[float(i['y']) for i in ref_json.values()],
             z=[float(i['z']) for i in ref_json.values()],
-            showlegend=False,
+            showlegend=True,
             mode="markers",
             marker=dict(
                 size=4,
-                color='rgba(102,102,153,0.9)',
+                color='rgba(255,191,31,0.9)',
                 line=dict(width=1.5, color='rgba(50,50,50,1.0)')),
             hovertemplate=("%{text}<br>x: %{x:.4f}<br>y: %{y:.4f}<br>"
                            + "z: %{z:.4f}"),
             text=['<b>{0}</b>'.format(ids[int(i)]) for i in range(len(ids))],
-            name="Reference AFIDs"),
+            name="Template AFIDs"),
         go.Scatter3d(
             x=[float(i['x']) for i in user_json.values()],
             y=[float(i['y']) for i in user_json.values()],
             z=[float(i['z']) for i in user_json.values()],
-            showlegend=False,
+            showlegend=True,
             mode="markers",
             marker=dict(
                 size=4,
-                color='rgba(102,0,51,0.9)',
+                color='rgba(0,0,0,0.9)',
                 line=dict(width=1.5, color='rgba(50,50,50,1.0)')),
             hovertemplate=("%{text}<br>x: %{x:.4f}<br>y: %{y:.4f}<br>"
                            + "z: %{z:.4f}"),
             text=['<b>{0}</b>'.format(ids[int(i)]) for i in range(len(ids))],
-            name="User AFIDs"),
+            name="Uploaded AFIDs"),
         go.Scatter3d(
             x=lines_x,
             y=lines_y,
@@ -93,8 +93,13 @@ def generate_visualizations(ref_json, user_json):
             line=dict(
                 color=lines_magnitudes,
                 colorscale="Bluered",
-                width=8)),
-        ]
+                width=8,
+                showscale=True,
+                colorbar=dict(
+                    title=dict(
+                        text="Euclidean distance"))),
+            name="Euclidean Distance"
+            )]
 
     # next figure: histogram of distances
     lines_magnitudes_unique = [
@@ -123,13 +128,13 @@ def generate_visualizations(ref_json, user_json):
     fig4.update_layout(
         title_text="Template vs. provided AFIDs",
         autosize=True,
-        barmode="stack",
         coloraxis=dict(colorscale='Bluered'))
     bigfig.update_layout(
         title_text="Euclidean distances from template",
         autosize=True,
         barmode="stack",
-        coloraxis=dict(colorscale='Bluered'))
+        coloraxis=dict(colorscale='Bluered'),
+        legend_orientation="h")
 
     return {
         "scatter":
