@@ -27,6 +27,14 @@ class Afids:
     def get_fiducial_description(self, label):
         return(self.fiducials[label]["description"])
 
+    def add_fiducial_positions(self, label, positions):
+        self.fiducials[label]["positions"]["x"] = positions[0]
+        self.fiducials[label]["positions"]["y"] = positions[1]
+        self.fiducials[label]["positions"]["z"] = positions[2]
+
+    def add_fiducial_position(self, label, dim, position):
+        self.fiducials[label]["positions"][dim] = position
+
     def get_fiducial_positions(self, label):
         positions = (self.fiducials[label]["positions"]["x"],
                      self.fiducials[label]["positions"]["y"],
