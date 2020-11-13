@@ -61,14 +61,12 @@ def _skip_first(seq, n):
         if i >= n:
             yield item
 
-def parse_fcsv_field(row, key, label=None, parsed_version=None):
+def parse_fcsv_field(row, key, label=None, parsed_coord=None):
     try:
-        if parsed_version is None or parse_version(parsed_version) >= parse_version('4.11'):
+        if parsed_coord == 1 or parsed_coord == "LPS":
             value = row[key]
-        elif key == 'x' or key == 'y':
+        else
             value = str(-float(row[key]))
-        else:
-            value = row[key]
 
         if value is None:
             if label:
@@ -104,11 +102,13 @@ def csv_to_afids(in_csv):
     """ Parse .fcsv / .csv files and write to AFIDs object """
     # Start by checking file version
     version_line = in_csv.readline()
+    coord_line = in_csv.readline()
     
     # Assume versions always in form x.y
     parsed_version = None
     try:
         parsed_version = re.findall("\d+\.\d+", version_line)[0]
+        parsed_coord = re.split("\s" coord_line)[-1]
     except IndexError:
         raise InvalidFcsvError("Missing / invalid header in fiducial file")
         
@@ -124,8 +124,8 @@ def csv_to_afids(in_csv):
     csv_reader = csv.DictReader(in_csv, fields)
     
     # Read csv file and dump to AFIDs object
-    afids = Afids(coordinate_system="LPS")
-    
+    afids = Afids()
+     
     expected_label = 1
     for row in _skip_first(csv_reader, 3):
         if expected_label > 32:
