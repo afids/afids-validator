@@ -1,7 +1,7 @@
 import wtforms as wtf
 import csv, json, math
 import re
-import afids
+from afids import Afids
 from pkg_resources import parse_version
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
