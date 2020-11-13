@@ -63,10 +63,10 @@ def _skip_first(seq, n):
 
 def parse_fcsv_field(row, key, label=None, parsed_coord=None):
     try:
-        if parsed_coord == 1 or parsed_coord == "LPS":
-            value = row[key]
-        else
+        if parsed_coord == 0 or parsed_coord == "RAS":
             value = str(-float(row[key]))
+        else:
+            value = row[key]
 
         if value is None:
             if label:
@@ -108,7 +108,7 @@ def csv_to_afids(in_csv):
     parsed_version = None
     try:
         parsed_version = re.findall("\d+\.\d+", version_line)[0]
-        parsed_coord = re.split("\s" coord_line)[-1]
+        parsed_coord = re.split("\s", coord_line)[-2]
     except IndexError:
         raise InvalidFcsvError("Missing / invalid header in fiducial file")
         
@@ -144,11 +144,11 @@ def csv_to_afids(in_csv):
         # Ensure the full FID name is used
         row_desc = EXPECTED_MAP[row_label][0]
 
-        row_x = parse_fcsv_field(row, 'x', row_label, parsed_version)
+        row_x = parse_fcsv_field(row, 'x', row_label, parsed_coord)
         parse_fcsv_float(row_x, 'x', row_label)
-        row_y = parse_fcsv_field(row, 'y', row_label, parsed_version)
+        row_y = parse_fcsv_field(row, 'y', row_label, parsed_coord)
         parse_fcsv_float(row_y, 'y', row_label)
-        row_z = parse_fcsv_field(row, 'z', row_label, parsed_version)
+        row_z = parse_fcsv_field(row, 'z', row_label, parsed_coord)
         parse_fcsv_float(row_z, 'z', row_label)
 
         missing_fields = 0
@@ -174,18 +174,20 @@ def csv_to_afids(in_csv):
     return afids
 
 def csv_to_json(in_csv):
-    """ Parse .fscv / .csv files and write to json object """
+    """ [TO BE DEPRECATED] Parse .fscv / .csv files and write to json object """
 
     # Read CSV
     json_data = {}
 
     # Start by checking the file version
     version_line = in_csv.readline()
+    coord_line = in_csv.readline()
 
     # Assuming versions are always in the form x.y
     parsed_version = None
     try:
         parsed_version = re.findall("\d+\.\d+", version_line)[0]
+        parsed_coord = re.split(r"\s", coord_line)[-2]
     except IndexError:
         raise InvalidFcsvError('Missing or invalid header in fiducial file')
 
@@ -221,11 +223,11 @@ def csv_to_json(in_csv):
         # Ensure the full FID name is used
         row_desc = EXPECTED_MAP[row_label][0]
 
-        row_x = parse_fcsv_field(row, 'x', row_label, parsed_version)
+        row_x = parse_fcsv_field(row, 'x', row_label, parsed_coord)
         parse_fcsv_float(row_x, 'x', row_label)
-        row_y = parse_fcsv_field(row, 'y', row_label, parsed_version)
+        row_y = parse_fcsv_field(row, 'y', row_label, parsed_coord)
         parse_fcsv_float(row_y, 'y', row_label)
-        row_z = parse_fcsv_field(row, 'z', row_label, parsed_version)
+        row_z = parse_fcsv_field(row, 'z', row_label, parsed_coord)
         parse_fcsv_float(row_z, 'z', row_label)
 
         missing_fields = 0
