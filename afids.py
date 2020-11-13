@@ -6,7 +6,7 @@ def tree():
     return(defaultdict(tree))
 
 class Afids:    
-    def __init__(self, coordinate_system):
+    def __init__(self, coordinate_system="LPS"):
         # Tree structure to store fiducial point info
         self.fiducials = tree()       
 
