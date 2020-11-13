@@ -12,8 +12,8 @@ class TestFcsvValidation(unittest.TestCase):
             fcsv_json = model_auto.csv_to_json(fcsv)
             fcsv_data = json.loads(fcsv_json)
 
-        self.assertEqual(float(fcsv_data["1"]["x"]), 0.07077182344203692)
-        self.assertEqual(float(fcsv_data["1"]["y"]), -0.2548674381652525)
+        self.assertEqual(float(fcsv_data["1"]["x"]), -0.07077182344203692)
+        self.assertEqual(float(fcsv_data["1"]["y"]), 0.2548674381652525)
 
     def test_invalid_version(self):
         with open('test/resources/invalid_version.fcsv', 'r') as fcsv:
