@@ -110,7 +110,7 @@ def csv_to_afids(in_csv):
         parsed_version = re.findall("\d+\.\d+", version_line)[0]
         parsed_coord = re.split("\s", coord_line)[-2]
     except IndexError:
-        raise InvalidFcsvError("Missing / invalid header in fiducial file")
+        raise InvalidFcsvError("Missing or invalid header in fiducial file")
         
     if parse_version(parsed_version) < parse_version("4.6"):
         raise InvalidFcsvError("Markups fiducial file version {parsed_version} too low"
