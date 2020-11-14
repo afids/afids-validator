@@ -45,7 +45,7 @@ class Average(wtf.Form):
     filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
     submit = wtf.SubmitField(label='Submit')
 
-class InvalidFcsvError(Exception):
+class InvalidFileError(Exception):
     """Exception raised when a csv to be parsed is invalid.
 
     Attributes:
@@ -70,18 +70,18 @@ def parse_fcsv_field(row, key, label=None, parsed_coord=None):
 
         if value is None:
             if label:
-                raise InvalidFcsvError('Row {label} has no value {key}'
+                raise InvalidFileError('Row {label} has no value {key}'
                     .format(label=label, key=key))
             else:
-                raise InvalidFcsvError('Row has no value {key}'
+                raise InvalidFileError('Row has no value {key}'
                     .format(key=key))
         return value
     except KeyError:
         if label:
-            raise InvalidFcsvError('Row {label} has no value {key}'
+            raise InvalidFileError('Row {label} has no value {key}'
                     .format(label=label, key=key))
         else:
-            raise InvalidFcsvError('Row has no value {key}'
+            raise InvalidFileError('Row has no value {key}'
                 .format(key=key))
 
 def parse_fcsv_float(value, field, label):
@@ -89,11 +89,11 @@ def parse_fcsv_float(value, field, label):
     try:
         parsed_value = float(value)
     except ValueError:
-        raise InvalidFcsvError('{field} in row {label} is not a real number'
+        raise InvalidFileError('{field} in row {label} is not a real number'
                 .format(field=field, label=label))
 
     if not math.isfinite(parsed_value):
-        raise InvalidFcsvError('{field} in row {label} is not finite'
+        raise InvalidFileError('{field} in row {label} is not finite'
                 .format(field=field, label=label))
 
     return parsed_value
@@ -110,10 +110,10 @@ def csv_to_afids(in_csv):
         parsed_version = re.findall("\d+\.\d+", version_line)[0]
         parsed_coord = re.split("\s", coord_line)[-2]
     except IndexError:
-        raise InvalidFcsvError("Missing or invalid header in fiducial file")
+        raise InvalidFileError("Missing or invalid header in fiducial file")
         
     if parse_version(parsed_version) < parse_version("4.6"):
-        raise InvalidFcsvError("Markups fiducial file version {parsed_version} too low"
+        raise InvalidFileError("Markups fiducial file version {parsed_version} too low"
                                .format(parsed_version=parsed_version))
         
     in_csv.seek(0, 0)
@@ -129,18 +129,17 @@ def csv_to_afids(in_csv):
     expected_label = 1
     for row in _skip_first(csv_reader, 3):
         if expected_label > 32:
-            raise InvalidFcsvError("Too many rows")
+            raise InvalidFileError("Too many rows")
             
         row_label = parse_fcsv_field(row, 'label')
 
         expected_label += 1
         row_desc = parse_fcsv_field(row, 'desc', row_label)
         if not any(x.lower() == row_desc.lower() for x in EXPECTED_MAP[row_label]):
-            raise InvalidFcsvError('Row label {row_label} does not '
-                .format(row_label=row_label) +
+            raise InvalidFileError('Row label {row_label} does not '
                 'match row description {row_desc}'
-                .format(row_desc=row_desc))
-
+                .format(row_label=row_label, row_desc=row_desc)) 
+                
         # Ensure the full FID name is used
         row_desc = EXPECTED_MAP[row_label][0]
 
@@ -159,7 +158,7 @@ def csv_to_afids(in_csv):
 
         num_columns = len(row) - missing_fields
         if num_columns != 14:
-            raise InvalidFcsvError('Incorrect number of columns '
+            raise InvalidFileError('Incorrect number of columns '
                     '({num_columns}) in row {row_label}'
                     .format(num_columns=num_columns, row_label=row_label))
         
@@ -169,6 +168,68 @@ def csv_to_afids(in_csv):
     
     # Check for too few rows
     if len(afids.fiducials) < 32:
-        raise InvalidFcsvError('Too few rows')
+        raise InvalidFileError('Too few rows')
+
+    return afids
+        
+def parse_json_key(in_json, key, label=None, parsed_coord=None):
+    try:
+        in_json = in_json["markups"][0]["controlPoints"] 
+        
+        if key == "position" and (parsed_coord == 0 or parsed_coord == "RAS"):
+            value = in_json[label][key]
+            value = [value[0], value[1], value[2]]
+            
+        else:
+            value = in_json[label][key]
+
+        if value is None:
+            if label:
+                raise InvalidFileError('Fiducial {label} has no value {key}'
+                    .format(label=label, key=key))
+            else:
+                raise InvalidFileError('Fiducial has no value {key}'
+                    .format(key=key))
+        return value
+    except KeyError:
+        if label:
+            raise InvalidFileError('Fiducial {label} has no value {key}'
+                    .format(label=label, key=key))
+        else:
+            raise InvalidFileError('Fiducial has no value {key}'
+                .format(key=key))
+
+def json_to_afids(in_json):
+    """ Parse .json files and write to AFIDs object """
+    # Start by checking file is of correct type
+    if not in_json["markups"][0]["type"] == "Fiducial":
+        raise InvalidFileError("Not fiducial markup file")
+    
+    # Read json file and dump to AFIDs object
+    afids = Afids()
+    
+    expected_label = 1
+    for fid in range(len(in_json["markups"][0]["controlPoints"])):
+        if fid > 32:
+            raise InvalidFileError("Too many rows")
+            
+        fid_label = parse_json_key(in_json, "label", fid)
+        
+        fid_desc = parse_json_key(in_json, "description", fid)
+        if not any(x.lower() == fid_desc.lower() for x in EXPECTED_MAP[row_label]):
+            raise InvalidFileError("Fiducial label {fid_label} does not "
+                "match Fiducial description {fid_desc}"
+                .format(fid_label=fid_label, fid_desc=fid_desc))
+                                   
+        # Ensure full FID name is used
+        fid_desc = EXPECTED_MAP[fid_label][0]
+        fid_position = parse_json_key(in_json, "position", fid)
+
+        # NEED TO IMPLEMENT CHECK FOR MISSING JSON VALUES      
+        afids.add_fiducial(fid_label, fid_desc, fid_position)
+    
+    # Check for too few rows
+    if len(afids.fiducials) < 32:
+        raise InvalidFileError('Too few rows')
 
     return afids
