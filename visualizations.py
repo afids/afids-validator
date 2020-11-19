@@ -2,17 +2,25 @@
 
 import plotly.graph_objects as go
 
-def generate_visualizations(ref_json, user_json):
-    """first argument: filename of fcsv containing "reference" AFIDs
-    second argument: filename of fcsv containing "user" AFIDs for
-    comparison
-    """
 
+def gen_connecting_lines(ref_json, user_json):
+    """Assemble points from each fcsv into pairs.
+
+    Parameters
+    ----------
+    ref_json : dict
+        Dictionary of reference AFIDs
+    user_json : dict
+        Dictionary of user-provided AFIDs
+
+    Returns
+    -------
+    list of list of dict
+        A list, where each element is a pair of x,y,z dicts to respective
+        AFIDs coordinates.
+    """
     connecting_lines = []
-    for _, entry_pair in enumerate(
-            zip(ref_json.values(), user_json.values())):
-        ref_entry = entry_pair[0]
-        user_entry = entry_pair[1]
+    for ref_entry, user_entry in zip(ref_json.values(), user_json.values()):
         connecting_lines.append(
             [{'x': float(ref_entry['x']),
               'y': float(ref_entry['y']),
@@ -20,35 +28,78 @@ def generate_visualizations(ref_json, user_json):
              {'x': float(user_entry['x']),
               'y': float(user_entry['y']),
               'z': float(user_entry['z'])}])
+    return connecting_lines
 
+
+def calculate_magnitudes(connecting_lines):
+    """Calculate the segment points and magnitude of each line.
+
+    Parameters
+    ----------
+    connecting_lines : list of list of dict
+        A list, where each element is a pair of x,y,z dicts to respective
+        AFIDs coordinates.
+
+    Returns
+    -------
+    lines_x, lines_y, lines_z : list of float or none
+        A list where every four elements contains the three points describing
+        the position of a line segment along one axis, then None.
+    lines_magnitudes : list of float
+        A list where every four elements contains the Euclidean distance of
+        the line three times, then 0.
+    """
     lines_x = []
     lines_y = []
     lines_z = []
     lines_magnitudes = []
-    ids = [entry['desc'] for entry in ref_json.values()]
     for line in connecting_lines:
-        lines_x.append(line[0]['x'])
-        lines_x.append((line[0]['x'] + line[1]['x'])/2)
-        lines_x.append(line[1]['x'])
-        lines_x.append(None)
+        lines_x += [line[0]["x"],
+                    (line[0]["x"] + line[1]["x"])/2,
+                    line[1]["x"],
+                    None]
 
-        lines_y.append(line[0]['y'])
-        lines_y.append((line[0]['y'] + line[1]['y'])/2)
-        lines_y.append(line[1]['y'])
-        lines_y.append(None)
+        lines_y += [line[0]['y'],
+                    (line[0]['y'] + line[1]['y'])/2,
+                    line[1]['y'],
+                    None]
 
-        lines_z.append(line[0]['z'])
-        lines_z.append((line[0]['z'] + line[1]['z'])/2)
-        lines_z.append(line[1]['z'])
-        lines_z.append(None)
+        lines_z += [line[0]['z'],
+                    (line[0]['z'] + line[1]['z'])/2,
+                    line[1]['z'],
+                    None]
 
         distance = ((line[0]['x']-line[1]['x'])**2
                     + (line[0]['y']-line[1]['y'])**2
                     + (line[0]['z']-line[1]['z'])**2)**0.5
-        lines_magnitudes.append(distance)
-        lines_magnitudes.append(distance)
-        lines_magnitudes.append(distance)
-        lines_magnitudes.append(0)
+        lines_magnitudes += [distance, distance, distance, 0]
+
+    return (lines_x, lines_y, lines_z, lines_magnitudes)
+
+
+def generate_3d_scatter(ref_json, user_json):
+    """Generate an HTML snippet containing a 3D scatter plot.
+
+    Parameters
+    ----------
+    ref_json : dict
+        Dictionary of reference AFIDs.
+    user_json : dict
+        Dictionary of user-provided AFIDs.
+
+    Returns
+    -------
+    str
+        HTML snippet containing a 3D scatter plot illustrating the distance
+        between pairs of provided AFIDs.
+    """
+
+    connecting_lines = gen_connecting_lines(ref_json, user_json)
+
+    lines_x, lines_y, lines_z, lines_magnitudes = calculate_magnitudes(
+        connecting_lines)
+
+    ids = [entry['desc'] for entry in ref_json.values()]
 
     dset1 = [
         go.Scatter3d(
@@ -101,6 +152,45 @@ def generate_visualizations(ref_json, user_json):
             name="Euclidean Distance"
             )]
 
+    bigfig = go.Figure()
+    bigfig.add_trace(dset1[0])
+    bigfig.add_trace(dset1[1])
+    bigfig.add_trace(dset1[2])
+
+    bigfig.update_layout(
+        title_text="Euclidean distances from template",
+        autosize=True,
+        barmode="stack",
+        coloraxis=dict(colorscale='Bluered'),
+        legend_orientation="h")
+
+    return bigfig.to_html(
+        include_plotlyjs="cdn",
+        full_html=False)
+
+
+def generate_histogram(ref_json, user_json):
+    """Generate an HTML snippet containing a histogram of distances.
+
+    Parameters
+    ----------
+    ref_json : dict
+        Dictionary of reference AFIDs.
+    user_json : dict
+        Dictionary of user-provided AFIDs.
+
+    Returns
+    -------
+    str
+        HTML snippet containing a histogram of the Euclidean distance
+        between pairs of provided AFIDs.
+    """
+    connecting_lines = gen_connecting_lines(ref_json, user_json)
+    _, _, _, lines_magnitudes = calculate_magnitudes(
+        connecting_lines)
+
+    ids = [entry['desc'] for entry in ref_json.values()]
+
     # next figure: histogram of distances
     lines_magnitudes_unique = [
         i for ix, i in enumerate(lines_magnitudes) if not ix % 4]
@@ -110,17 +200,11 @@ def generate_visualizations(ref_json, user_json):
     dists_sorted = [lines_magnitudes_unique[i] for i in howtosort]
     ids_sorted = [ids[i] for i in howtosort]
 
-    bigfig = go.Figure()
-    bigfig.add_trace(dset1[0])
-    bigfig.add_trace(dset1[1])
-    bigfig.add_trace(dset1[2])
-
     fig4 = go.Figure(data=go.Bar(
         x=do_binning(dists_sorted),
         y=[1 for i in ids],
         text=[str(i) + '<br>' + str(round(dists_sorted[ix], 3)) + ' mm'
               for ix, i in enumerate(ids_sorted)],
-        textposition='inside',
         marker_color=dists_sorted,
         marker_colorscale="Bluered",
         showlegend=False))
@@ -129,24 +213,27 @@ def generate_visualizations(ref_json, user_json):
         title_text="Template vs. provided AFIDs",
         autosize=True,
         coloraxis=dict(colorscale='Bluered'))
-    bigfig.update_layout(
-        title_text="Euclidean distances from template",
-        autosize=True,
-        barmode="stack",
-        coloraxis=dict(colorscale='Bluered'),
-        legend_orientation="h")
 
-    return {
-        "scatter":
-            bigfig.to_html(
-                include_plotlyjs="cdn",
-                full_html=False),
-        "histogram":
-            fig4.to_html(
-                include_plotlyjs="cdn",
-                full_html=False)}
+    return fig4.to_html(
+        include_plotlyjs="cdn",
+        full_html=False)
+
 
 def do_binning(in_data, nbins=6):
+    """Manually bin a list of numbers.
+
+    Parameters
+    ----------
+    in_data : list of float
+        The values to bin.
+    nbins : int, optional
+        The number of bins to use.
+
+    Returns
+    -------
+    list of string
+        A list of strings describing each bin's limits, to two decimal places.
+    """
     # min is always 0
     output = []
 
@@ -163,8 +250,3 @@ def do_binning(in_data, nbins=6):
         outformatted = str(round(out, 2)) + "-" + str(round(out + interval, 2))
         output.append(outformatted)
     return output
-
-if __name__ == "__main__":
-    print(generate_visualizations(
-        "./afids-templates/human/sub-MNI2009cAsym_afids.fcsv",
-        "./afids-templates/human/sub-PD25_afids.fcsv"))
