@@ -46,10 +46,10 @@ class Average(wtf.Form):
     submit = wtf.SubmitField(label='Submit')
 
 class InvalidFileError(Exception):
-    """Exception raised when a csv to be parsed is invalid.
+    """Exception raised when a file to be parsed is invalid.
 
     Attributes:
-        message -- explanation of why the fcsv is invalid
+        message -- explanation of why the file is invalid
     """
 
     def __init__(self, message):
@@ -178,7 +178,7 @@ def parse_json_key(in_json, key, label=None, parsed_coord=None):
         
         if key == "position" and (parsed_coord == 0 or parsed_coord == "RAS"):
             value = in_json[label][key]
-            value = [value[0], value[1], value[2]]
+            value = [-value[0], -value[1], value[2]]
             
         else:
             value = in_json[label][key]
