@@ -13,8 +13,7 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-from generate_visualizations import generate_visualizations
-from model import Average, csv_to_json, InvalidFcsvError
+from model import Average, csv_to_afids, InvalidFileError
 from compute import calc
 
 
@@ -227,6 +226,8 @@ def validator():
 
     timestamp = str(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z"))
     if not request.method == 'POST':
+        result = '<br>'.join([result, msg])
+
         return render_template("validator.html", form=form, result=result,
             human_templates=human_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
@@ -250,7 +251,7 @@ def validator():
 
     try:
         user_data = csv_to_json(io.StringIO(upload.stream.read().decode('utf-8')))
-    except InvalidFcsvError as err:
+    except InvalidFileError as err:
         result = 'Invalid file: {err_msg} ({time_stamp})'.format(err_msg=err.message, time_stamp=timestamp)
         return render_template("validator.html", form=form, result=result,
             human_templates=human_templates, template_data_j=template_data_j,
@@ -404,13 +405,9 @@ def validator():
 
     result = '<br>'.join([result, msg])
 
-    visualization_html = generate_visualizations(template_data_j, user_data_j)
-
     return render_template("validator.html", form=form, result=result,
         human_templates=human_templates, template_data_j=template_data_j,
-        index=index, labels=labels, distances=distances, timestamp=timestamp,
-        scatter_html=visualization_html["scatter"],
-        histogram_html=visualization_html["histogram"])
+        index=index, labels=labels, distances=distances, timestamp=timestamp)
 
 @app.route("/getall")
 def get_all():
@@ -448,6 +445,7 @@ def plot_png():
 
     return Response(output.getvalue(), mimetype='image/png')
 
+
 def create_figure():
     fig = Figure()
     fig, ax = plt.subplots()
@@ -480,7 +478,12 @@ with open(os.path.join(AFIDS_HUMAN_DIR, 'sub-MNI2009cAsym_afids.fcsv')) as MNI:
 
 @app.route('/analytics')
 def chartTest():
+
     return render_template('view_analytics.html')
+
+@app.route('/pointcloud.html', methods=['GET'])
+def cloud():
+    return render_template("pointcloud.html")
 
 if __name__ == '__main__':
     app.run(debug=True)
