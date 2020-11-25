@@ -219,7 +219,9 @@ def validator():
     index = []
     distances = []
     labels = []
-    template_data_j = None
+    template_afids = None
+
+    # Identify all human templates
     human_dir = os.listdir(AFIDS_HUMAN_DIR)
     human_templates = []
     for d in human_dir:
@@ -233,14 +235,14 @@ def validator():
         result = '<br>'.join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
-            human_templates=human_templates, template_data_j=template_data_j,
+            human_templates=human_templates, template_afids=afids,
             index=index, labels=labels, distances=distances)
 
     if not request.files:
         result = '<br>'.join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
-            human_templates=human_templates, template_data_j=template_data_j,
+            human_templates=human_templates, template_afids=template_afids,
             index=index, labels=labels, distances=distances)
 
     upload = request.files[form.filename.name]
@@ -250,19 +252,18 @@ def validator():
         result = '<br>'.join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
-            human_templates=human_templates, template_data_j=template_data_j,
+            human_templates=human_templates, template_afids=template_afids,
             index=index, labels=labels, distances=distances)
 
     try:
-        user_data = csv_to_afids(io.StringIO(upload.stream.read().decode('utf-8')))
+        user_afids = csv_to_afids(io.StringIO(upload.stream.read().decode('utf-8')))
     except InvalidFileError as err:
         result = 'Invalid file: {err_msg} ({time_stamp})'.format(err_msg=err.message, time_stamp=timestamp)
         return render_template("validator.html", form=form, result=result,
-            human_templates=human_templates, template_data_j=template_data_j,
+            human_templates=human_templates, template_afids=template_afids,
             index=index, labels=labels, distances=distances)
 
     result = 'Valid file ({time_stamp})'.format(time_stamp=timestamp)
-    user_data_j = json.loads(user_data)
 
     fid_template = request.form['fid_template']
 
@@ -271,7 +272,7 @@ def validator():
         result = '<br>'.join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
-            human_templates=human_templates, template_data_j=template_data_j,
+            human_templates=human_templates, template_afids=template_afids,
             index=index, labels=labels, distances=distances)
 
     msg = fid_template + ' selected'
@@ -280,10 +281,8 @@ def validator():
     if fid_template in human_templates:
         template_file_path = os.path.join(AFIDS_HUMAN_DIR, 'sub-' + str(fid_template) + '_afids.fcsv')
 
-    template_file = open(template_file_path, 'r')
-
-    template_data = csv_to_afids(template_file)
-    template_data_j = json.loads(template_data)
+    with open(template_file_path, r) as template_file:
+        template_afids = csv_to_afids(template_file)
 
     fiducial_set=Fiducial_set(AC_x=user_data_j['1']['x'],
                               AC_y=user_data_j['1']['y'],
@@ -388,20 +387,13 @@ def validator():
     else:
         print("DB option unchecked, user data not saved")
 
-    for element in template_data_j:
-        index.append(int(element)-1)
+    for element in range(template_afids.no_of_fiducials):
+        coordinate_name = template_afids.get_fiducial_description(element)
 
-        coordinate_name = template_data_j[element]['desc']
+        template_position = template_afids.get_fiducial_positions(element)
+        user_position = user_afids.get_fiducial_positions(element)
 
-        template_x = float(template_data_j[element]['x'])
-        template_y = float(template_data_j[element]['y'])
-        template_z = float(template_data_j[element]['z'])
-
-        user_x = float(user_data_j[element]['x'])
-        user_y = float(user_data_j[element]['y'])
-        user_z = float(user_data_j[element]['z'])
-
-        diff = calc(template_x, template_y, template_z, user_x, user_y, user_z)
+        diff = np.linalg.norm(template_position, user_position)
         diff = float("{0:.5f}".format(diff))
 
         labels.append(coordinate_name)
@@ -410,7 +402,7 @@ def validator():
     result = '<br>'.join([result, msg])
 
     return render_template("validator.html", form=form, result=result,
-        human_templates=human_templates, template_data_j=template_data_j,
+        human_templates=human_templates, template_afids=template_afids,
         index=index, labels=labels, distances=distances, timestamp=timestamp)
 
 @app.route("/getall")
