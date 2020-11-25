@@ -1,4 +1,3 @@
-import wtforms as wtf
 import csv, json, math
 import re
 from afids import Afids
@@ -40,10 +39,6 @@ EXPECTED_DESCS = [
         ['L olfactory sulcal fundus', 'LOSF']]
 
 EXPECTED_MAP = dict(zip(EXPECTED_LABELS, EXPECTED_DESCS))
-
-class Average(wtf.Form):
-    filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
-    submit = wtf.SubmitField(label='Submit')
 
 class InvalidFileError(Exception):
     """Exception raised when a file to be parsed is invalid.

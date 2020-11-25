@@ -1,5 +1,6 @@
 from flask import Flask, Response, render_template, request
 from flask_sqlalchemy import SQLAlchemy
+import wtforms as wtf
 
 import os
 import io
@@ -13,7 +14,7 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-from model import Average, csv_to_afids, InvalidFileError
+from model import csv_to_afids, InvalidFileError
 from compute import calc
 
 
@@ -171,6 +172,9 @@ class Fiducial_set(db.Model):
 
         return serialized
 
+class Average(wtf.Form):
+    filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
+    submit = wtf.SubmitField(label='Submit')
 
 # Relative path of directory for uploaded files
 UPLOAD_DIR = 'uploads/'
@@ -183,7 +187,7 @@ if not os.path.isdir(UPLOAD_DIR):
     os.mkdir(UPLOAD_DIR)
 
 # Allowed file types for file upload
-ALLOWED_EXTENSIONS = set(['fcsv', 'csv'])
+ALLOWED_EXTENSIONS = set(['fcsv', 'csv', 'json'])
 def allowed_file(filename):
     """Does filename have the right extension?"""
     return '.' in filename and \
@@ -250,7 +254,7 @@ def validator():
             index=index, labels=labels, distances=distances)
 
     try:
-        user_data = csv_to_json(io.StringIO(upload.stream.read().decode('utf-8')))
+        user_data = csv_to_afids(io.StringIO(upload.stream.read().decode('utf-8')))
     except InvalidFileError as err:
         result = 'Invalid file: {err_msg} ({time_stamp})'.format(err_msg=err.message, time_stamp=timestamp)
         return render_template("validator.html", form=form, result=result,
@@ -278,7 +282,7 @@ def validator():
 
     template_file = open(template_file_path, 'r')
 
-    template_data = csv_to_json(template_file)
+    template_data = csv_to_afids(template_file)
     template_data_j = json.loads(template_data)
 
     fiducial_set=Fiducial_set(AC_x=user_data_j['1']['x'],
