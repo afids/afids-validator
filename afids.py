@@ -6,14 +6,18 @@ def tree():
     return(defaultdict(tree))
 
 class Afids:    
-    def __init__(self, coordinate_system="LPS"):
+    def __init__(self, coordinate_system="LPS", no_of_fiducials=0):
         # Tree structure to store fiducial point info
         self.fiducials = tree()       
         self.coordinate_system = coordinate_system
+        self.no_of_fiducials = no_of_fiducials
 
     def add_fiducial(self, label, description, positions):
         self.fiducials[str(label)]["description"] = description 
-        self.set_fiducial_positions(label, positions)   
+        self.set_fiducial_positions(label, positions) 
+        
+        # Add to the fiducial count
+        self.no_of_fiducials += 1
 
     def get_fiducial_description(self, label):
         return self.fiducials[str(label)]["description"]
