@@ -162,7 +162,7 @@ def csv_to_afids(in_csv):
         afids.add_fiducial(row_label, row_desc, row_positions)
     
     # Check for too few rows
-    if len(afids.fiducials) < 32:
+    if afids.no_of_fiducials < 32:
         raise InvalidFileError('Too few rows')
 
     return afids
