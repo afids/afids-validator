@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
+from visualizations import generate_3d_scatter, generate_histogram
 from model_auto import Average, csv_to_json, InvalidFcsvError
 from compute import calc
 
@@ -226,8 +227,6 @@ def validator():
 
     timestamp = str(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z"))
     if not request.method == 'POST':
-        result = '<br>'.join([result, msg])
-
         return render_template("validator.html", form=form, result=result,
             human_templates=human_templates, template_data_j=template_data_j,
             index=index, labels=labels, distances=distances)
@@ -405,9 +404,13 @@ def validator():
 
     result = '<br>'.join([result, msg])
 
+    scatter_html = generate_3d_scatter(template_data_j, user_data_j)
+    histogram_html = generate_histogram(template_data_j, user_data_j)
+
     return render_template("validator.html", form=form, result=result,
         human_templates=human_templates, template_data_j=template_data_j,
-        index=index, labels=labels, distances=distances, timestamp=timestamp)
+        index=index, labels=labels, distances=distances, timestamp=timestamp,
+        scatter_html=scatter_html, histogram_html=histogram_html)
 
 @app.route("/getall")
 def get_all():
@@ -445,7 +448,6 @@ def plot_png():
 
     return Response(output.getvalue(), mimetype='image/png')
 
-
 def create_figure():
     fig = Figure()
     fig, ax = plt.subplots()
@@ -478,12 +480,7 @@ with open(os.path.join(AFIDS_HUMAN_DIR, 'sub-MNI2009cAsym_afids.fcsv')) as MNI:
 
 @app.route('/analytics')
 def chartTest():
-
     return render_template('view_analytics.html')
-
-@app.route('/pointcloud.html', methods=['GET'])
-def cloud():
-    return render_template("pointcloud.html")
 
 if __name__ == '__main__':
     app.run(debug=True)
