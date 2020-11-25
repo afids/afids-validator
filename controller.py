@@ -267,7 +267,7 @@ def validator():
 
     fid_template = request.form['fid_template']
 
-    if fid_template == 'Validate .fcsv file structure':
+    if fid_template == 'Validate file structure':
         result = "Valid file  ({time_stamp})".format(time_stamp=timestamp)
         result = '<br>'.join([result, msg])
 
