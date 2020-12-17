@@ -1,6 +1,6 @@
-.env
-__pycache__/
 .gitignore
+__pycache__/
 *.pyc
-.fidvenv/
+.*env/
 .vscode/
+afids.code-workspace
