@@ -1,6 +1,6 @@
 # Introduction
 
-Contributors (alphabetical last):  Greydon Gilmore, Jason Kai, Tristan Khuen, Jonathan Lau, Patrick Park, Jak Loree-Spacek, Olivia Stanley
+Contributors (alphabetical last):  Greydon Gilmore, Jason Kai, Tristan Kuehn, Jonathan Lau, Patrick Park, Jak Loree-Spacek, Olivia Stanley
 
 Welcome to the AFIDs validator project!
 First off, thank you for considering contributing to the AFIDs validator. Following these guidelines helps us to quickly address your issue, assess changes, and help you finalize your pull requests.
@@ -10,9 +10,12 @@ First off, thank you for considering contributing to the AFIDs validator. Follow
 ## Ground Rules
 
 - Ensure all unit tests pass prior to PR submission.
+- Ensure code is run through [`black`](https://black.readthedocs.io/en/stable/) with the `-l 79` flag to ensure proper line lengths.
 - Create issues for any major changes and enhancements that you wish to make to allow for community discussion.
-- Be welcoming to newcomers and respectful of everyone. See the [Python Community Code of Conduct](https://www.python.org/psf/conduct/).
 - Label issues and PRs with the appropriate tag found below.
+- Be welcoming to newcomers and respectful of everyone. See the [Python Community Code of Conduct](https://www.python.org/psf/conduct/).
+
+
 
 Unsure where to begin contributing to AFIDs? Here are two places to start
 - Beginner issues - issues which should only require a few lines of code, and a test or two.
@@ -37,7 +40,7 @@ Please use the following labels to help organize your issues and PRs.
 
 API: an (incompatible) API change\
 BENCH: changes to the benchmark suite\
-BLD: change related to building numpy\
+BLD: change related to building afids_validator\
 BUG: bug fix\
 DEP: deprecate something, or remove a deprecated object\
 DEV: development tool or utility\
