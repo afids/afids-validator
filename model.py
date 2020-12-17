@@ -5,38 +5,38 @@ from pkg_resources import parse_version
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
-        ['AC'],
-        ['PC'],
-        ['infracollicular sulcus', 'ICS'],
-        ['PMJ'],
-        ['superior interpeduncular fossa', 'SIPF'],
-        ['R superior LMS', 'RSLMS'],
-        ['L superior LMS', 'LSLMS'],
-        ['R inferior LMS', 'RILMS'],
-        ['L inferior LMS', 'LILMS'],
-        ['Culmen', 'CUL'],
-        ['Intermammillary sulcus', 'IMS'],
-        ['R MB', 'RMB'],
-        ['L MB', 'LMB'],
-        ['pineal gland', 'PG'],
-        ['R LV at AC', 'RLVAC'],
-        ['L LV at AC', 'LLVAC'],
-        ['R LV at PC', 'RLVPC'],
-        ['L LV at PC', 'LLVPC'],
-        ['Genu of CC', 'GENU'],
-        ['Splenium of CC', 'SPLE'],
-        ['R AL temporal horn', 'RALTH'],
-        ['L AL temporal horn', 'LALTH'],
-        ['R superior AM temporal horn', 'RSAMTH'],
-        ['L superior AM temporal horn', 'LSAMTH'],
-        ['R inferior AM temporal horn', 'RIAMTH'],
-        ['L inferior AM temporal horn', 'RIAMTH'],
-        ['R indusium griseum origin', 'RIGO'],
-        ['L indusium griseum origin', 'LIGO'],
-        ['R ventral occipital horn', 'RVOH'],
-        ['L ventral occipital horn', 'LVOH'],
-        ['R olfactory sulcal fundus', 'ROSF'],
-        ['L olfactory sulcal fundus', 'LOSF']]
+        ["AC"],
+        ["PC"],
+        ["infracollicular sulcus", "ICS"],
+        ["PMJ"],
+        ["superior interpeduncular fossa", "SIPF"],
+        ["R superior LMS", "RSLMS"],
+        ["L superior LMS", "LSLMS"],
+        ["R inferior LMS", "RILMS"],
+        ["L inferior LMS", "LILMS"],
+        ["Culmen", "CUL"],
+        ["Intermammillary sulcus", "IMS"],
+        ["R MB", "RMB"],
+        ["L MB", "LMB"],
+        ["pineal gland", "PG"],
+        ["R LV at AC", "RLVAC"],
+        ["L LV at AC", "LLVAC"],
+        ["R LV at PC", "RLVPC"],
+        ["L LV at PC", "LLVPC"],
+        ["Genu of CC", "GENU"],
+        ["Splenium of CC", "SPLE"],
+        ["R AL temporal horn", "RALTH"],
+        ["L AL temporal horn", "LALTH"],
+        ["R superior AM temporal horn", "RSAMTH"],
+        ["L superior AM temporal horn", "LSAMTH"],
+        ["R inferior AM temporal horn", "RIAMTH"],
+        ["L inferior AM temporal horn", "RIAMTH"],
+        ["R indusium griseum origin", "RIGO"],
+        ["L indusium griseum origin", "LIGO"],
+        ["R ventral occipital horn", "RVOH"],
+        ["L ventral occipital horn", "LVOH"],
+        ["R olfactory sulcal fundus", "ROSF"],
+        ["L olfactory sulcal fundus", "LOSF"]]
 
 EXPECTED_MAP = dict(zip(EXPECTED_LABELS, EXPECTED_DESCS))
 
@@ -65,31 +65,25 @@ def parse_fcsv_field(row, key, label=None, parsed_coord=None):
 
         if value is None:
             if label:
-                raise InvalidFileError('Row {label} has no value {key}'
-                    .format(label=label, key=key))
+                raise InvalidFileError(f"Row {label} has no value {key}")
             else:
-                raise InvalidFileError('Row has no value {key}'
-                    .format(key=key))
+                raise InvalidFileError(f"Row has no value {key}")
         return value
     except KeyError:
         if label:
-            raise InvalidFileError('Row {label} has no value {key}'
-                    .format(label=label, key=key))
+            raise InvalidFileError(f"Row {label} has no value {key}")
         else:
-            raise InvalidFileError('Row has no value {key}'
-                .format(key=key))
+            raise InvalidFileError(f"Row has no value {key}")
 
 def parse_fcsv_float(value, field, label):
     parsed_value = None
     try:
         parsed_value = float(value)
     except ValueError:
-        raise InvalidFileError('{field} in row {label} is not a real number'
-                .format(field=field, label=label))
+        raise InvalidFileError(f"{field} in row {label} is not a real number")
 
     if not math.isfinite(parsed_value):
-        raise InvalidFileError('{field} in row {label} is not finite'
-                .format(field=field, label=label))
+        raise InvalidFileError(f"{field} in row {label} is not finite")
 
     return parsed_value
 
@@ -108,13 +102,12 @@ def csv_to_afids(in_csv):
         raise InvalidFileError("Missing or invalid header in fiducial file")
         
     if parse_version(parsed_version) < parse_version("4.6"):
-        raise InvalidFileError("Markups fiducial file version {parsed_version} too low"
-                               .format(parsed_version=parsed_version))
+        raise InvalidFileError(f"Markups fiducial file version {parsed_version} too low")
         
     in_csv.seek(0, 0)
     
     # Some fields irrelevant, but know they should be there
-    fields = ('id', 'x', 'y', 'z', 'ow', 'ox', 'oy', 'oz', 'vis', 'sel', 'lock', 'label', 'desc', 'associatedNodeID')
+    fields = ("id", "x", "y", "z", "ow", "ox", "oy", "oz", "vis", "sel", "lock", "label", "desc", "associatedNodeID")
     
     csv_reader = csv.DictReader(in_csv, fields)
     
@@ -126,24 +119,23 @@ def csv_to_afids(in_csv):
         if expected_label > 32:
             raise InvalidFileError("Too many rows")
             
-        row_label = parse_fcsv_field(row, 'label')
+        row_label = parse_fcsv_field(row, "label")
 
         expected_label += 1
-        row_desc = parse_fcsv_field(row, 'desc', row_label)
+        row_desc = parse_fcsv_field(row, "desc", row_label)
         if not any(x.lower() == row_desc.lower() for x in EXPECTED_MAP[row_label]):
-            raise InvalidFileError('Row label {row_label} does not '
-                'match row description {row_desc}'
-                .format(row_label=row_label, row_desc=row_desc)) 
+            raise InvalidFileError(f"Row label {row_label} does not "
+                "match row description {row_desc}")
                 
         # Ensure the full FID name is used
         row_desc = EXPECTED_MAP[row_label][0]
 
-        row_x = parse_fcsv_field(row, 'x', row_label, parsed_coord)
-        parse_fcsv_float(row_x, 'x', row_label)
-        row_y = parse_fcsv_field(row, 'y', row_label, parsed_coord)
-        parse_fcsv_float(row_y, 'y', row_label)
-        row_z = parse_fcsv_field(row, 'z', row_label, parsed_coord)
-        parse_fcsv_float(row_z, 'z', row_label)
+        row_x = parse_fcsv_field(row, "x", row_label, parsed_coord)
+        parse_fcsv_float(row_x, "x", row_label)
+        row_y = parse_fcsv_field(row, "y", row_label, parsed_coord)
+        parse_fcsv_float(row_y, "y", row_label)
+        row_z = parse_fcsv_field(row, "z", row_label, parsed_coord)
+        parse_fcsv_float(row_z, "z", row_label)
 
         missing_fields = 0
         for value in row.values():
@@ -153,9 +145,8 @@ def csv_to_afids(in_csv):
 
         num_columns = len(row) - missing_fields
         if num_columns != 14:
-            raise InvalidFileError('Incorrect number of columns '
-                    '({num_columns}) in row {row_label}'
-                    .format(num_columns=num_columns, row_label=row_label))
+            raise InvalidFileError(f"Incorrect number of columns "
+                    "({num_columns}) in row {row_label}")
         
         row_positions = [row_x, row_y, row_z]
         
@@ -163,7 +154,7 @@ def csv_to_afids(in_csv):
     
     # Check for too few rows
     if afids.no_of_fiducials < 32:
-        raise InvalidFileError('Too few rows')
+        raise InvalidFileError("Too few rows")
 
     return afids
         
@@ -180,19 +171,15 @@ def parse_json_key(in_json, key, label=None, parsed_coord=None):
 
         if value is None:
             if label:
-                raise InvalidFileError('Fiducial {label} has no value {key}'
-                    .format(label=label, key=key))
+                raise InvalidFileError(f"Fiducial {label} has no value {key}")
             else:
-                raise InvalidFileError('Fiducial has no value {key}'
-                    .format(key=key))
+                raise InvalidFileError(f"Fiducial has no value {key}")
         return value
     except KeyError:
         if label:
-            raise InvalidFileError('Fiducial {label} has no value {key}'
-                    .format(label=label, key=key))
+            raise InvalidFileError(f"Fiducial {label} has no value {key}")
         else:
-            raise InvalidFileError('Fiducial has no value {key}'
-                .format(key=key))
+            raise InvalidFileError(f"Fiducial has no value {key}")
 
 def json_to_afids(in_json):
     """ Parse .json files and write to AFIDs object """
@@ -212,9 +199,8 @@ def json_to_afids(in_json):
         
         fid_desc = parse_json_key(in_json, "description", fid)
         if not any(x.lower() == fid_desc.lower() for x in EXPECTED_MAP[row_label]):
-            raise InvalidFileError("Fiducial label {fid_label} does not "
-                "match Fiducial description {fid_desc}"
-                .format(fid_label=fid_label, fid_desc=fid_desc))
+            raise InvalidFileError(f"Fiducial label {fid_label} does not "
+                "match Fiducial description {fid_desc}")
                                    
         # Ensure full FID name is used
         fid_desc = EXPECTED_MAP[fid_label][0]
@@ -225,6 +211,6 @@ def json_to_afids(in_json):
     
     # Check for too few rows
     if len(afids.fiducials) < 32:
-        raise InvalidFileError('Too few rows')
+        raise InvalidFileError("Too few rows")
 
     return afids

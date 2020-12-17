@@ -20,13 +20,13 @@ from compute import calc
 
 app = Flask(__name__)
 
-app.config.from_object(os.environ['APP_SETTINGS'])
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config.from_object(os.environ["APP_SETTINGS"])
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 class Fiducial_set(db.Model):
-    __tablename__ = 'fid_db'
+    __tablename__ = "fid_db"
 
     id = db.Column(db.Integer, primary_key=True)
     coords = ["_x", "_y", "_z"]
@@ -70,7 +70,7 @@ class Fiducial_set(db.Model):
         exec("%s=%s" % (k+v[2], "db.Column(db.Float())"))
 
     def __repr__(self):
-        return '<id {}>'.format(self.id)
+        return "<id {}>".format(self.id)
 
     def serialize(self):
         serialized = {"AC_x": self.AC_x,
@@ -174,48 +174,48 @@ class Fiducial_set(db.Model):
 
 class Average(wtf.Form):
     filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
-    submit = wtf.SubmitField(label='Submit')
+    submit = wtf.SubmitField(label="Submit")
 
 # Relative path of directory for uploaded files
-UPLOAD_DIR = 'uploads/'
-AFIDS_HUMAN_DIR = 'afids-templates/human/'
+UPLOAD_DIR = "uploads/"
+AFIDS_HUMAN_DIR = "afids-templates/human/"
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_DIR
-app.secret_key = 'MySecretKey'
+app.config["UPLOAD_FOLDER"] = UPLOAD_DIR
+app.secret_key = "MySecretKey"
 
 if not os.path.isdir(UPLOAD_DIR):
     os.mkdir(UPLOAD_DIR)
 
 # Allowed file types for file upload
-ALLOWED_EXTENSIONS = set(['fcsv', 'csv', 'json'])
+ALLOWED_EXTENSIONS = set(["fcsv", "csv", "json"])
 def allowed_file(filename):
     """Does filename have the right extension?"""
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+    return "." in filename and \
+        filename.rsplit(".", 1)[1] in ALLOWED_EXTENSIONS
 
 # Routes to web pages / application
 # Homepage
-@app.route('/')
+@app.route("/")
 def index():
     return render_template("index.html")
 
 # Contact
-@app.route('/contact.html')
+@app.route("/contact.html")
 def contact():
     return render_template("contact.html")
 
 # Login
-@app.route('/login.html')
+@app.route("/login.html")
 def login():
     return render_template("login.html")
 
 # Validator
-@app.route('/validator.html', methods=['GET', 'POST'])
+@app.route("/validator.html", methods=["GET", "POST"])
 def validator():
     form = Average(request.form)
 
-    msg = ''
-    result = ''
+    msg = ""
+    result = ""
     index = []
     distances = []
     labels = []
@@ -225,21 +225,21 @@ def validator():
     human_dir = os.listdir(AFIDS_HUMAN_DIR)
     human_templates = []
     for d in human_dir:
-        if 'sub' in d:
+        if "sub" in d:
             d = d[4:]
         
-        human_templates.append(d.split('_')[0])
+        human_templates.append(d.split("_")[0])
 
     timestamp = str(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z"))
-    if not request.method == 'POST':
-        result = '<br>'.join([result, msg])
+    if not request.method == "POST":
+        result = "<br>".join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
             human_templates=human_templates, template_afids=afids,
             index=index, labels=labels, distances=distances)
 
     if not request.files:
-        result = '<br>'.join([result, msg])
+        result = "<br>".join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
             human_templates=human_templates, template_afids=template_afids,
@@ -248,38 +248,38 @@ def validator():
     upload = request.files[form.filename.name]
 
     if not (upload and allowed_file(upload.filename)):
-        result = "Invalid file: extension not allowed ({time_stamp})".format(time_stamp=timestamp)
-        result = '<br>'.join([result, msg])
+        result = f"Invalid file: extension not allowed ({timestamp})"
+        result = "<br>".join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
             human_templates=human_templates, template_afids=template_afids,
             index=index, labels=labels, distances=distances)
 
     try:
-        user_afids = csv_to_afids(io.StringIO(upload.stream.read().decode('utf-8')))
+        user_afids = csv_to_afids(io.StringIO(upload.stream.read().decode("utf-8")))
     except InvalidFileError as err:
-        result = 'Invalid file: {err_msg} ({time_stamp})'.format(err_msg=err.message, time_stamp=timestamp)
+        result = f"Invalid file: {err.message} ({timestamp})"
         return render_template("validator.html", form=form, result=result,
             human_templates=human_templates, template_afids=template_afids,
             index=index, labels=labels, distances=distances)
 
-    result = 'Valid file ({time_stamp})'.format(time_stamp=timestamp)
+    result = "Valid file ({timestamp})"
 
-    fid_template = request.form['fid_template']
+    fid_template = request.form["fid_template"]
 
-    if fid_template == 'Validate file structure':
-        result = "Valid file  ({time_stamp})".format(time_stamp=timestamp)
-        result = '<br>'.join([result, msg])
+    if fid_template == "Validate file structure":
+        result = "Valid file ({timestamp})"
+        result = "<br>".join([result, msg])
 
         return render_template("validator.html", form=form, result=result,
             human_templates=human_templates, template_afids=template_afids,
             index=index, labels=labels, distances=distances)
 
-    msg = fid_template + ' selected'
+    msg = f"{fid_template} selected"
 
     # Need to pull from correct folder when more templates are added
     if fid_template in human_templates:
-        template_file_path = os.path.join(AFIDS_HUMAN_DIR, 'sub-' + str(fid_template) + '_afids.fcsv')
+        template_file_path = os.path.join(AFIDS_HUMAN_DIR, f"sub-{fid_template}_afids.fcsv")
 
     with open(template_file_path, r) as template_file:
         template_afids = csv_to_afids(template_file)
@@ -381,10 +381,10 @@ def validator():
                               LOSF_x=user_afids.get_fiducial_position(32, "x"),
                               LOSF_y=user_afids.get_fiducial_position(32, "y"),
                               LOSF_z=user_afids.get_fiducial_position(32, "z"))
-    if request.form.get('db_checkbox'):
+    if request.form.get("db_checkbox"):
         db.session.add(fiducial_set)
         db.session.commit()
-        print("fiducial set added")
+        print("Fiducial set added")
     else:
         print("DB option unchecked, user data not saved")
 
@@ -395,12 +395,12 @@ def validator():
         user_position = user_afids.get_fiducial_positions(element)
 
         diff = np.linalg.norm(template_position, user_position)
-        diff = float("{0:.5f}".format(diff))
+        diff = float("{diff:.5f}")
 
         labels.append(coordinate_name)
         distances.append(diff)
 
-    result = '<br>'.join([result, msg])
+    result = "<br>".join([result, msg])
 
     return render_template("validator.html", form=form, result=result,
         human_templates=human_templates, template_afids=template_afids,
@@ -414,14 +414,13 @@ def get_all():
         for i in range(len(fiducial_sets)):
             serialized_fset.append(fiducial_sets[i].serialize())
             print(serialized_fset[i])
-        # jsonify([e.serialize() for e in fiducial_sets]), can be used instead of template
 
         return render_template("db.html", serialized_fset=serialized_fset)
     except Exception as e:
         return(str(e))
 
 
-labels = ['Euclidean', 'X_error', 'Y_error', 'Z_error']
+labels = ["Euclidean", "X_error", "Y_error", "Z_error"]
 
 individ_values = [4.0, 3.4, 3.0, 3.5]
 population_values = [4.5, 3.2, 3.4, 2.0]
@@ -431,27 +430,27 @@ x = np.arange(len(labels))  # the label locations
 width = 0.35  # the width of the bars
 
 fig, ax = plt.subplots()
-rects1 = ax.bar(x - width/2, individ_values, width, label='Your errors')
-rects2 = ax.bar(x + width/2, population_values, width, label='Average errors')
+rects1 = ax.bar(x - width/2, individ_values, width, label="Your errors")
+rects2 = ax.bar(x + width/2, population_values, width, label="Average errors")
 
-@app.route('/plot.png')
+@app.route("/plot.png")
 def plot_png():
     fig = create_figure()
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
 
-    return Response(output.getvalue(), mimetype='image/png')
+    return Response(output.getvalue(), mimetype="image/png")
 
 
 def create_figure():
     fig = Figure()
     fig, ax = plt.subplots()
 
-    rects1 = ax.bar(x - width/2, individ_values, width, label='Your errors')
-    rects2 = ax.bar(x + width/2, population_values, width, label='Average errors')
+    rects1 = ax.bar(x - width/2, individ_values, width, label="Your errors")
+    rects2 = ax.bar(x + width/2, population_values, width, label="Average errors")
 
-    ax.set_ylabel('mm')
-    ax.set_title('Errors by category')
+    ax.set_ylabel("mm")
+    ax.set_title("Errors by category")
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     ax.legend()
@@ -460,8 +459,8 @@ def create_figure():
 
     return fig
 
-with open(os.path.join(AFIDS_HUMAN_DIR, 'sub-MNI2009cAsym_afids.fcsv')) as MNI:
-    rdr = csv.reader(MNI, delimiter=',')
+with open(os.path.join(AFIDS_HUMAN_DIR, "sub-MNI2009cAsym_afids.fcsv")) as MNI:
+    rdr = csv.reader(MNI, delimiter=",")
     MNI_data = []
     for n, row in enumerate(rdr):
         if n < 3:
@@ -470,17 +469,17 @@ with open(os.path.join(AFIDS_HUMAN_DIR, 'sub-MNI2009cAsym_afids.fcsv')) as MNI:
         entry, "x")=row[1]
         entry, "y")=row[2]
         entry, "z")=row[3]
-        entry['id']=row[12]
+        entry["id"]=row[12]
         MNI_data.append(entry)
 
-@app.route('/analytics')
+@app.route("/analytics")
 def chartTest():
 
-    return render_template('view_analytics.html')
+    return render_template("view_analytics.html")
 
-@app.route('/pointcloud.html', methods=['GET'])
+@app.route("/pointcloud.html", methods=["GET"])
 def cloud():
     return render_template("pointcloud.html")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
