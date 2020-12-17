@@ -17,6 +17,7 @@ Put an `x` in the boxes that apply. You can also fill these out after creating t
 
 - [ ] Changes have been tested to ensure that fix is effective or that a feature works.
 - [ ] Changes pass the unit tests
+- [ ] Code has been run through [`black`](https://github.com/psf/black) with the `-l 79` flag.
 - [ ] I have included necessary documentation or comments (as necessary)
 - [ ] Any dependent changes have been merged and published
 
