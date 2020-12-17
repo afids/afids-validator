@@ -45,36 +45,64 @@
 	    <label for="db_checkbox">Upload to Database</label>
           </form>
 
+          {% if result != "" %}
           <div class="row">
-              <div class="col-sm-7">
+              <div class="col-9">
                   <h2>Results</h2>
               </div>
           </div>
           <div class="row">
-              <div class="col-sm-7">
-                  {% if result != None %}
-                  {{ result|safe }}
+              <div class="col-9">
+                  {% if result[0:5] == "Valid" %}
+                  <div class="alert alert-success">
+                  {% else %}
+                  <div class="alert alert-danger">
                   {% endif %}
+                      {{ result|safe }}
+                  </div>
               </div>
           </div>
           <div class="row">
-            <!-- Numerical results -->
-            <div class="text col-sm-6">
-              <table class="table table-dark table-sm">
-                <tr>
-                  <th scope="col">{{"Fiducial Name"}}</th>
-                  <th scope="col">{{"Distance [mm]"}}</th></tr>
-                {% for i in index %}
-                <tr><td>{{labels[i]}}</td><td>{{distances[i]}}</td></tr>
-                {% endfor %}
-              </table>
-            </div>
-
-            <!-- Visual results -->
-            <div class="col-sm-6">
-
+            <div class="col-9">
+              <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                  <a class="nav-link" href="#plots" role="tab" aria-controls="plots" data-toggle="tab"><h3>Plots</h3></a>
+                </li>
+                <li role="presentation">
+                  <a class="nav-link" href="#table" role="tab" aria-controls="table" data-toggle="tab"><h3>Table</h3></a>
+                </li>
+              </ul>
             </div>
           </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="plots">
+              <div class="row">
+                <div class="col-9">
+                    {{scatter_html|safe}}
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-9">
+                    {{histogram_html|safe}}
+                </div>
+              </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="table">
+              <div class="row">
+                <div class="text col-9">
+                  <table class="table table-dark table-sm">
+                  <tr>
+                    <th scope="col">{{"Fiducial Name"}}</th>
+                    <th scope="col">{{"Distance [mm]"}}</th></tr>
+                  {% for i in index %}
+                  <tr><td>{{labels[i]}}</td><td>{{distances[i]}}</td></tr>
+                  {% endfor %}
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
         </section>
 
         <!-- Analytics -->
