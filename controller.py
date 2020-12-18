@@ -298,17 +298,16 @@ def validator():
             result=result,
             human_templates=human_templates,
             template_afids=template_afids,
-            index=index,
+            index=indices,
             labels=labels,
             distances=distances,
         )
 
-    result = "Valid file ({timestamp})"
+    result = f"Valid file ({timestamp})"
 
     fid_template = request.form["fid_template"]
 
     if fid_template == "Validate file structure":
-        result = "Valid file ({timestamp})"
         result = "<br>".join([result, msg])
 
         return render_template(
@@ -317,7 +316,7 @@ def validator():
             result=result,
             human_templates=human_templates,
             template_afids=template_afids,
-            index=index,
+            index=indices,
             labels=labels,
             distances=distances,
         )
@@ -439,17 +438,24 @@ def validator():
     else:
         print("DB option unchecked, user data not saved")
 
-    for element in range(template_afids.no_of_fiducials):
+    for element in range(1, template_afids.no_of_fiducials + 1):
         coordinate_name = template_afids.get_fiducial_description(element)
 
-        template_position = template_afids.get_fiducial_positions(element)
-        user_position = user_afids.get_fiducial_positions(element)
+        template_position = np.array(
+            [
+                float(pos)
+                for pos in template_afids.get_fiducial_positions(element)
+            ]
+        )
+        user_position = np.array(
+            [float(pos) for pos in user_afids.get_fiducial_positions(element)]
+        )
 
-        diff = np.linalg.norm(template_position, user_position)
-        diff = float("{diff:.5f}")
+        diff = np.linalg.norm(template_position - user_position)
 
         labels.append(coordinate_name)
-        distances.append(diff)
+        distances.append(f"{diff:.5f}")
+        indices.append(element - 1)
 
     result = "<br>".join([result, msg])
 
