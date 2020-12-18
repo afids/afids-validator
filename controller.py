@@ -2,15 +2,15 @@
 
 import os
 import io
-import json
-import math
 from datetime import datetime, timezone
 
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
+import numpy as np
+import wtforms as wtf
 
 from visualizations import generate_3d_scatter, generate_histogram
-from model import csv_to_Afids, InvalidFcsvError
+from model import csv_to_afids, InvalidFcsvError
 
 
 app = Flask(__name__)
@@ -238,12 +238,12 @@ def validator():
     for human_dir in os.listdir(AFIDS_HUMAN_DIR):
         if "sub" in human_dir:
             human_dir = human_dir[4:]
-
         human_templates.append(human_dir.split("_")[0])
 
     timestamp = str(
         datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
     )
+
     if not request.method == "POST":
         return render_template(
             "validator.html",
@@ -282,7 +282,7 @@ def validator():
             result=result,
             human_templates=human_templates,
             template_afids=template_afids,
-            index=index,
+            index=indices,
             labels=labels,
             distances=distances,
         )
@@ -299,7 +299,7 @@ def validator():
             result=result,
             human_templates=human_templates,
             template_afids=template_afids,
-            index=index,
+            index=indices,
             labels=labels,
             distances=distances,
         )
@@ -318,7 +318,7 @@ def validator():
             result=result,
             human_templates=human_templates,
             template_afids=template_afids,
-            index=index,
+            index=indices,
             labels=labels,
             distances=distances,
         )
@@ -331,11 +331,11 @@ def validator():
             AFIDS_HUMAN_DIR, f"sub-{fid_template}_afids.fcsv"
         )
 
-    with open(template_file_path, r) as template_file:
+    with open(template_file_path, "r") as template_file:
         template_afids = csv_to_afids(template_file)
 
     # IS THERE A MORE EFFICIENT WAY TO DO THIS?
-    fiducial_set = Fiducial_set(
+    fiducial_set = FiducialSet(
         AC_x=user_afids.get_fiducial_position(1, "x"),
         AC_y=user_afids.get_fiducial_position(1, "y"),
         AC_z=user_afids.get_fiducial_position(1, "z"),
@@ -460,50 +460,11 @@ def validator():
         result=result,
         human_templates=human_templates,
         template_afids=template_afids,
-        index=index,
+        index=indices,
         labels=labels,
         distances=distances,
         timestamp=timestamp,
     )
-
-
-@app.route("/getall")
-def get_all():
-    try:
-        fiducial_sets = Fiducial_set.query.all()
-        serialized_fset = []
-        for i in range(len(fiducial_sets)):
-            serialized_fset.append(fiducial_sets[i].serialize())
-            print(serialized_fset[i])
-
-        return render_template("db.html", serialized_fset=serialized_fset)
-    except Exception as e:
-        return str(e)
-
-
-labels = ["Euclidean", "X_error", "Y_error", "Z_error"]
-
-individ_values = [4.0, 3.4, 3.0, 3.5]
-population_values = [4.5, 3.2, 3.4, 2.0]
-
-x = np.arange(len(labels))  # the label locations
-
-width = 0.35  # the width of the bars
-
-fig, ax = plt.subplots()
-rects1 = ax.bar(x - width / 2, individ_values, width, label="Your errors")
-rects2 = ax.bar(
-    x + width / 2, population_values, width, label="Average errors"
-)
-
-
-@app.route("/plot.png")
-def plot_png():
-    fig = create_figure()
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-
-    return Response(output.getvalue(), mimetype="image/png")
 
 
 @app.route("/getall")
@@ -513,51 +474,7 @@ def get_all():
     serialized_fset = []
     for fset in fiducial_sets:
         serialized_fset.append(fset.serialize())
-
-
-def create_figure():
-    fig = Figure()
-    fig, ax = plt.subplots()
-
-    rects1 = ax.bar(x - width / 2, individ_values, width, label="Your errors")
-    rects2 = ax.bar(
-        x + width / 2, population_values, width, label="Average errors"
-    )
-
-    ax.set_ylabel("mm")
-    ax.set_title("Errors by category")
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-    ax.legend()
-
-    fig.tight_layout()
-
-    return fig
-
-
-with open(os.path.join(AFIDS_HUMAN_DIR, "sub-MNI2009cAsym_afids.fcsv")) as MNI:
-    rdr = csv.reader(MNI, delimiter=",")
-    MNI_data = []
-    for n, row in enumerate(rdr):
-        if n < 3:
-            continue
-        entry = {}
-        entry["x"] = row[1]
-        entry["y"] = row[2]
-        entry["z"] = row[3]
-        entry["id"] = row[12]
-        MNI_data.append(entry)
-
-
-@app.route("/analytics")
-def chartTest():
-
-    return render_template("view_analytics.html")
-
-
-@app.route("/pointcloud.html", methods=["GET"])
-def cloud():
-    return render_template("pointcloud.html")
+    return render_template("db.html", serialized_fset=serialized_fset)
 
 
 if __name__ == "__main__":
