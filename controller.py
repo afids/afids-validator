@@ -9,8 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 import numpy as np
 import wtforms as wtf
 
-from visualizations import generate_3d_scatter, generate_histogram
-from model import csv_to_afids, InvalidFcsvError
+from model import csv_to_afids, InvalidFileError
 
 
 app = Flask(__name__)
@@ -299,7 +298,7 @@ def validator():
             result=result,
             human_templates=human_templates,
             template_afids=template_afids,
-            index=indices,
+            index=index,
             labels=labels,
             distances=distances,
         )
@@ -318,7 +317,7 @@ def validator():
             result=result,
             human_templates=human_templates,
             template_afids=template_afids,
-            index=indices,
+            index=index,
             labels=labels,
             distances=distances,
         )
