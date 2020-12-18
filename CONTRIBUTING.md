@@ -22,7 +22,7 @@ Unsure where to begin contributing to AFIDs? Here are two places to start
 - Help wanted issues - issues which should be a bit more involved than beginner issues.
 
 ## Getting started
-Seupt instructions for local testing are found in the README.
+Setup instructions for local testing are found in the README. 
 
 ### Development Setup
 **Ensure local repository is up-to-date prior to making changes and/or pushing back to Git. Best practice is to test locally on a new branch, and make a pull request (PR) to pull in new changes**
@@ -30,14 +30,15 @@ Seupt instructions for local testing are found in the README.
 2. `git pull`
 3. `git checkout -b feature-branch`
 4. Make changes on local repository
-2. Test changes by running `heroku local`, which will set up the server locally \
+5. Test changes by running `heroku local`, which will set up the server locally \
 _If the migrations folder has been changed, run `python manage.py db upgrade`_
-3. Push to git (`git push -u origin feature-branch`) and create a PR if needed
-4. Push to heroku `git push heroku master`
+6. Format code to conform to repository formatting by running `black -l 79 <file.py>` (eg. `<file.py>` == `controller.py`)
+7. Push to changes to git (`git push -u origin feature-branch`) and create a PR if needed
 
 ### How to label issues
 Please use the following labels to help organize your issues and PRs.
 
+```
 API: an (incompatible) API change\
 BENCH: changes to the benchmark suite\
 BLD: change related to building afids_validator\
@@ -51,6 +52,7 @@ REV: revert an earlier commit\
 STY: style fix (whitespace, PEP8)\
 TST: addition or modification of tests\
 REL: related to releasing afids_validator\
+```
 
 ### How to report a bug
 When filing an bug, make sure to answer these four questions:
