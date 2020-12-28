@@ -274,7 +274,7 @@ def validator():
     upload = request.files[form.filename.name]
     upload_ext, file_check = allowed_file(upload.filename)
 
-    if not (upload and allowed_file(upload.filename)):
+    if not (upload and file_check):
         result = f"Invalid file: extension not allowed ({timestamp})"
 
         return render_template(
