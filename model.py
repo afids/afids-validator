@@ -69,7 +69,7 @@ def _skip_first(seq, num):
 def parse_fcsv_field(row, key, label=None, parsed_coord=None):
     """Parse one field from an fcsv file."""
     try:
-        if parsed_coord in ["0", "RAS"]:
+        if not key == "z" and parsed_coord in ["0", "RAS"]:
             value = str(-float(row[key]))
         else:
             value = row[key]
