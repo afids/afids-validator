@@ -9,7 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 import numpy as np
 import wtforms as wtf
 
-from model import csv_to_afids, InvalidFileError
+from model import csv_to_afids, json_to_afids, InvalidFileError
 
 
 app = Flask(__name__)
@@ -287,9 +287,11 @@ def validator():
         )
 
     try:
-        user_afids = csv_to_afids(
-            io.StringIO(upload.stream.read().decode("utf-8"))
-        )
+        upload_data = io.StringIO(upload.stream.read().decode("utf-8"))
+        if upload_ext in ALLOWED_EXTENSIONS[:2]:
+            user_afids = csv_to_afids(upload_data)
+        else:
+            user_afids = json_to_afids(upload_data)
     except InvalidFileError as err:
         result = f"Invalid file: {err.message} ({timestamp})"
         return render_template(
