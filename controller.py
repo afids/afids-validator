@@ -190,7 +190,7 @@ if not os.path.isdir(UPLOAD_DIR):
     os.mkdir(UPLOAD_DIR)
 
 # Allowed file types for file upload
-ALLOWED_EXTENSIONS = set(["fcsv", "csv", "json"])
+ALLOWED_EXTENSIONS = ["fcsv", "csv", "json"]
 
 
 ## TO BE DEPECRATED
