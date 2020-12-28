@@ -196,7 +196,7 @@ def parse_json_key(in_json, key, label=None, parsed_coord=None):
     try:
         in_json = in_json["markups"][0]["controlPoints"]
 
-        if key == "position" and (parsed_coord in [0, "RAS"]):
+        if key == "position" and (parsed_coord in ["0", "RAS"]):
             value = in_json[label][key]
             value = [-value[0], -value[1], value[2]]
 
