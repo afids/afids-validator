@@ -160,7 +160,7 @@ def csv_to_afids(in_csv):
         ):
             raise InvalidFileError(
                 f"Row label {row_label} does not match "
-                + f"row description {row_desc}"
+                f"row description {row_desc}"
             )
 
         # Ensure the full FID name is used
@@ -179,7 +179,7 @@ def csv_to_afids(in_csv):
         if num_columns != 14:
             raise InvalidFileError(
                 f"Incorrect number of columns ({num_columns}) "
-                + f"in row {row_label}"
+                f"in row {row_label}"
             )
 
         afids.add_fiducial(row_label, row_desc, [row_x, row_y, row_z])
@@ -225,17 +225,20 @@ def json_to_afids(in_json):
     # Read json file and dump to AFIDs object
     afids = Afids()
 
-    for fid in range(1, len(in_json["markups"][0]["controlPoints"]) + 1):
-        if fid > 32:
+    for fid in range(0, len(in_json["markups"][0]["controlPoints"])):
+        if fid >= 32:
             raise InvalidFileError("Too many rows")
-
+        
         fid_label = parse_json_key(in_json, "label", fid)
-
         fid_desc = parse_json_key(in_json, "description", fid)
-        if not any(x.lower() == fid_desc.lower() for x in EXPECTED_MAP[fid]):
+
+ 
+        if not any(
+            x.lower() == fid_desc.lower() for x in EXPECTED_MAP[str(fid+1)]
+        ):
             raise InvalidFileError(
                 f"Fiducial label {fid_label} does not match "
-                + f"Fiducial description {fid_desc}"
+                f"fiducial description {fid_desc}"
             )
 
         # Ensure full FID name is used
