@@ -69,7 +69,7 @@ def _skip_first(seq, num):
 def parse_fcsv_field(row, key, label=None, parsed_coord=None):
     """Parse one field from an fcsv file."""
     try:
-        if parsed_coord in [0, "RAS"]:
+        if parsed_coord in ["0", "RAS"]:
             value = str(-float(row[key]))
         else:
             value = row[key]
@@ -232,7 +232,6 @@ def json_to_afids(in_json):
         fid_label = parse_json_key(in_json, "label", fid)
         fid_desc = parse_json_key(in_json, "description", fid)
 
- 
         if not any(
             x.lower() == fid_desc.lower() for x in EXPECTED_MAP[str(fid+1)]
         ):
