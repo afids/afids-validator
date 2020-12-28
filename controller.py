@@ -193,9 +193,12 @@ if not os.path.isdir(UPLOAD_DIR):
 ALLOWED_EXTENSIONS = set(["fcsv", "csv", "json"])
 
 
+## TO BE DEPECRATED
 def allowed_file(filename):
     """Does filename have the right extension?"""
-    return "." in filename and filename.rsplit(".", 1)[1] in ALLOWED_EXTENSIONS
+    file_ext = filename.rsplit(".", 1)[1]
+
+    return file_ext, "." in filename and file_ext in ALLOWED_EXTENSIONS
 
 
 # Routes to web pages / application
@@ -266,9 +269,10 @@ def validator():
             distances=distances,
         )
 
-    upload = request.files[form.filename.name]
+        upload = request.files[form.filename.name]
+        upload_ext, file_check = allowed_file(upload.filename)
 
-    if not (upload and allowed_file(upload.filename)):
+    if not (upload and file_check):
         result = f"Invalid file: extension not allowed ({timestamp})"
 
         return render_template(
