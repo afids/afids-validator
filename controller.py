@@ -290,7 +290,7 @@ def validator():
     try:
         if upload_ext in ALLOWED_EXTENSIONS[:2]:
             user_afids = csv_to_afids(
-                io.StringIO(upload.stream.read().decode("utf-8"))
+                io.StringIO(upload.read().decode("utf-8"))
             )
         else:
             user_afids = json_to_afids(json.loads(upload.read().decode("utf-8")))
