@@ -234,7 +234,7 @@ def validator():
     # Identify all human templates
     human_templates = []
     for human_dir in os.listdir(AFIDS_HUMAN_DIR):
-        if "sub" in human_dir:
+        if "tpl" in human_dir:
             human_dir = human_dir[4:]
         human_templates.append(human_dir.split("_")[0])
 
@@ -320,7 +320,7 @@ def validator():
     # Need to pull from correct folder when more templates are added
     if fid_template in human_templates:
         template_file_path = os.path.join(
-            AFIDS_HUMAN_DIR, f"sub-{fid_template}_afids.fcsv"
+            AFIDS_HUMAN_DIR, f"tpl-{fid_template}_afids.fcsv"
         )
 
     with open(template_file_path, "r") as template_file:
