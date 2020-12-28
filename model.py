@@ -228,12 +228,12 @@ def json_to_afids(in_json):
     for fid in range(0, len(in_json["markups"][0]["controlPoints"])):
         if fid >= 32:
             raise InvalidFileError("Too many rows")
-        
+
         fid_label = parse_json_key(in_json, "label", fid)
         fid_desc = parse_json_key(in_json, "description", fid)
 
         if not any(
-            x.lower() == fid_desc.lower() for x in EXPECTED_MAP[str(fid+1)]
+            x.lower() == fid_desc.lower() for x in EXPECTED_MAP[str(fid + 1)]
         ):
             raise InvalidFileError(
                 f"Fiducial label {fid_label} does not match "

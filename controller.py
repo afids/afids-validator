@@ -176,6 +176,7 @@ class FiducialSet(db.Model):
 
 class Average(wtf.Form):
     """Form for selecting and submitting a file."""
+
     filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
     submit = wtf.SubmitField(label="Submit")
 
@@ -293,7 +294,9 @@ def validator():
                 io.StringIO(upload.read().decode("utf-8"))
             )
         else:
-            user_afids = json_to_afids(json.loads(upload.read().decode("utf-8")))
+            user_afids = json_to_afids(
+                json.loads(upload.read().decode("utf-8"))
+            )
     except InvalidFileError as err:
         result = f"Invalid file: {err.message} ({timestamp})"
         return render_template(
