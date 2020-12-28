@@ -269,10 +269,10 @@ def validator():
             distances=distances,
         )
 
-        upload = request.files[form.filename.name]
-        upload_ext, file_check = allowed_file(upload.filename)
+    upload = request.files[form.filename.name]
+    upload_ext, file_check = allowed_file(upload.filename)
 
-    if not (upload and file_check):
+    if not (upload and allowed_file(upload.filename)):
         result = f"Invalid file: extension not allowed ({timestamp})"
 
         return render_template(
