@@ -226,10 +226,14 @@ def json_to_afids(in_json):
     afids = Afids()
     fid_coord = in_json["markups"][0]["coordinateSystem"]
 
-    for fid in range(0, len(in_json["markups"][0]["controlPoints"])):
-        if fid >= 32:
-            raise InvalidFileError("Too many rows")
+    # Check for too many or too few fiducials
+    num_fids = len(in_json["markups"][0]["controlPoints"])
+    if num_fids > 32:
+        raise InvalidFileError("Too many fiducials")
+    elif num_fids < 32:
+        raise InvalidFileError("Too few fiducials")
 
+    for fid in range(0, num_fids):
         fid_label = parse_json_key(in_json, "label", fid, fid_coord)
         fid_desc = parse_json_key(in_json, "description", fid, fid_coord)
         if not any(
@@ -246,9 +250,5 @@ def json_to_afids(in_json):
 
         # NEED TO IMPLEMENT CHECK FOR MISSING JSON VALUES
         afids.add_fiducial(fid_label, fid_desc, fid_position)
-
-    # Check for too few rows
-    if len(afids.fiducials) < 32:
-        raise InvalidFileError("Too few rows")
 
     return afids
