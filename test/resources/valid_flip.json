@@ -3,7 +3,7 @@
     "markups": [
         {
             "type": "Fiducial",
-            "coordinateSystem": "LPS",
+            "coordinateSystem": "RAS",
             "locked": false,
             "labelFormat": "%N-%d",
             "controlPoints": [
