@@ -297,6 +297,18 @@ def validator():
             user_afids = json_to_afids(
                 json.loads(upload.read().decode("utf-8"))
             )
+    except json.JSONDecodeError as err:
+        result = f"Invalid JSON file ({timestamp})"
+        return render_template(
+            "validator.html",
+            form=form,
+            result=result,
+            human_templates=human_templates,
+            template_afids=template_afids,
+            index=[],
+            labels=labels,
+            distances=distances,
+        )
     except InvalidFileError as err:
         result = f"Invalid file: {err.message} ({timestamp})"
         return render_template(
