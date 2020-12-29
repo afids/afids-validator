@@ -224,14 +224,14 @@ def json_to_afids(in_json):
 
     # Read json file and dump to AFIDs object
     afids = Afids()
+    fid_coord = in_json["markups"][0]["coordinateSystem"]
 
     for fid in range(0, len(in_json["markups"][0]["controlPoints"])):
         if fid >= 32:
             raise InvalidFileError("Too many rows")
 
-        fid_label = parse_json_key(in_json, "label", fid)
-        fid_desc = parse_json_key(in_json, "description", fid)
-
+        fid_label = parse_json_key(in_json, "label", fid, fid_coord)
+        fid_desc = parse_json_key(in_json, "description", fid, fid_coord)
         if not any(
             x.lower() == fid_desc.lower() for x in EXPECTED_MAP[str(fid + 1)]
         ):
@@ -242,7 +242,7 @@ def json_to_afids(in_json):
 
         # Ensure full FID name is used
         fid_desc = EXPECTED_MAP[fid_label][0]
-        fid_position = parse_json_key(in_json, "position", fid)
+        fid_position = parse_json_key(in_json, "position", fid, fid_coord)
 
         # NEED TO IMPLEMENT CHECK FOR MISSING JSON VALUES
         afids.add_fiducial(fid_label, fid_desc, fid_position)
