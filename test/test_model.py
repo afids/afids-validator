@@ -113,15 +113,14 @@ class TestJsonValidation(unittest.TestCase):
         with open("test/resources/valid.json", "r") as json_file:
             model.json_to_afids(json.load(json_file))
 
-    # NOT WORKING
-    # def test_valid_json_flip(self):
-    #     with open("test/resources/valid_flip.json", "r") as json_file:
-    #         model.json_to_afids(json.load(json_file))
+    def test_valid_flip(self):
+        with open("test/resources/valid_flip.json", "r") as json_file:
+            json_afids = model.json_to_afids(json.load(json_file))
 
-        # self.assertEqual(float(json_afids.get_fiducial_position(1, "x")), 
-        #         0.07077182344203692)
-        # self.assertEqual(float(json_afids.get_fiducial_position(1, "y")), 
-        #         -0.2548674381652525)
+        self.assertEqual(float(json_afids.get_fiducial_position(1, "x")), 
+                0.07077182344203692)
+        self.assertEqual(float(json_afids.get_fiducial_position(1, "y")), 
+                -0.2548674381652525)
 
     def test_valid_nhp(self):
         with open("test/resources/valid_nhp.json", "r") as json_file:
@@ -136,14 +135,10 @@ class TestJsonValidation(unittest.TestCase):
     #     self.assertEqual(cm.exception.message,
     #         "Markups fiducial file version 3.5 too low")
 
-    # def test_invalid_content_json(self):
-        # # CURRENTLY FAILS WITH JSON ERROR
-        # with open("test/resources/invalid_content.json", "r") as json_file:
-        #     with self.assertRaises(model.InvalidFileError) as cm:
-        #         model.json_to_afids(json.load(json_file))
-
-        # self.assertEqual(cm.exception.message,
-        #     "Missing or invalid header in fiducial file")
+    def test_invalid_content(self):
+        with open("test/resources/invalid_content.json", "r") as json_file:
+            with self.assertRaises(json.JSONDecodeError):
+                model.json_to_afids(json.load(json_file))
 
         # DON'T THINK HEADER IS AN ISSUE ANYMORE HERE?
     #     with open("test/resources/invalid_content_valid_header.fcsv",
@@ -159,18 +154,18 @@ class TestJsonValidation(unittest.TestCase):
             with self.assertRaises(model.InvalidFileError) as cm:
                 model.json_to_afids(json.load(json_file))
 
-        self.assertEqual(cm.exception.message, "Too few rows")
+        self.assertEqual(cm.exception.message, "Too few fiducials")
 
     def test_too_many_rows(self):
         with open("test/resources/too_many_rows.json", "r") as json_file:
             with self.assertRaises(model.InvalidFileError) as cm:
                 model.json_to_afids(json.load(json_file))
 
-        self.assertEqual(cm.exception.message, "Too many rows")
+        self.assertEqual(cm.exception.message, "Too many fiducials")
 
     # NO LONGER HAVE COLUMNS, SHOULD CHECK FOR KEYS INSTEAD?
     # def test_too_few_columns(self):
-    #     with open("test/resources/too_few_columns.fcsv", "r") as fcsv:
+    #     with open("test/resources/too_few_columns.fcsv, "r") as fcsv:
     #         with self.assertRaises(model.InvalidFileError) as cm:
     #             model.csv_to_afids(fcsv)
 
@@ -211,13 +206,12 @@ class TestJsonValidation(unittest.TestCase):
     #     self.assertEqual(cm.exception.message,
     #             "z in row 2 is not finite")
 
-    # Currently skips "missing" all together and checks for next
-    # def test_missing_row(self):
-    #     with open("test/resources/missing_row_10.json", "r") as json_file:
-    #         with self.assertRaises(model.InvalidFileError) as cm:
-    #             model.json_to_afids(json.load(json_file))
+    def test_missing_row(self):
+        with open("test/resources/missing_row_10.json", "r") as json_file:
+            with self.assertRaises(model.InvalidFileError) as cm:
+                model.json_to_afids(json.load(json_file))
 
-    #     self.assertEqual(cm.exception.message, "Too few rows")
+        self.assertEqual(cm.exception.message, "Too few fiducials")
 
 
 if __name__ == "__main__":
