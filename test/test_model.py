@@ -126,6 +126,10 @@ class TestJsonValidation(unittest.TestCase):
         with open("test/resources/valid_nhp.json", "r") as json_file:
             model.json_to_afids(json.load(json_file))
 
+    def test_valid_misordered(self):
+        with open("test/resources/valid_misordered.json", "r") as json_file:
+            model.json_to_afids(json.load(json_file))
+
     # IS VERSION A CONCERN HERE (NOT A FIELD IN JSON FILES)
     # def test_invalid_version(self):
     #     with open("test/resources/invalid_version.fcsv", "r") as fcsv:
