@@ -273,30 +273,6 @@
                 },
                 {
                     "id": "23",
-                    "label": "25",
-                    "description": "R inferior AM temporal horn",
-                    "associatedNodeID": "vtkMRMLScalarVolumeNode1",
-                    "position": [8.462514130644025, -2.960242294266764, -13.033780610676143],
-                    "orientation": [-1.0, -0.0, -0.0, -0.0, -1.0, -0.0, 0.0, 0.0, 1.0],
-                    "selected": true,
-                    "locked": true,
-                    "visibility": true,
-                    "positionStatus": "defined"
-                },
-                {
-                    "id": "24",
-                    "label": "26",
-                    "description": "L inferior AM temporal horn",
-                    "associatedNodeID": "vtkMRMLScalarVolumeNode1",
-                    "position": [-8.926748601674712, -3.119141068776325, -13.78052679441539],
-                    "orientation": [-1.0, -0.0, -0.0, -0.0, -1.0, -0.0, 0.0, 0.0, 1.0],
-                    "selected": true,
-                    "locked": true,
-                    "visibility": true,
-                    "positionStatus": "defined"
-                },
-                {
-                    "id": "25",
                     "label": "23",
                     "description": "R superior AM temporal horn",
                     "associatedNodeID": "vtkMRMLScalarVolumeNode1",
@@ -308,11 +284,35 @@
                     "positionStatus": "defined"
                 },
                 {
-                    "id": "26",
+                    "id": "24",
                     "label": "24",
                     "description": "L superior AM temporal horn",
                     "associatedNodeID": "vtkMRMLScalarVolumeNode1",
                     "position": [-7.70716746911806, -4.5878165955027969, -9.807040158134557],
+                    "orientation": [-1.0, -0.0, -0.0, -0.0, -1.0, -0.0, 0.0, 0.0, 1.0],
+                    "selected": true,
+                    "locked": true,
+                    "visibility": true,
+                    "positionStatus": "defined"
+                },
+                {
+                    "id": "25",
+                    "label": "25",
+                    "description": "R inferior AM temporal horn",
+                    "associatedNodeID": "vtkMRMLScalarVolumeNode1",
+                    "position": [8.462514130644025, -2.960242294266764, -13.033780610676143],
+                    "orientation": [-1.0, -0.0, -0.0, -0.0, -1.0, -0.0, 0.0, 0.0, 1.0],
+                    "selected": true,
+                    "locked": true,
+                    "visibility": true,
+                    "positionStatus": "defined"
+                },
+                {
+                    "id": "26",
+                    "label": "26",
+                    "description": "L inferior AM temporal horn",
+                    "associatedNodeID": "vtkMRMLScalarVolumeNode1",
+                    "position": [-8.926748601674712, -3.119141068776325, -13.78052679441539],
                     "orientation": [-1.0, -0.0, -0.0, -0.0, -1.0, -0.0, 0.0, 0.0, 1.0],
                     "selected": true,
                     "locked": true,
