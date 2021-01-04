@@ -298,7 +298,10 @@ def validator():
                 json.loads(upload.read().decode("utf-8"))
             )
     except json.JSONDecodeError as err:
-        result = f"Invalid JSON file ({timestamp})"
+        result = (
+            f"Invalid JSON file ({timestamp}): {err.msg} at line "
+            f"{err.lineno}, column {err.colno}."
+        )
         return render_template(
             "validator.html",
             form=form,
