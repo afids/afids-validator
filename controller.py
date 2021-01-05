@@ -1,14 +1,12 @@
 """Route requests with Flask."""
 
 import os
-import io
 from datetime import datetime, timezone
 
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 import numpy as np
 import wtforms as wtf
-import json
 
 from model import csv_to_afids, json_to_afids, InvalidFileError
 
@@ -290,28 +288,9 @@ def validator():
 
     try:
         if upload_ext in ALLOWED_EXTENSIONS[:2]:
-            user_afids = csv_to_afids(
-                io.StringIO(upload.read().decode("utf-8"))
-            )
+            user_afids = csv_to_afids(upload.read().decode("utf-8"))
         else:
-            user_afids = json_to_afids(
-                json.loads(upload.read().decode("utf-8"))
-            )
-    except json.JSONDecodeError as err:
-        result = (
-            f"Invalid JSON file ({timestamp}): {err.msg} at line "
-            f"{err.lineno}, column {err.colno}."
-        )
-        return render_template(
-            "validator.html",
-            form=form,
-            result=result,
-            human_templates=human_templates,
-            template_afids=template_afids,
-            index=[],
-            labels=labels,
-            distances=distances,
-        )
+            user_afids = json_to_afids(upload.read().decode("utf-8"))
     except InvalidFileError as err:
         result = f"Invalid file: {err.message} ({timestamp})"
         return render_template(

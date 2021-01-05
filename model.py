@@ -1,6 +1,8 @@
 """Handle parsing files to internal AFIDs representation."""
 
+import io
 import csv
+import json
 import math
 import re
 
@@ -104,13 +106,25 @@ def parse_fcsv_float(value, field, label):
 
 
 def csv_to_afids(in_csv):
-    """ Parse .fcsv / .csv files and write to AFIDs object """
+    """Parse .fcsv / .csv files and write to AFIDs object
+
+    Parameters
+    ----------
+    in_csv : str
+        The fcsv to be parsed.
+
+    Returns
+    -------
+    Afids
+        Valid Afids object with coordinates derived from the fcsv.
+    """
 
     # Assume versions always in form x.y
     parsed_version = None
     try:
-        parsed_version = re.findall(r"\d+\.\d+", in_csv.readline())[0]
-        parsed_coord = re.split(r"\s", in_csv.readline())[-2]
+        parsed_version = re.findall(r"\d+\.\d+", in_csv.splitlines()[0])[0]
+        parsed_coord = re.split(r"\s", in_csv.splitlines()[1])[-1]
+        print(parsed_coord)
     except IndexError as no_header:
         raise InvalidFileError(
             "Missing or invalid header in fiducial file"
@@ -120,8 +134,6 @@ def csv_to_afids(in_csv):
         raise InvalidFileError(
             f"Markups fiducial file version {parsed_version} too low"
         )
-
-    in_csv.seek(0, 0)
 
     # Some fields irrelevant, but know they should be there
     fields = (
@@ -141,6 +153,7 @@ def csv_to_afids(in_csv):
         "associatedNodeID",
     )
 
+    in_csv = io.StringIO(in_csv)
     csv_reader = csv.DictReader(in_csv, fields)
 
     # Read csv file and dump to AFIDs object
@@ -217,7 +230,27 @@ def parse_json_key(in_json, key, label=None, parsed_coord=None):
 
 
 def json_to_afids(in_json):
-    """ Parse .json files and write to AFIDs object """
+    """Parse .json files and write to AFIDs object
+
+    Parameters
+    ----------
+    in_json : str
+        AFIDs JSON to be parsed
+
+    Returns
+    -------
+    Afids
+        Valid Afids object with coordinates from the JSON.
+    """
+
+    try:
+        in_json = json.loads(in_json)
+    except json.JSONDecodeError as err:
+        raise InvalidFileError(
+            f"Invalid JSON file: {err.msg} at line "
+            f"{err.lineno}, column {err.colno}."
+        ) from err
+
     # Start by checking file is of correct type
     if not in_json["markups"][0]["type"] == "Fiducial":
         raise InvalidFileError("Not fiducial markup file")
@@ -230,7 +263,7 @@ def json_to_afids(in_json):
     num_fids = len(in_json["markups"][0]["controlPoints"])
     if num_fids > 32:
         raise InvalidFileError("Too many fiducials")
-    elif num_fids < 32:
+    if num_fids < 32:
         raise InvalidFileError("Too few fiducials")
 
     for fid in range(0, num_fids):
