@@ -329,7 +329,7 @@ def validator():
         )
 
     with open(template_file_path, "r") as template_file:
-        template_afids = csv_to_afids(template_file)
+        template_afids = csv_to_afids(template_file.read())
 
     if request.form.get("db_checkbox"):
         db.session.add(
