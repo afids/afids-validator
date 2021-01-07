@@ -8,45 +8,7 @@ import re
 
 from pkg_resources import parse_version
 
-from afids import Afids
-
-EXPECTED_LABELS = [str(x + 1) for x in range(32)]
-EXPECTED_DESCS = [
-    ["AC"],
-    ["PC"],
-    ["infracollicular sulcus", "ICS"],
-    ["PMJ"],
-    ["superior interpeduncular fossa", "SIPF"],
-    ["R superior LMS", "RSLMS"],
-    ["L superior LMS", "LSLMS"],
-    ["R inferior LMS", "RILMS"],
-    ["L inferior LMS", "LILMS"],
-    ["Culmen", "CUL"],
-    ["Intermammillary sulcus", "IMS"],
-    ["R MB", "RMB"],
-    ["L MB", "LMB"],
-    ["pineal gland", "PG"],
-    ["R LV at AC", "RLVAC"],
-    ["L LV at AC", "LLVAC"],
-    ["R LV at PC", "RLVPC"],
-    ["L LV at PC", "LLVPC"],
-    ["Genu of CC", "GENU"],
-    ["Splenium of CC", "SPLE"],
-    ["R AL temporal horn", "RALTH"],
-    ["L AL temporal horn", "LALTH"],
-    ["R superior AM temporal horn", "RSAMTH"],
-    ["L superior AM temporal horn", "LSAMTH"],
-    ["R inferior AM temporal horn", "RIAMTH"],
-    ["L inferior AM temporal horn", "RIAMTH"],
-    ["R indusium griseum origin", "RIGO"],
-    ["L indusium griseum origin", "LIGO"],
-    ["R ventral occipital horn", "RVOH"],
-    ["L ventral occipital horn", "LVOH"],
-    ["R olfactory sulcal fundus", "ROSF"],
-    ["L olfactory sulcal fundus", "LOSF"],
-]
-
-EXPECTED_MAP = dict(zip(EXPECTED_LABELS, EXPECTED_DESCS))
+from afids import Afids, EXPECTED_MAP
 
 
 class InvalidFileError(Exception):

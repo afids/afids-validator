@@ -1,5 +1,4 @@
 import unittest
-import json
 import model
 
 
@@ -7,11 +6,13 @@ class TestFcsvValidation(unittest.TestCase):
     # Test fcsv
     def test_valid_fcsv(self):
         with open("test/resources/valid.fcsv", "r") as fcsv:
-            model.csv_to_afids(fcsv.read())
+            afids = model.csv_to_afids(fcsv.read())
+        self.assertTrue(afids.validate())
 
     def test_valid_fcsv_flip(self):
         with open("test/resources/valid_flip.fcsv", "r") as fcsv:
             fcsv_afids = model.csv_to_afids(fcsv.read())
+        self.assertTrue(fcsv_afids.validate())
 
         self.assertEqual(
             float(fcsv_afids.get_fiducial_position(1, "x")),
@@ -23,7 +24,7 @@ class TestFcsvValidation(unittest.TestCase):
 
     def test_valid_nhp(self):
         with open("test/resources/valid_nhp.fcsv", "r") as fcsv:
-            model.csv_to_afids(fcsv.read())
+            self.assertTrue(model.csv_to_afids(fcsv.read()).validate())
 
     def test_invalid_version(self):
         with open("test/resources/invalid_version.fcsv", "r") as fcsv:
@@ -121,11 +122,12 @@ class TestJsonValidation(unittest.TestCase):
     # Test json
     def test_valid(self):
         with open("test/resources/valid.json", "r") as json_file:
-            model.json_to_afids(json_file.read())
+            self.assertTrue(model.json_to_afids(json_file.read()).validate())
 
     def test_valid_flip(self):
         with open("test/resources/valid_flip.json", "r") as json_file:
             json_afids = model.json_to_afids(json_file.read())
+        self.assertTrue(json_afids.validate())
 
         self.assertEqual(
             float(json_afids.get_fiducial_position(1, "x")),
@@ -138,11 +140,11 @@ class TestJsonValidation(unittest.TestCase):
 
     def test_valid_nhp(self):
         with open("test/resources/valid_nhp.json", "r") as json_file:
-            model.json_to_afids(json_file.read())
+            self.assertTrue(model.json_to_afids(json_file.read()).validate())
 
     def test_valid_misordered(self):
         with open("test/resources/valid_misordered.json", "r") as json_file:
-            model.json_to_afids(json_file.read())
+            self.assertTrue(model.json_to_afids(json_file.read()).validate())
 
     # IS VERSION A CONCERN HERE (NOT A FIELD IN JSON FILES)
     # def test_invalid_version(self):
