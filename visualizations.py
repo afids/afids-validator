@@ -2,16 +2,18 @@
 
 import plotly.graph_objects as go
 
+from afids import EXPECTED_LABELS
 
-def gen_connecting_lines(ref_json, user_json):
+
+def gen_connecting_lines(ref_afids, user_afids):
     """Assemble points from each fcsv into pairs.
 
     Parameters
     ----------
-    ref_json : dict
-        Dictionary of reference AFIDs
-    user_json : dict
-        Dictionary of user-provided AFIDs
+    ref_afids : Afids
+        Reference AFIDs object.
+    user_afids : Afids
+        User-provided AFIDs object.
 
     Returns
     -------
@@ -20,7 +22,13 @@ def gen_connecting_lines(ref_json, user_json):
         AFIDs coordinates.
     """
     connecting_lines = []
-    for ref_entry, user_entry in zip(ref_json.values(), user_json.values()):
+    for ref_entry, user_entry in [
+        (
+            ref_afids.fiducials[label]["positions"],
+            user_afids.fiducials[label]["positions"],
+        )
+        for label in EXPECTED_LABELS
+    ]:
         connecting_lines.append(
             [
                 {
@@ -92,15 +100,15 @@ def calculate_magnitudes(connecting_lines):
     return (lines_x, lines_y, lines_z, lines_magnitudes)
 
 
-def generate_3d_scatter(ref_json, user_json):
+def generate_3d_scatter(ref_afids, user_afids):
     """Generate an HTML snippet containing a 3D scatter plot.
 
     Parameters
     ----------
-    ref_json : dict
-        Dictionary of reference AFIDs.
-    user_json : dict
-        Dictionary of user-provided AFIDs.
+    ref_afids : Afids
+        Reference AFIDs object.
+    user_afids : Afids
+        User-provided AFIDs object.
 
     Returns
     -------
@@ -109,19 +117,30 @@ def generate_3d_scatter(ref_json, user_json):
         between pairs of provided AFIDs.
     """
 
-    connecting_lines = gen_connecting_lines(ref_json, user_json)
+    connecting_lines = gen_connecting_lines(ref_afids, user_afids)
 
     lines_x, lines_y, lines_z, lines_magnitudes = calculate_magnitudes(
         connecting_lines
     )
 
-    ids = [entry["desc"] for entry in ref_json.values()]
+    ids = [
+        ref_afids.get_fiducial_description(label) for label in EXPECTED_LABELS
+    ]
 
     dset1 = [
         go.Scatter3d(
-            x=[float(i["x"]) for i in ref_json.values()],
-            y=[float(i["y"]) for i in ref_json.values()],
-            z=[float(i["z"]) for i in ref_json.values()],
+            x=[
+                float(ref_afids.get_fiducial_position(label, "x"))
+                for label in EXPECTED_LABELS
+            ],
+            y=[
+                float(ref_afids.get_fiducial_position(label, "y"))
+                for label in EXPECTED_LABELS
+            ],
+            z=[
+                float(ref_afids.get_fiducial_position(label, "z"))
+                for label in EXPECTED_LABELS
+            ],
             showlegend=True,
             mode="markers",
             marker=dict(
@@ -136,9 +155,18 @@ def generate_3d_scatter(ref_json, user_json):
             name="Template AFIDs",
         ),
         go.Scatter3d(
-            x=[float(i["x"]) for i in user_json.values()],
-            y=[float(i["y"]) for i in user_json.values()],
-            z=[float(i["z"]) for i in user_json.values()],
+            x=[
+                float(user_afids.get_fiducial_position(label, "x"))
+                for label in EXPECTED_LABELS
+            ],
+            y=[
+                float(user_afids.get_fiducial_position(label, "y"))
+                for label in EXPECTED_LABELS
+            ],
+            z=[
+                float(user_afids.get_fiducial_position(label, "z"))
+                for label in EXPECTED_LABELS
+            ],
             showlegend=True,
             mode="markers",
             marker=dict(
@@ -192,15 +220,15 @@ def generate_3d_scatter(ref_json, user_json):
     return bigfig.to_html(include_plotlyjs="cdn", full_html=False)
 
 
-def generate_histogram(ref_json, user_json):
+def generate_histogram(ref_afids, user_afids):
     """Generate an HTML snippet containing a histogram of distances.
 
     Parameters
     ----------
-    ref_json : dict
-        Dictionary of reference AFIDs.
-    user_json : dict
-        Dictionary of user-provided AFIDs.
+    ref_afids : Afids
+        Reference AFIDs object.
+    user_afids : Afids
+        User-provided AFIDs object.
 
     Returns
     -------
@@ -208,10 +236,12 @@ def generate_histogram(ref_json, user_json):
         HTML snippet containing a histogram of the Euclidean distance
         between pairs of provided AFIDs.
     """
-    connecting_lines = gen_connecting_lines(ref_json, user_json)
+    connecting_lines = gen_connecting_lines(ref_afids, user_afids)
     _, _, _, lines_magnitudes = calculate_magnitudes(connecting_lines)
 
-    ids = [entry["desc"] for entry in ref_json.values()]
+    ids = [
+        ref_afids.get_fiducial_description(label) for label in EXPECTED_LABELS
+    ]
 
     # next figure: histogram of distances
     lines_magnitudes_unique = [
