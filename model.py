@@ -131,11 +131,11 @@ def csv_to_afids(in_csv):
         if not row_label.isdigit():
             raise InvalidFileError(
                 f"Row label {row_label} is invalid for fiducial {expected_label}"
-        )
+            )
 
         expected_label += 1
         row_desc = parse_fcsv_field(row, "desc", row_label)
-        
+
         # Check to see if row description is valid
         if not row_desc:
             raise InvalidFileError(
