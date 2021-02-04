@@ -63,9 +63,7 @@ def parse_fcsv_float(value, field, label):
 
     if not math.isfinite(parsed_value):
         raise InvalidFileError(f"{field} in row {label} is not finite")
-
-    return parsed_value
-
+    
 
 def csv_to_afids(in_csv):
     """Parse .fcsv / .csv files and write to AFIDs object
