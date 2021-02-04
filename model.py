@@ -63,7 +63,7 @@ def parse_fcsv_float(value, field, label):
 
     if not math.isfinite(parsed_value):
         raise InvalidFileError(f"{field} in row {label} is not finite")
-    
+
 
 def csv_to_afids(in_csv):
     """Parse .fcsv / .csv files and write to AFIDs object
@@ -241,5 +241,5 @@ def json_to_afids(in_json):
         fid_position = parse_json_key(in_json, "position", fid, fid_coord)
 
         afids.add_fiducial(fid_label, fid_desc, fid_position)
-        
+
     return afids
