@@ -9,7 +9,6 @@ import numpy as np
 import wtforms as wtf
 
 from model import csv_to_afids, json_to_afids, InvalidFileError
-from visualizations import generate_3d_scatter, generate_histogram
 
 
 app = Flask(__name__)
@@ -473,8 +472,6 @@ def validator():
         labels=labels,
         distances=distances,
         timestamp=timestamp,
-        scatter_html=generate_3d_scatter(template_afids, user_afids),
-        histogram_html=generate_histogram(template_afids, user_afids),
     )
 
 
