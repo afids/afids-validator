@@ -303,11 +303,13 @@ def validator():
             labels=labels,
             distances=distances,
         )
-    
+
     if user_afids.validate():
         result = f"Valid file ({timestamp})"
     else:
-        result = f"Invalid AFIDs set, please double check your file ({timestamp})"
+        result = (
+            f"Invalid AFIDs set, please double check your file ({timestamp})"
+        )
 
     fid_template = request.form["fid_template"]
 
