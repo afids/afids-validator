@@ -162,6 +162,10 @@ def csv_to_afids(in_csv):
     if afids.no_of_fiducials < 32:
         raise InvalidFileError("Too few rows")
 
+    # Validate afids
+    if not afids.validate():
+        raise InvalidFileError("The AFIDs set is invalid. Please double check!")
+
     return afids
 
 
@@ -242,7 +246,10 @@ def json_to_afids(in_json):
         fid_desc = EXPECTED_MAP[fid_label][0]
         fid_position = parse_json_key(in_json, "position", fid, fid_coord)
 
-        # NEED TO IMPLEMENT CHECK FOR MISSING JSON VALUES
         afids.add_fiducial(fid_label, fid_desc, fid_position)
+        
+        # Validate afids
+        if not afids.validate():
+            raise InvalidFileError("The AFIDs set is invalid. Please double check!")
 
     return afids
