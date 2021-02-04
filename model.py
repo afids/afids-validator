@@ -162,10 +162,6 @@ def csv_to_afids(in_csv):
     if afids.no_of_fiducials < 32:
         raise InvalidFileError("Too few rows")
 
-    # Validate afids
-    if not afids.validate():
-        raise InvalidFileError("The AFIDs set is invalid. Please double check!")
-
     return afids
 
 
@@ -248,8 +244,4 @@ def json_to_afids(in_json):
 
         afids.add_fiducial(fid_label, fid_desc, fid_position)
         
-        # Validate afids
-        if not afids.validate():
-            raise InvalidFileError("The AFIDs set is invalid. Please double check!")
-
     return afids
