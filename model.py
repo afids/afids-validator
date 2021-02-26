@@ -227,6 +227,8 @@ def json_to_afids(in_json):
 
     for fid in range(0, num_fids):
         fid_label = parse_json_key(in_json, "label", fid, fid_coord)
+        if str(fid_label) not in EXPECTED_MAP:
+            raise InvalidFileError(f"Fiducial label {fid_label} invalid.")
         fid_desc = parse_json_key(in_json, "description", fid, fid_coord)
         if not any(
             x.lower() == fid_desc.lower() for x in EXPECTED_MAP[str(fid_label)]
@@ -239,6 +241,18 @@ def json_to_afids(in_json):
         # Ensure full FID name is used
         fid_desc = EXPECTED_MAP[fid_label][0]
         fid_position = parse_json_key(in_json, "position", fid, fid_coord)
+
+        if len(fid_position) != 3:
+            raise InvalidFileError(
+                f"Fiducial {fid_desc} does not have three coordinates"
+            )
+
+        for coord_label, coord in zip(["x", "y", "z"], fid_position):
+            if not isinstance(coord, (float, int)):
+                raise InvalidFileError(
+                    f"{coord_label} ({coord}) in fiducial {fid_label} is not "
+                    "a real number"
+                )
 
         afids.add_fiducial(fid_label, fid_desc, fid_position)
 

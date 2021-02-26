@@ -32,7 +32,8 @@ class TestFcsvValidation(unittest.TestCase):
                 model.csv_to_afids(fcsv.read())
 
         self.assertEqual(
-            custom_message.exception.message, "Markups fiducial file version 3.5 too low"
+            custom_message.exception.message,
+            "Markups fiducial file version 3.5 too low",
         )
 
     def test_invalid_content(self):
@@ -41,7 +42,8 @@ class TestFcsvValidation(unittest.TestCase):
                 model.csv_to_afids(fcsv.read())
 
         self.assertEqual(
-            custom_message.exception.message, "Missing or invalid header in fiducial file"
+            custom_message.exception.message,
+            "Missing or invalid header in fiducial file",
         )
 
         with open(
@@ -50,7 +52,9 @@ class TestFcsvValidation(unittest.TestCase):
             with self.assertRaises(model.InvalidFileError) as custom_message:
                 model.csv_to_afids(fcsv.read())
 
-        self.assertEqual(custom_message.exception.message, "Row has no value label")
+        self.assertEqual(
+            custom_message.exception.message, "Row has no value label"
+        )
 
     def test_too_few_rows(self):
         with open("test/resources/too_few_rows.fcsv", "r") as fcsv:
@@ -72,7 +76,8 @@ class TestFcsvValidation(unittest.TestCase):
                 model.csv_to_afids(fcsv.read())
 
         self.assertEqual(
-            custom_message.exception.message, "Incorrect number of columns (13) in row 2"
+            custom_message.exception.message,
+            "Incorrect number of columns (13) in row 2",
         )
 
     def test_too_many_columns(self):
@@ -81,7 +86,8 @@ class TestFcsvValidation(unittest.TestCase):
                 model.csv_to_afids(fcsv.read())
 
         self.assertEqual(
-            custom_message.exception.message, "Incorrect number of columns (15) in row 2"
+            custom_message.exception.message,
+            "Incorrect number of columns (15) in row 2",
         )
 
     def test_incorrect_desc(self):
@@ -108,7 +114,9 @@ class TestFcsvValidation(unittest.TestCase):
             with self.assertRaises(model.InvalidFileError) as custom_message:
                 model.csv_to_afids(fcsv.read())
 
-        self.assertEqual(custom_message.exception.message, "z in row 2 is not finite")
+        self.assertEqual(
+            custom_message.exception.message, "z in row 2 is not finite"
+        )
 
     def test_missing_row(self):
         with open("test/resources/missing_row_10.fcsv", "r") as fcsv:
@@ -146,29 +154,10 @@ class TestJsonValidation(unittest.TestCase):
         with open("test/resources/valid_misordered.json", "r") as json_file:
             self.assertTrue(model.json_to_afids(json_file.read()).validate())
 
-    # IS VERSION A CONCERN HERE (NOT A FIELD IN JSON FILES)
-    # def test_invalid_version(self):
-    #     with open("test/resources/invalid_version.fcsv", "r") as fcsv:
-    #         with self.assertRaises(model.InvalidFileError) as custom_message:
-    #             model.csv_to_afids(fcsv.read())
-
-    #     self.assertEqual(custom_message.exception.message,
-    #         "Markups fiducial file version 3.5 too low")
-
     def test_invalid_content(self):
         with open("test/resources/invalid_content.json", "r") as json_file:
             with self.assertRaises(model.InvalidFileError):
                 model.json_to_afids(json_file.read())
-
-        # DON'T THINK HEADER IS AN ISSUE ANYMORE HERE?
-
-    #     with open("test/resources/invalid_content_valid_header.fcsv",
-    #             "r") as fcsv:
-    #         with self.assertRaises(model.InvalidFileError) as custom_message:
-    #             model.csv_to_afids(fcsv.read())
-
-    #     self.assertEqual(custom_message.exception.message,
-    #         "Row has no value label")
 
     def test_too_few_rows(self):
         with open("test/resources/too_few_rows.json", "r") as json_file:
@@ -184,22 +173,15 @@ class TestJsonValidation(unittest.TestCase):
 
         self.assertEqual(custom_message.exception.message, "Too many fiducials")
 
-    # NO LONGER HAVE COLUMNS, SHOULD CHECK FOR KEYS INSTEAD?
-    # def test_too_few_columns(self):
-    #     with open("test/resources/too_few_columns.fcsv, "r") as fcsv:
-    #         with self.assertRaises(model.InvalidFileError) as custom_message:
-    #             model.csv_to_afids(fcsv.read())
+    def test_too_few_coords(self):
+        with open("test/resources/too_few_coords.json", "r") as json_file:
+            with self.assertRaises(model.InvalidFileError) as custom_message:
+                model.json_to_afids(json_file.read())
 
-    #     self.assertEqual(custom_message.exception.message,
-    #             "Incorrect number of columns (13) in row 2")
-
-    # def test_too_many_columns(self):
-    #     with open("test/resources/too_many_columns.fcsv", "r") as fcsv:
-    #         with self.assertRaises(model.InvalidFileError) as custom_message:
-    #             model.csv_to_afids(fcsv.read())
-
-    #     self.assertEqual(custom_message.exception.message,
-    #             "Incorrect number of columns (15) in row 2")
+        self.assertEqual(
+            custom_message.exception.message,
+            "Fiducial AC does not have three coordinates",
+        )
 
     def test_incorrect_desc(self):
         with open("test/resources/incorrect_desc.json", "r") as json_file:
@@ -211,23 +193,15 @@ class TestJsonValidation(unittest.TestCase):
             "Fiducial label 2 does not match fiducial description dummy",
         )
 
-    # CURRENTLY THROWING JSON ERROR
-    # def test_invalid_coord(self):
-    #     with open("test/resources/invalid_coord.json", "r") as json_file:
-    #         with self.assertRaises(model.InvalidFileError) as custom_message:
-    #             model.json_to_afids(json_file.read())
+    def test_invalid_coord(self):
+        with open("test/resources/invalid_coord.json", "r") as json_file:
+            with self.assertRaises(model.InvalidFileError) as custom_message:
+                model.json_to_afids(json_file.read())
 
-    #     self.assertEqual(custom_message.exception.message,
-    #             "z in row 2 is not a real number")
-
-    # ALSO NOT WORKING CURRENTLY
-    # def test_infinite_coord(self):
-    #     with open("test/resources/infinite_coord.json", "r") as json_file:
-    #         with self.assertRaises(model.InvalidFileError) as custom_message:
-    #             model.json_to_afids(json_file.read())
-
-    #     self.assertEqual(custom_message.exception.message,
-    #             "z in row 2 is not finite")
+        self.assertEqual(
+            custom_message.exception.message,
+            "z (dummy) in fiducial 2 is not a real number",
+        )
 
     def test_missing_row(self):
         with open("test/resources/missing_row_10.json", "r") as json_file:
