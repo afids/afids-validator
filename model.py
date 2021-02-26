@@ -248,7 +248,9 @@ def json_to_afids(in_json):
             )
 
         for coord_label, coord in zip(["x", "y", "z"], fid_position):
-            if not isinstance(coord, (float, int)):
+            if (not isinstance(coord, (float, int))) or isinstance(
+                coord, bool
+            ):
                 raise InvalidFileError(
                     f"{coord_label} ({coord}) in fiducial {fid_label} is not "
                     "a real number"

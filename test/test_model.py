@@ -171,7 +171,9 @@ class TestJsonValidation(unittest.TestCase):
             with self.assertRaises(model.InvalidFileError) as custom_message:
                 model.json_to_afids(json_file.read())
 
-        self.assertEqual(custom_message.exception.message, "Too many fiducials")
+        self.assertEqual(
+            custom_message.exception.message, "Too many fiducials"
+        )
 
     def test_too_few_coords(self):
         with open("test/resources/too_few_coords.json", "r") as json_file:
@@ -195,13 +197,27 @@ class TestJsonValidation(unittest.TestCase):
 
     def test_invalid_coord(self):
         with open("test/resources/invalid_coord.json", "r") as json_file:
-            with self.assertRaises(model.InvalidFileError) as custom_message:
-                model.json_to_afids(json_file.read())
+            json_lines = json_file.readlines()
 
+        with self.assertRaises(model.InvalidFileError) as custom_message:
+            model.json_to_afids("".join(json_lines))
         self.assertEqual(
             custom_message.exception.message,
             "z (dummy) in fiducial 2 is not a real number",
         )
+
+        invalid_coords = ["[0.3, 0.4]", '{"z": 0.3}', "true", "false", "null"]
+
+        errors = ["[0.3, 0.4]", "{'z': 0.3}", "True", "False", "None"]
+
+        for invalid_coord, error in zip(invalid_coords, errors):
+            json_lines[28] = f'"position": [0.1, 0.2, {invalid_coord}],'
+            with self.assertRaises(model.InvalidFileError) as custom_message:
+                model.json_to_afids("".join(json_lines))
+            self.assertEqual(
+                custom_message.exception.message,
+                f"z ({error}) in fiducial 2 is not a real number",
+            )
 
     def test_missing_row(self):
         with open("test/resources/missing_row_10.json", "r") as json_file:
