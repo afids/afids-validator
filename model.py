@@ -125,8 +125,21 @@ def csv_to_afids(in_csv):
 
         row_label = parse_fcsv_field(row, "label")
 
+        # Check if label is numerical
+        if not row_label.isdigit():
+            raise InvalidFileError(
+                f"Row label {row_label} is invalid for fiducial {expected_label}"
+            )
+
         expected_label += 1
         row_desc = parse_fcsv_field(row, "desc", row_label)
+        
+        # Check to see if row description is not empty
+        if not isinstance(row_desc, str):
+            raise InvalidFileError(
+                f"Row description {row_desc} is invalid for {row_label}"
+            )
+
         if not any(
             x.lower() == row_desc.lower() for x in EXPECTED_MAP[row_label]
         ):
