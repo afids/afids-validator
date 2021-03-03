@@ -12,7 +12,7 @@ def gen_connecting_lines(ref_afids, user_afids):
     ----------
     ref_afids : Afids
         Reference AFiDs object.
-    user_json : Afids
+    user_afids : Afids
         User-provided AFIDs object.
 
     Returns
@@ -107,7 +107,7 @@ def generate_3d_scatter(ref_afids, user_afids):
     ----------
     ref_afids : Afids
         Reference AFIDS object.
-    user_json : Afids
+    user_afids : Afids
         User-provided AFIDs object.
 
     Returns
@@ -124,7 +124,7 @@ def generate_3d_scatter(ref_afids, user_afids):
     )
 
     ids = [
-        ref_afids.get_fidicial_description(label) for label in EXPECTED_LABELS
+        ref_afids.get_fiducial_description(label) for label in EXPECTED_LABELS
     ]
 
     dset1 = [
