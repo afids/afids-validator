@@ -1,16 +1,14 @@
 """Route requests with Flask."""
 
 import os
-import io
-import json
-import math
 from datetime import datetime, timezone
 
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
+import numpy as np
+import wtforms as wtf
 
-from visualizations import generate_3d_scatter, generate_histogram
-from model_auto import Average, csv_to_json, InvalidFcsvError
+from model import csv_to_afids, json_to_afids, InvalidFileError
 
 
 app = Flask(__name__)
@@ -174,6 +172,13 @@ class FiducialSet(db.Model):
         return serialized
 
 
+class Average(wtf.Form):
+    """Form for selecting and submitting a file."""
+
+    filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
+    submit = wtf.SubmitField(label="Submit")
+
+
 # Relative path of directory for uploaded files
 UPLOAD_DIR = "uploads/"
 AFIDS_HUMAN_DIR = "afids-templates/human/"
@@ -185,12 +190,15 @@ if not os.path.isdir(UPLOAD_DIR):
     os.mkdir(UPLOAD_DIR)
 
 # Allowed file types for file upload
-ALLOWED_EXTENSIONS = set(["fcsv", "csv"])
+ALLOWED_EXTENSIONS = ["fcsv", "csv", "json"]
 
 
+## TO BE DEPECRATED
 def allowed_file(filename):
     """Does filename have the right extension?"""
-    return "." in filename and filename.rsplit(".", 1)[1] in ALLOWED_EXTENSIONS
+    file_ext = filename.rsplit(".", 1)[1]
+
+    return file_ext, "." in filename and file_ext in ALLOWED_EXTENSIONS
 
 
 # Routes to web pages / application
@@ -221,264 +229,254 @@ def validator():
     """Present the validator form, or validate an AFIDs set."""
     form = Average(request.form)
 
-    msg = ""
     result = ""
-    indices = []
     distances = []
     labels = []
-    template_data_j = None
+    template_afids = None
+
+    # Identify all human templates
     human_templates = []
     for human_dir in os.listdir(AFIDS_HUMAN_DIR):
-        if "sub" in human_dir:
+        if "tpl" in human_dir:
             human_dir = human_dir[4:]
-
         human_templates.append(human_dir.split("_")[0])
 
     timestamp = str(
         datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
     )
+
     if not request.method == "POST":
         return render_template(
             "validator.html",
             form=form,
             result=result,
             human_templates=human_templates,
-            template_data_j=template_data_j,
-            index=indices,
+            template_afids=template_afids,
+            index=[],
             labels=labels,
             distances=distances,
         )
 
     if not request.files:
-        result = "<br>".join([result, msg])
-
         return render_template(
             "validator.html",
             form=form,
             result=result,
             human_templates=human_templates,
-            template_data_j=template_data_j,
-            index=indices,
+            template_afids=template_afids,
+            index=[],
             labels=labels,
             distances=distances,
         )
 
     upload = request.files[form.filename.name]
+    upload_ext, file_check = allowed_file(upload.filename)
 
-    if not (upload and allowed_file(upload.filename)):
-        result = "Invalid file: extension not allowed ({time_stamp})".format(
-            time_stamp=timestamp
-        )
-        result = "<br>".join([result, msg])
+    if not (upload and file_check):
+        result = f"Invalid file: extension not allowed ({timestamp})"
 
         return render_template(
             "validator.html",
             form=form,
             result=result,
             human_templates=human_templates,
-            template_data_j=template_data_j,
-            index=indices,
+            template_afids=template_afids,
+            index=[],
             labels=labels,
             distances=distances,
         )
 
     try:
-        user_data = csv_to_json(
-            io.StringIO(upload.stream.read().decode("utf-8"))
-        )
-    except InvalidFcsvError as err:
-        result = "Invalid file: {err_msg} ({time_stamp})".format(
-            err_msg=err.message, time_stamp=timestamp
-        )
+        if upload_ext in ALLOWED_EXTENSIONS[:2]:
+            user_afids = csv_to_afids(upload.read().decode("utf-8"))
+        else:
+            user_afids = json_to_afids(upload.read().decode("utf-8"))
+    except InvalidFileError as err:
+        result = f"Invalid file: {err.message} ({timestamp})"
         return render_template(
             "validator.html",
             form=form,
             result=result,
             human_templates=human_templates,
-            template_data_j=template_data_j,
-            index=indices,
+            template_afids=template_afids,
+            index=[],
             labels=labels,
             distances=distances,
         )
 
-    result = "Valid file ({time_stamp})".format(time_stamp=timestamp)
-    user_data_j = json.loads(user_data)
+    if user_afids.validate():
+        result = f"Valid file ({timestamp})"
+    else:
+        result = (
+            f"Invalid AFIDs set, please double check your file ({timestamp})"
+        )
 
     fid_template = request.form["fid_template"]
 
-    if fid_template == "Validate .fcsv file structure":
-        result = "Valid file  ({time_stamp})".format(time_stamp=timestamp)
-        result = "<br>".join([result, msg])
-
+    if fid_template == "Validate file structure":
         return render_template(
             "validator.html",
             form=form,
             result=result,
             human_templates=human_templates,
-            template_data_j=template_data_j,
-            index=indices,
+            template_afids=template_afids,
+            index=[],
             labels=labels,
             distances=distances,
         )
 
-    msg = fid_template + " selected"
+    result = f"{result}<br>{fid_template} selected"
 
     # Need to pull from correct folder when more templates are added
     if fid_template in human_templates:
         template_file_path = os.path.join(
-            AFIDS_HUMAN_DIR, "sub-" + str(fid_template) + "_afids.fcsv"
+            AFIDS_HUMAN_DIR, f"tpl-{fid_template}_afids.fcsv"
         )
 
-    template_file = open(template_file_path, "r")
+    with open(template_file_path, "r") as template_file:
+        template_afids = csv_to_afids(template_file.read())
 
-    template_data = csv_to_json(template_file)
-    template_data_j = json.loads(template_data)
-
-    fiducial_set = FiducialSet(
-        AC_x=user_data_j["1"]["x"],
-        AC_y=user_data_j["1"]["y"],
-        AC_z=user_data_j["1"]["z"],
-        PC_x=user_data_j["2"]["x"],
-        PC_y=user_data_j["2"]["y"],
-        PC_z=user_data_j["2"]["z"],
-        ICS_x=user_data_j["3"]["x"],
-        ICS_y=user_data_j["3"]["y"],
-        ICS_z=user_data_j["3"]["z"],
-        PMJ_x=user_data_j["4"]["x"],
-        PMJ_y=user_data_j["4"]["y"],
-        PMJ_z=user_data_j["4"]["z"],
-        SIPF_x=user_data_j["5"]["x"],
-        SIPF_y=user_data_j["5"]["y"],
-        SIPF_z=user_data_j["5"]["z"],
-        RSLMS_x=user_data_j["6"]["x"],
-        RSLMS_y=user_data_j["6"]["y"],
-        RSLMS_z=user_data_j["6"]["z"],
-        LSLMS_x=user_data_j["7"]["x"],
-        LSLMS_y=user_data_j["7"]["y"],
-        LSLMS_z=user_data_j["7"]["z"],
-        RILMS_x=user_data_j["8"]["x"],
-        RILMS_y=user_data_j["8"]["y"],
-        RILMS_z=user_data_j["8"]["z"],
-        LILMS_x=user_data_j["9"]["x"],
-        LILMS_y=user_data_j["9"]["y"],
-        LILMS_z=user_data_j["9"]["z"],
-        CUL_x=user_data_j["10"]["x"],
-        CUL_y=user_data_j["10"]["y"],
-        CUL_z=user_data_j["10"]["z"],
-        IMS_x=user_data_j["11"]["x"],
-        IMS_y=user_data_j["11"]["y"],
-        IMS_z=user_data_j["11"]["z"],
-        RMB_x=user_data_j["12"]["x"],
-        RMB_y=user_data_j["12"]["y"],
-        RMB_z=user_data_j["12"]["z"],
-        LMB_x=user_data_j["13"]["x"],
-        LMB_y=user_data_j["13"]["y"],
-        LMB_z=user_data_j["13"]["z"],
-        PG_x=user_data_j["14"]["x"],
-        PG_y=user_data_j["14"]["y"],
-        PG_z=user_data_j["14"]["z"],
-        RLVAC_x=user_data_j["15"]["x"],
-        RLVAC_y=user_data_j["15"]["y"],
-        RLVAC_z=user_data_j["15"]["z"],
-        LLVAC_x=user_data_j["16"]["x"],
-        LLVAC_y=user_data_j["16"]["y"],
-        LLVAC_z=user_data_j["16"]["z"],
-        RLVPC_x=user_data_j["17"]["x"],
-        RLVPC_y=user_data_j["17"]["y"],
-        RLVPC_z=user_data_j["17"]["z"],
-        LLVPC_x=user_data_j["18"]["x"],
-        LLVPC_y=user_data_j["18"]["y"],
-        LLVPC_z=user_data_j["18"]["z"],
-        GENU_x=user_data_j["19"]["x"],
-        GENU_y=user_data_j["19"]["y"],
-        GENU_z=user_data_j["19"]["z"],
-        SPLE_x=user_data_j["20"]["x"],
-        SPLE_y=user_data_j["20"]["y"],
-        SPLE_z=user_data_j["20"]["z"],
-        RALTH_x=user_data_j["21"]["x"],
-        RALTH_y=user_data_j["21"]["y"],
-        RALTH_z=user_data_j["21"]["z"],
-        LALTH_x=user_data_j["22"]["x"],
-        LALTH_y=user_data_j["22"]["y"],
-        LALTH_z=user_data_j["22"]["z"],
-        RSAMTH_x=user_data_j["23"]["x"],
-        RSAMTH_y=user_data_j["23"]["y"],
-        RSAMTH_z=user_data_j["23"]["z"],
-        LSAMTH_x=user_data_j["24"]["x"],
-        LSAMTH_y=user_data_j["24"]["y"],
-        LSAMTH_z=user_data_j["24"]["z"],
-        RIAMTH_x=user_data_j["25"]["x"],
-        RIAMTH_y=user_data_j["25"]["y"],
-        RIAMTH_z=user_data_j["25"]["z"],
-        LIAMTH_x=user_data_j["26"]["x"],
-        LIAMTH_y=user_data_j["26"]["y"],
-        LIAMTH_z=user_data_j["26"]["z"],
-        RIGO_x=user_data_j["27"]["x"],
-        RIGO_y=user_data_j["27"]["y"],
-        RIGO_z=user_data_j["27"]["z"],
-        LIGO_x=user_data_j["28"]["x"],
-        LIGO_y=user_data_j["28"]["y"],
-        LIGO_z=user_data_j["28"]["z"],
-        RVOH_x=user_data_j["29"]["x"],
-        RVOH_y=user_data_j["29"]["y"],
-        RVOH_z=user_data_j["29"]["z"],
-        LVOH_x=user_data_j["30"]["x"],
-        LVOH_y=user_data_j["30"]["y"],
-        LVOH_z=user_data_j["30"]["z"],
-        ROSF_x=user_data_j["31"]["x"],
-        ROSF_y=user_data_j["31"]["y"],
-        ROSF_z=user_data_j["31"]["z"],
-        LOSF_x=user_data_j["32"]["x"],
-        LOSF_y=user_data_j["32"]["y"],
-        LOSF_z=user_data_j["32"]["z"],
-    )
     if request.form.get("db_checkbox"):
-        db.session.add(fiducial_set)
+        db.session.add(
+            FiducialSet(
+                AC_x=user_afids.get_fiducial_position(1, "x"),
+                AC_y=user_afids.get_fiducial_position(1, "y"),
+                AC_z=user_afids.get_fiducial_position(1, "z"),
+                PC_x=user_afids.get_fiducial_position(2, "x"),
+                PC_y=user_afids.get_fiducial_position(2, "y"),
+                PC_z=user_afids.get_fiducial_position(2, "z"),
+                ICS_x=user_afids.get_fiducial_position(3, "x"),
+                ICS_y=user_afids.get_fiducial_position(3, "y"),
+                ICS_z=user_afids.get_fiducial_position(3, "z"),
+                PMJ_x=user_afids.get_fiducial_position(4, "x"),
+                PMJ_y=user_afids.get_fiducial_position(4, "y"),
+                PMJ_z=user_afids.get_fiducial_position(4, "z"),
+                SIPF_x=user_afids.get_fiducial_position(5, "x"),
+                SIPF_y=user_afids.get_fiducial_position(5, "y"),
+                SIPF_z=user_afids.get_fiducial_position(5, "z"),
+                RSLMS_x=user_afids.get_fiducial_position(6, "x"),
+                RSLMS_y=user_afids.get_fiducial_position(6, "y"),
+                RSLMS_z=user_afids.get_fiducial_position(6, "z"),
+                LSLMS_x=user_afids.get_fiducial_position(7, "x"),
+                LSLMS_y=user_afids.get_fiducial_position(7, "y"),
+                LSLMS_z=user_afids.get_fiducial_position(7, "z"),
+                RILMS_x=user_afids.get_fiducial_position(8, "x"),
+                RILMS_y=user_afids.get_fiducial_position(8, "y"),
+                RILMS_z=user_afids.get_fiducial_position(8, "z"),
+                LILMS_x=user_afids.get_fiducial_position(9, "x"),
+                LILMS_y=user_afids.get_fiducial_position(9, "y"),
+                LILMS_z=user_afids.get_fiducial_position(9, "z"),
+                CUL_x=user_afids.get_fiducial_position(10, "x"),
+                CUL_y=user_afids.get_fiducial_position(10, "y"),
+                CUL_z=user_afids.get_fiducial_position(10, "z"),
+                IMS_x=user_afids.get_fiducial_position(11, "x"),
+                IMS_y=user_afids.get_fiducial_position(11, "y"),
+                IMS_z=user_afids.get_fiducial_position(11, "z"),
+                RMB_x=user_afids.get_fiducial_position(12, "x"),
+                RMB_y=user_afids.get_fiducial_position(12, "y"),
+                RMB_z=user_afids.get_fiducial_position(12, "z"),
+                LMB_x=user_afids.get_fiducial_position(13, "x"),
+                LMB_y=user_afids.get_fiducial_position(13, "y"),
+                LMB_z=user_afids.get_fiducial_position(13, "z"),
+                PG_x=user_afids.get_fiducial_position(14, "x"),
+                PG_y=user_afids.get_fiducial_position(14, "y"),
+                PG_z=user_afids.get_fiducial_position(14, "z"),
+                RLVAC_x=user_afids.get_fiducial_position(15, "x"),
+                RLVAC_y=user_afids.get_fiducial_position(15, "y"),
+                RLVAC_z=user_afids.get_fiducial_position(15, "z"),
+                LLVAC_x=user_afids.get_fiducial_position(16, "x"),
+                LLVAC_y=user_afids.get_fiducial_position(16, "y"),
+                LLVAC_z=user_afids.get_fiducial_position(16, "z"),
+                RLVPC_x=user_afids.get_fiducial_position(17, "x"),
+                RLVPC_y=user_afids.get_fiducial_position(17, "y"),
+                RLVPC_z=user_afids.get_fiducial_position(17, "z"),
+                LLVPC_x=user_afids.get_fiducial_position(18, "x"),
+                LLVPC_y=user_afids.get_fiducial_position(18, "y"),
+                LLVPC_z=user_afids.get_fiducial_position(18, "z"),
+                GENU_x=user_afids.get_fiducial_position(19, "x"),
+                GENU_y=user_afids.get_fiducial_position(19, "y"),
+                GENU_z=user_afids.get_fiducial_position(19, "z"),
+                SPLE_x=user_afids.get_fiducial_position(20, "x"),
+                SPLE_y=user_afids.get_fiducial_position(20, "y"),
+                SPLE_z=user_afids.get_fiducial_position(20, "z"),
+                RALTH_x=user_afids.get_fiducial_position(21, "x"),
+                RALTH_y=user_afids.get_fiducial_position(21, "y"),
+                RALTH_z=user_afids.get_fiducial_position(21, "z"),
+                LALTH_x=user_afids.get_fiducial_position(22, "x"),
+                LALTH_y=user_afids.get_fiducial_position(22, "y"),
+                LALTH_z=user_afids.get_fiducial_position(22, "z"),
+                RSAMTH_x=user_afids.get_fiducial_position(23, "x"),
+                RSAMTH_y=user_afids.get_fiducial_position(23, "y"),
+                RSAMTH_z=user_afids.get_fiducial_position(23, "z"),
+                LSAMTH_x=user_afids.get_fiducial_position(24, "x"),
+                LSAMTH_y=user_afids.get_fiducial_position(24, "y"),
+                LSAMTH_z=user_afids.get_fiducial_position(24, "z"),
+                RIAMTH_x=user_afids.get_fiducial_position(25, "x"),
+                RIAMTH_y=user_afids.get_fiducial_position(25, "y"),
+                RIAMTH_z=user_afids.get_fiducial_position(25, "z"),
+                LIAMTH_x=user_afids.get_fiducial_position(26, "x"),
+                LIAMTH_y=user_afids.get_fiducial_position(26, "y"),
+                LIAMTH_z=user_afids.get_fiducial_position(26, "z"),
+                RIGO_x=user_afids.get_fiducial_position(27, "x"),
+                RIGO_y=user_afids.get_fiducial_position(27, "y"),
+                RIGO_z=user_afids.get_fiducial_position(27, "z"),
+                LIGO_x=user_afids.get_fiducial_position(28, "x"),
+                LIGO_y=user_afids.get_fiducial_position(28, "y"),
+                LIGO_z=user_afids.get_fiducial_position(28, "z"),
+                RVOH_x=user_afids.get_fiducial_position(29, "x"),
+                RVOH_y=user_afids.get_fiducial_position(29, "y"),
+                RVOH_z=user_afids.get_fiducial_position(29, "z"),
+                LVOH_x=user_afids.get_fiducial_position(30, "x"),
+                LVOH_y=user_afids.get_fiducial_position(30, "y"),
+                LVOH_z=user_afids.get_fiducial_position(30, "z"),
+                ROSF_x=user_afids.get_fiducial_position(31, "x"),
+                ROSF_y=user_afids.get_fiducial_position(31, "y"),
+                ROSF_z=user_afids.get_fiducial_position(31, "z"),
+                LOSF_x=user_afids.get_fiducial_position(32, "x"),
+                LOSF_y=user_afids.get_fiducial_position(32, "y"),
+                LOSF_z=user_afids.get_fiducial_position(32, "z"),
+            )
+        )
         db.session.commit()
-        print("fiducial set added")
+        print("Fiducial set added")
     else:
         print("DB option unchecked, user data not saved")
 
-    for element in template_data_j:
-        indices.append(int(element) - 1)
-
-        coordinate_name = template_data_j[element]["desc"]
-
-        template_x = float(template_data_j[element]["x"])
-        template_y = float(template_data_j[element]["y"])
-        template_z = float(template_data_j[element]["z"])
-
-        user_x = float(user_data_j[element]["x"])
-        user_y = float(user_data_j[element]["y"])
-        user_z = float(user_data_j[element]["z"])
-
-        diff = math.sqrt(
-            (template_x - user_x) ** 2
-            + (template_y - user_y) ** 2
-            + (template_z - user_z) ** 2
+    for element in range(1, template_afids.no_of_fiducials + 1):
+        distances.append(
+            "{:.5f}".format(
+                np.linalg.norm(
+                    np.array(
+                        [
+                            float(pos)
+                            for pos in template_afids.get_fiducial_positions(
+                                element
+                            )
+                        ]
+                    )
+                    - np.array(
+                        [
+                            float(pos)
+                            for pos in user_afids.get_fiducial_positions(
+                                element
+                            )
+                        ]
+                    )
+                )
+            )
         )
-        diff = float("{0:.5f}".format(diff))
-
-        labels.append(coordinate_name)
-        distances.append(diff)
-
-    result = "<br>".join([result, msg])
-
-    scatter_html = generate_3d_scatter(template_data_j, user_data_j)
-    histogram_html = generate_histogram(template_data_j, user_data_j)
+        labels.append(template_afids.get_fiducial_description(element))
 
     return render_template(
         "validator.html",
         form=form,
         result=result,
         human_templates=human_templates,
-        template_data_j=template_data_j,
-        index=indices,
+        template_afids=template_afids,
+        index=list(range(template_afids.no_of_fiducials)),
         labels=labels,
         distances=distances,
         timestamp=timestamp,
-        scatter_html=scatter_html,
-        histogram_html=histogram_html,
     )
 
 
@@ -489,7 +487,6 @@ def get_all():
     serialized_fset = []
     for fset in fiducial_sets:
         serialized_fset.append(fset.serialize())
-
     return render_template("db.html", serialized_fset=serialized_fset)
 
 
