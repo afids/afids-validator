@@ -53,8 +53,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.synchronize == 'false'
 
-      steps:
-        - name: Assign reviewer
-          uses: kentar-m/auto-assign-actions@v1.0.1
-          with:
-            repo-token: "${{ secrets.GITHUB_TOKEN }}"
+    steps:
+      - name: Assign reviewer
+        uses: kentar-m/auto-assign-actions@v1.0.1
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
