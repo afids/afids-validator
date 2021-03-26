@@ -53,7 +53,7 @@ jobs:
     name: Reviewer assignment
     needs: [test]
     runs-on: ubuntu-latest
-    if: github.event.pull_request.synchronize == 'false'
+    if: github.event.pull_request.requested_reviewers.*.name == ''
 
     steps:
       - name: Assign reviewer
