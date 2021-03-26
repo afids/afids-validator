@@ -133,7 +133,7 @@ def csv_to_afids(in_csv):
 
         expected_label += 1
         row_desc = parse_fcsv_field(row, "desc", row_label)
-        
+
         # Check to see if row description is not empty
         if not isinstance(row_desc, str):
             raise InvalidFileError(
