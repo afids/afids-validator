@@ -3,11 +3,6 @@ name: AFIDs Validator CI/CD Workflow
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
-  workflow_dispatch:
-    inputs:
-      description: "Manual trigger"
-      required: false
-      default: "Manual trigger"
 
 jobs:
   test:
