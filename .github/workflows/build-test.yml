@@ -3,7 +3,8 @@ name: AFIDs Validator CI/CD Workflow
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
-    
+  workflow_dispatch
+
 jobs:
   test:
       name: Setup environment & test
