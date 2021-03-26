@@ -2,7 +2,7 @@ name: AFIDs Validator CI/CD Workflow
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
+    types: [opened, reopened, synchronize, ready_for_review, merged]
 
 jobs:
   test:
@@ -90,7 +90,7 @@ jobs:
     name: Reviewer assignment
     needs: [linting]
     runs-on: ubuntu-latest
-    if: github.event.pull_request.synchronize == 'false'
+    if: github.event.pull_request.synchronize == 'false' || github.event.pull_request.merged == 'false'
 
     steps:
       - name: Assign reviewer
@@ -102,7 +102,7 @@ jobs:
     name: Heroku deployment
     needs: [test, linting]
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == 'true'
+    if: github.event.pull_request.merged == 'true' 
 
     steps:
       - name: Checkout master 
