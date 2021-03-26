@@ -46,7 +46,7 @@ jobs:
       - name: Test AFIDs validator
         shell: bash
         run: |
-          source `pwd`/.venv/bin/activate
+          source ~/.afidsvenv/bin/activate
           python -m unittest
 
   assign:
