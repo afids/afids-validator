@@ -100,7 +100,7 @@ jobs:
 
   deploy:
     name: Heroku deployment
-    needs: [testing, linting]
+    needs: [test, linting]
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == 'true'
 
