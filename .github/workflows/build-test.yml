@@ -1,4 +1,4 @@
-name: AFIDs Validator PR Unit Testing
+name: AFIDs Validator PR Workflow
 
 on:
     pull_request:
@@ -8,7 +8,7 @@ jobs:
     test:
         name: Setup environment & test
         runs-on: ubuntu-latest
-        if: github.event.pull_request.draft == false
+        if: github.event.pull_request.draft == 'false'
 
         steps:
             - name: Checkout pull request branch
@@ -40,10 +40,14 @@ jobs:
                 source `pwd`/.venv/bin/activate
                 pip install -r requirements.txt --no-cache-dir
 
-            - name: Test afids-validator
+            - name: Test AFIDs validator
               shell: bash
               run: |
                 source `pwd`/.venv/bin/activate
                 python -m unittest
 
-             
+            - name: Assign reviewer
+              uses: kentar-m/auto-assign-actions@v1.0.1
+              if: github.event.pull_request.synchronize == 'false'
+              with:
+                repo-token: "${{ secrets.GITHUB_TOKEN }}"
