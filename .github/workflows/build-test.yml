@@ -39,8 +39,8 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install virtualenv --no-cache-dir
-          python -m virtualenv `pwd`/.venv
-          source `pwd`/.venv/bin/activate
+          python -m virtualenv ~/.afidsvenv
+          source ~/.afidsvenv/bin/activate
           pip install -r requirements.txt --no-cache-dir
 
       - name: Test AFIDs validator
@@ -53,7 +53,7 @@ jobs:
     name: Reviewer assignment
     needs: [test]
     runs-on: ubuntu-latest
-    if: github.event.pull_request.requested_reviewers.*.name == ''
+    if: github.event.pull_request.synchronize == 'false'
 
     steps:
       - name: Assign reviewer
