@@ -29,19 +29,15 @@ jobs:
         id: cache
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-${{ matrix.python-version }}-
-            $[{ runner.os }}-pip-
+            ${{ runner.os }}-pip-
 
       - name: Install necessary requirements if required
         if: steps.cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          pip install virtualenv
-          python -m virtualenv ~/.afidsvenv
-          source ~/.afidsvenv/bin/activate
           pip install -r requirements.txt 
 
       - name: Test AFIDs validator
@@ -73,14 +69,12 @@ jobs:
         id: cache
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-${{ matrix.python-version }}-
-            $[{ runner.os }}-pip-
+            ${{ runner.os }}-pip-
 
       - name: Install black
         run: | 
-          source ~/.afidsvenv/bin/activate
           python -m pip install --upgrade pip
           pip install black
 
