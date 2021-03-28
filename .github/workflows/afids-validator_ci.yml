@@ -85,7 +85,7 @@ jobs:
     name: Reviewer assignment
     needs: [linting]
     runs-on: ubuntu-latest
-    if: github.event.pull_request.synchronize == 'false' || github.event.pull_request.merged == 'false'
+    if: github.event.pull_request.requested_reviewers.*.name == ''
 
     steps:
       - name: Assign reviewer
@@ -95,7 +95,7 @@ jobs:
 
   deploy:
     name: Heroku deployment
-    needs: [test, linting]
+    needs: [test]
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == 'true' 
 
