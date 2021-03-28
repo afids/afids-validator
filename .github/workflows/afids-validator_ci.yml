@@ -86,6 +86,7 @@ jobs:
         uses: wearerequired/lint-action@v1
         with:
           black: true
+          black_command_prefix: "source ~/.afidsvenv/bin/activate"
           black_args: "-l 79"
           black_extensions: py
           auto_fix: true
