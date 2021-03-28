@@ -28,21 +28,25 @@ jobs:
         uses: actions/cache@v2
         id: cache
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          path: ~/.afidsvenv
+          key: ${{ runner.os }}-venv-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-venv
 
       - name: Install necessary requirements if required
         if: steps.cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
           python -m pip install --upgrade pip
+          pip install virtualenv
+          python -m virtualenv ~/.afidsvenv
+          source ~/.afidsvenv/bin/activate
           pip install -r requirements.txt 
 
       - name: Test AFIDs validator
         shell: bash
         run: |
+          source ~/.afidsvenv/bin/activate
           python -m unittest
 
   linting:
