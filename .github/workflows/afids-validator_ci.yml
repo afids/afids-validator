@@ -85,7 +85,7 @@ jobs:
     name: Reviewer assignment
     needs: [linting]
     runs-on: ubuntu-latest
-    if: github.event.pull_request.requested_reviewers.*.name == ''
+    if: github.event.pull_request.requested_reviewers.*.login == ''
 
     steps:
       - name: Assign reviewer
