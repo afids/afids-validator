@@ -89,7 +89,7 @@ jobs:
     steps:
       - name: Assign reviewer
         uses: kentaro-m/auto-assign-action@v1.1.2
-        if: github.event.pull_request.requested_reviewers.*.name == ''
+        if: github.event.pull_request.assignee == null
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
