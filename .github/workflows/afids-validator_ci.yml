@@ -85,11 +85,11 @@ jobs:
     name: Reviewer assignment
     needs: [linting]
     runs-on: ubuntu-latest
-    if: github.event.pull_request.requested_reviewers.*.login == ''
+    if: github.event.pull_request.unassigned == 'true'
 
     steps:
       - name: Assign reviewer
-        uses: kentar-m/auto-assign-actions@v1.0.1
+        uses: kentar-m/auto-assign-actions@v1.1.2
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
