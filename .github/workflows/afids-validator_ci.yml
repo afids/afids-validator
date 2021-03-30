@@ -52,7 +52,7 @@ jobs:
   linting:
     name: Lint code
     needs: [test]
-    if: github.event.pull_request.merged != 'true'
+    if: github.event.pull_request.merged == false
     runs-on: ubuntu-latest
     strategy:
       matrix:
