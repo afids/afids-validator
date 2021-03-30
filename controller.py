@@ -5,12 +5,48 @@ from datetime import datetime, timezone
 
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import composite
 import numpy as np
 import wtforms as wtf
 
 from model import csv_to_afids, json_to_afids, InvalidFileError
 from visualizations import generate_3d_scatter, generate_histogram
 
+
+fiducial_names = [
+    "AC",
+    "PC",
+    "ICS",
+    "PMJ",
+    "SIPF",
+    "RSLMS",
+    "LSLMS",
+    "RILMS",
+    "LILMS",
+    "CUL",
+    "IMS",
+    "RMB",
+    "LMB",
+    "PG",
+    "RLVAC",
+    "LLVAC",
+    "RLVPC",
+    "LLVPC",
+    "GENU",
+    "SPLE",
+    "RALTH",
+    "LALTH",
+    "RSAMTH",
+    "LSAMTH",
+    "RIAMTH",
+    "LIAMTH",
+    "RIGO",
+    "LIGO",
+    "RVOH",
+    "LVOH",
+    "ROSF",
+    "LOSF",
+]
 
 app = Flask(__name__)
 
@@ -19,6 +55,26 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
+class FiducialPosition():
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def __composite_values__(self):
+        return self.x, self.y, self.z
+
+    def __repr__(self):
+        return "Point(x=%r, y=%r, z=%r)" % (self.x, self.y, self.z)
+
+    def __eq__(self, other):
+        return isinstance(other, Point) and \
+            other.x == self.x and \
+            other.y == self.y and \
+            other.z == self.z and \    
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 class FiducialSet(db.Model):
     """SQL model for a set of AFIDs."""
@@ -26,152 +82,184 @@ class FiducialSet(db.Model):
     __tablename__ = "fid_db"
 
     id = db.Column(db.Integer, primary_key=True)
-    c = [
-        "AC",
-        "PC",
-        "ICS",
-        "PMJ",
-        "SIPF",
-        "RSLMS",
-        "LSLMS",
-        "RILMS",
-        "LILMS",
-        "CUL",
-        "IMS",
-        "RMB",
-        "LMB",
-        "PG",
-        "RLVAC",
-        "LLVAC",
-        "RLVPC",
-        "LLVPC",
-        "GENU",
-        "SPLE",
-        "RALTH",
-        "LALTH",
-        "RSAMTH",
-        "LSAMTH",
-        "RIAMTH",
-        "LIAMTH",
-        "RIGO",
-        "LIGO",
-        "RVOH",
-        "LVOH",
-        "ROSF",
-        "LOSF",
-    ]
+    user_id = db.Column(db.String)
+    date = db.Column(db.Date)
+    template = db.Column(db.String)
 
-    for base in c:
-        exec("%s_x = %s" % (base, "db.Column(db.Float())"))
-        exec("%s_y = %s" % (base, "db.Column(db.Float())"))
-        exec("%s_z = %s" % (base, "db.Column(db.Float())"))
+    AC_x=db.Column(db.Float())
+    AC_y=db.Column(db.Float())
+    AC_z=db.Column(db.Float())
+    AC = composite(FiducialPosition, AC_x, AC_y, AC_z)
+
+    PC_x=db.Column(db.Float())
+    PC_y=db.Column(db.Float())
+    PC_z=db.Column(db.Float())
+    PC = composite(FiducialPosition, PC_x, PC_y, PC_z)
+
+    ICS_x=db.Column(db.Float())
+    ICS_y=db.Column(db.Float())
+    ICS_z=db.Column(db.Float())
+    ICS = composite(FiducialPosition, ICS_x, ICS_y, ICS_z)
+
+    PMJ_x=db.Column(db.Float())
+    PMJ_y=db.Column(db.Float())
+    PMJ_z=db.Column(db.Float())
+    PMJ = composite(FiducialPosition, PMJ_x, PMJ_y, PMJ_z)
+
+    SIPF_x=db.Column(db.Float())
+    SIPF_y=db.Column(db.Float())
+    SIPF_z=db.Column(db.Float())
+    SIPF = composite(FiducialPosition, SIPF_x, SIPF_y, SIPF_z)
+
+    RSLMS_x=db.Column(db.Float())
+    RSLMS_y=db.Column(db.Float())
+    RSLMS_z=db.Column(db.Float())
+    RSLMS = composite(FiducialPosition, RSLMS_x, RSLMS_y, RSLMS_z)
+
+    LSLMS_x=db.Column(db.Float())
+    LSLMS_y=db.Column(db.Float())
+    LSLMS_z=db.Column(db.Float())
+    LSLMS = composite(FiducialPosition, LSLMS_x, LSLMS_y, LSLMS_z)
+
+    RILMS_x=db.Column(db.Float())
+    RILMS_y=db.Column(db.Float())
+    RILMS_z=db.Column(db.Float())
+    RILMS = composite(FiducialPosition, RILMS_x, RILMS_y, RILMS_z)
+
+    LILMS_x=db.Column(db.Float())
+    LILMS_y=db.Column(db.Float())
+    LILMS_z=db.Column(db.Float())
+    LILMS = composite(FiducialPosition, LILMS_x, LILMS_y, LILMS_z)
+
+    CUL_x=db.Column(db.Float())
+    CUL_y=db.Column(db.Float())
+    CUL_z=db.Column(db.Float())
+    CUL = composite(FiducialPosition, CUL_x, CUL_y, CUL_z)
+
+    IMS_x=db.Column(db.Float())
+    IMS_y=db.Column(db.Float())
+    IMS_z=db.Column(db.Float())
+    IMS = composite(FiducialPosition, IMS_x, IMS_y, IMS_z)
+
+    RMB_x=db.Column(db.Float())
+    RMB_y=db.Column(db.Float())
+    RMB_z=db.Column(db.Float())
+    RMB = composite(FiducialPosition, RMB_x, RMB_y, RMB_z)
+
+    LMB_x=db.Column(db.Float())
+    LMB_y=db.Column(db.Float())
+    LMB_z=db.Column(db.Float())
+    LMB = composite(FiducialPosition, LMB_x, LMB_y, LMB_z)
+
+    PG_x=db.Column(db.Float())
+    PG_y=db.Column(db.Float())
+    PG_z=db.Column(db.Float())
+    PG = composite(FiducialPosition, PG_x, PG_y, PG_z)
+
+    RLVAC_x=db.Column(db.Float())
+    RLVAC_y=db.Column(db.Float())
+    RLVAC_z=db.Column(db.Float())
+    RLVAC = composite(FiducialPosition, RLVAC_x, RLVAC_y, RLVAC_z)
+
+    LLVAC_x=db.Column(db.Float())
+    LLVAC_y=db.Column(db.Float())
+    LLVAC_z=db.Column(db.Float())
+    LLVAC = composite(FiducialPosition, LLVAC_x, LLVAC_y, LLVAC_z)
+
+    RLVPC_x=db.Column(db.Float())
+    RLVPC_y=db.Column(db.Float())
+    RLVPC_z=db.Column(db.Float())
+    RLVPC = composite(FiducialPosition, RLVPC_x, RLVPC_y, RLVPC_z)
+
+    LLVPC_x=db.Column(db.Float())
+    LLVPC_y=db.Column(db.Float())
+    LLVPC_z=db.Column(db.Float())
+    LLVPC = composite(FiducialPosition, LLVPC_x, LLVPC_y, LLVPC_z)
+
+    GENU_x=db.Column(db.Float())
+    GENU_y=db.Column(db.Float())
+    GENU_z=db.Column(db.Float())
+    GENU = composite(FiducialPosition, GENU_x, GENU_y, GENU_z)
+
+    SPLE_x=db.Column(db.Float())
+    SPLE_y=db.Column(db.Float())
+    SPLE_z=db.Column(db.Float())
+    SPLE = composite(FiducialPosition, SPLE_x, SPLE_y, SPLE_z)
+
+    RALTH_x=db.Column(db.Float())
+    RALTH_y=db.Column(db.Float())
+    RALTH_z=db.Column(db.Float())
+    RALTH = composite(FiducialPosition, RALTH_x, RALTH_y, RALTH_z)
+
+    LALTH_x=db.Column(db.Float())
+    LALTH_y=db.Column(db.Float())
+    LALTH_z=db.Column(db.Float())
+    LALTH = composite(FiducialPosition, LALTH_x, LALTH_y, LALTH_z)
+
+    RSAMTH_x=db.Column(db.Float())
+    RSAMTH_y=db.Column(db.Float())
+    RSAMTH_z=db.Column(db.Float())
+    RSAMTH = composite(FiducialPosition, RSAMTH_x, RSAMTH_y, RSAMTH_z)
+
+    LSAMTH_x=db.Column(db.Float())
+    LSAMTH_y=db.Column(db.Float())
+    LSAMTH_z=db.Column(db.Float())
+    LSAMTH = composite(FiducialPosition, LSAMTH_x, LSAMTH_y, LSAMTH_z)
+
+    RIAMTH_x=db.Column(db.Float())
+    RIAMTH_y=db.Column(db.Float())
+    RIAMTH_z=db.Column(db.Float())
+    RIAMTH = composite(FiducialPosition, RIAMTH_x, RIAMTH_y, RIAMTH_z)
+
+    LIAMTH_x=db.Column(db.Float())
+    LIAMTH_y=db.Column(db.Float())
+    LIAMTH_z=db.Column(db.Float())
+    LIAMTH = composite(FiducialPosition, LIAMTH_x, LIAMTH_y, LIAMTH_z)
+
+    RIGO_x=db.Column(db.Float())
+    RIGO_y=db.Column(db.Float())
+    RIGO_z=db.Column(db.Float())
+    RIGO = composite(FiducialPosition, RIGO_x, RIGO_y, RIGO_z)
+
+    LIGO_x=db.Column(db.Float())
+    LIGO_y=db.Column(db.Float())
+    LIGO_z=db.Column(db.Float())
+    LIGO = composite(FiducialPosition, LIGO_x, LIGO_y, LIGO_z)
+
+    RVOH_x=db.Column(db.Float())
+    RVOH_y=db.Column(db.Float())
+    RVOH_z=db.Column(db.Float())
+    RVOH = composite(FiducialPosition, RVOH_x, RVOH_y, RVOH_z)
+
+    LVOH_x=db.Column(db.Float())
+    LVOH_y=db.Column(db.Float())
+    LVOH_z=db.Column(db.Float())
+    LVOH = composite(FiducialPosition, LVOH_x, LVOH_y, LVOH_z)
+
+    ROSF_x=db.Column(db.Float())
+    ROSF_y=db.Column(db.Float())
+    ROSF_z=db.Column(db.Float())
+    ROSF = composite(FiducialPosition, ROSF_x, ROSF_y, ROSF_z)
+
+    LOSF_x=db.Column(db.Float())
+    LOSF_y=db.Column(db.Float())
+    LOSF_z=db.Column(db.Float())
+    LOSF = composite(FiducialPosition, LOSF_x, LOSF_y, LOSF_z)
+
 
     def __repr__(self):
         return "<id {}>".format(self.id)
 
     def serialize(self):
         """Produce a dict of each column."""
-        serialized = {
-            "AC_x": self.AC_x,
-            "AC_y": self.AC_y,
-            "AC_z": self.AC_z,
-            "PC_x": self.PC_x,
-            "PC_y": self.PC_y,
-            "PC_z": self.PC_z,
-            "ICS_x": self.ICS_x,
-            "ICS_y": self.ICS_y,
-            "ICS_z": self.ICS_z,
-            "PMJ_x": self.PMJ_x,
-            "PMJ_y": self.PMJ_y,
-            "PMJ_z": self.PMJ_z,
-            "SIPF_x": self.SIPF_x,
-            "SIPF_y": self.SIPF_y,
-            "SIPF_z": self.SIPF_z,
-            "RSLMS_x": self.RSLMS_x,
-            "RSLMS_y": self.RSLMS_y,
-            "RSLMS_z": self.RSLMS_z,
-            "LSLMS_x": self.LSLMS_x,
-            "LSLMS_y": self.LSLMS_y,
-            "LSLMS_z": self.LSLMS_z,
-            "RILMS_x": self.RILMS_x,
-            "RILMS_y": self.RILMS_y,
-            "RILMS_z": self.RILMS_z,
-            "LILMS_x": self.LILMS_x,
-            "LILMS_y": self.LILMS_y,
-            "LILMS_z": self.LILMS_z,
-            "CUL_x": self.CUL_x,
-            "CUL_y": self.CUL_y,
-            "CUL_z": self.CUL_z,
-            "IMS_x": self.IMS_x,
-            "IMS_y": self.IMS_y,
-            "IMS_z": self.IMS_z,
-            "RMB_x": self.RMB_x,
-            "RMB_y": self.RMB_y,
-            "RMB_z": self.RMB_z,
-            "LMB_x": self.LMB_x,
-            "LMB_y": self.LMB_y,
-            "LMB_z": self.LMB_z,
-            "PG_x": self.PG_x,
-            "PG_y": self.PG_y,
-            "PG_z": self.PG_z,
-            "RLVAC_x": self.RLVAC_x,
-            "RLVAC_y": self.RLVAC_y,
-            "RLVAC_z": self.RLVAC_z,
-            "LLVAC_x": self.LLVAC_x,
-            "LLVAC_y": self.LLVAC_y,
-            "LLVAC_z": self.LLVAC_z,
-            "RLVPC_x": self.RLVPC_x,
-            "RLVPC_y": self.RLVPC_y,
-            "RLVPC_z": self.RLVPC_z,
-            "LLVPC_x": self.LLVPC_x,
-            "LLVPC_y": self.LLVPC_y,
-            "LLVPC_z": self.LLVPC_z,
-            "GENU_x": self.GENU_x,
-            "GENU_y": self.GENU_y,
-            "GENU_z": self.GENU_z,
-            "SPLE_x": self.SPLE_x,
-            "SPLE_y": self.SPLE_y,
-            "SPLE_z": self.SPLE_z,
-            "RALTH_x": self.RALTH_x,
-            "RALTH_y": self.RALTH_y,
-            "RALTH_z": self.RALTH_z,
-            "LALTH_x": self.LALTH_x,
-            "LALTH_y": self.LALTH_y,
-            "LALTH_z": self.LALTH_z,
-            "RSAMTH_x": self.RSAMTH_x,
-            "RSAMTH_y": self.RSAMTH_y,
-            "RSAMTH_z": self.RSAMTH_z,
-            "LSAMTH_x": self.LSAMTH_x,
-            "LSAMTH_y": self.LSAMTH_y,
-            "LSAMTH_z": self.LSAMTH_z,
-            "RIAMTH_x": self.RIAMTH_x,
-            "RIAMTH_y": self.RIAMTH_y,
-            "RIAMTH_z": self.RIAMTH_z,
-            "LIAMTH_x": self.LIAMTH_x,
-            "LIAMTH_y": self.LIAMTH_y,
-            "LIAMTH_z": self.LIAMTH_z,
-            "RIGO_x": self.RIGO_x,
-            "RIGO_y": self.RIGO_y,
-            "RIGO_z": self.RIGO_z,
-            "LIGO_x": self.LIGO_x,
-            "LIGO_y": self.LIGO_y,
-            "LIGO_z": self.LIGO_z,
-            "RVOH_x": self.RVOH_x,
-            "RVOH_y": self.RVOH_y,
-            "RVOH_z": self.RVOH_z,
-            "LVOH_x": self.LVOH_x,
-            "LVOH_y": self.LVOH_y,
-            "LVOH_z": self.LVOH_z,
-            "ROSF_x": self.ROSF_x,
-            "ROSF_y": self.ROSF_y,
-            "ROSF_z": self.ROSF_z,
-            "LOSF_x": self.LOSF_x,
-            "LOSF_y": self.LOSF_y,
-            "LOSF_z": self.LOSF_z,
-        }
-
+        serialized = {}
+        for base in fiducial_names:
+            exec("serialized[%s] = self.%s.__composite_values__()" % (base, base))
         return serialized
 
+    def add_fiducial(descs, point):
+        for d, p in zip(descs, point):
+            self.d = p
 
 class Average(wtf.Form):
     """Form for selecting and submitting a file."""

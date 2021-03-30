@@ -9,6 +9,7 @@ import re
 from pkg_resources import parse_version
 
 from afids import Afids, EXPECTED_MAP
+from controller import FiducialSet
 
 
 class InvalidFileError(Exception):
@@ -116,7 +117,7 @@ def csv_to_afids(in_csv):
     csv_reader = csv.DictReader(in_csv, fields)
 
     # Read csv file and dump to AFIDs object
-    afids = Afids()
+    afids = FiducialSet()
 
     expected_label = 1
     for row in _skip_first(csv_reader, 3):
@@ -167,7 +168,8 @@ def csv_to_afids(in_csv):
                 f"in row {row_label}"
             )
 
-        afids.add_fiducial(row_label, row_desc, [row_x, row_y, row_z])
+        row_descriptors = [f'{row_desc}_x', f'{row_desc}_y', f'{row_desc}_z']
+        afids.add_fiducial(row_descriptors, [row_x, row_y, row_z])
 
     # Check for too few rows
     if afids.no_of_fiducials < 32:
