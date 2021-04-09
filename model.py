@@ -8,8 +8,284 @@ import re
 
 from pkg_resources import parse_version
 
-from afids import Afids, EXPECTED_MAP
-from controller import FiducialSet
+from controller import db
+from sqlalchemy.orm import composite
+from sqlalchemy import create_engine
+
+EXPECTED_LABELS = [str(x + 1) for x in range(32)]
+EXPECTED_DESCS = [
+    ["AC"],
+    ["PC"],
+    ["infracollicular sulcus", "ICS"],
+    ["PMJ"],
+    ["superior interpeduncular fossa", "SIPF"],
+    ["R superior LMS", "RSLMS"],
+    ["L superior LMS", "LSLMS"],
+    ["R inferior LMS", "RILMS"],
+    ["L inferior LMS", "LILMS"],
+    ["Culmen", "CUL"],
+    ["Intermammillary sulcus", "IMS"],
+    ["R MB", "RMB"],
+    ["L MB", "LMB"],
+    ["pineal gland", "PG"],
+    ["R LV at AC", "RLVAC"],
+    ["L LV at AC", "LLVAC"],
+    ["R LV at PC", "RLVPC"],
+    ["L LV at PC", "LLVPC"],
+    ["Genu of CC", "GENU"],
+    ["Splenium of CC", "SPLE"],
+    ["R AL temporal horn", "RALTH"],
+    ["L AL temporal horn", "LALTH"],
+    ["R superior AM temporal horn", "RSAMTH"],
+    ["L superior AM temporal horn", "LSAMTH"],
+    ["R inferior AM temporal horn", "RIAMTH"],
+    ["L inferior AM temporal horn", "RIAMTH"],
+    ["R indusium griseum origin", "RIGO"],
+    ["L indusium griseum origin", "LIGO"],
+    ["R ventral occipital horn", "RVOH"],
+    ["L ventral occipital horn", "LVOH"],
+    ["R olfactory sulcal fundus", "ROSF"],
+    ["L olfactory sulcal fundus", "LOSF"],
+]
+EXPECTED_MAP = dict(zip(EXPECTED_LABELS, EXPECTED_DESCS))
+
+
+class FiducialPosition(object):
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def __composite_values__(self):
+        return self.x, self.y, self.z
+
+    # def __repr__(self):
+    #     return "Point(x=%r, y=%r, z=%r)" % (self.x, self.y, self.z)
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, Point)
+            and other.x == self.x
+            and other.y == self.y
+            and other.z == self.z
+        )
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+class FiducialSet(db.Model):
+    """SQL model for a set of AFIDs."""
+
+    __tablename__ = "fid_db"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String)
+    date = db.Column(db.Date)
+    template = db.Column(db.String)
+    no_of_fiducials = db.Column(db.Integer)
+
+    AC_x = db.Column(db.Float())
+    AC_y = db.Column(db.Float())
+    AC_z = db.Column(db.Float())
+    AC = composite(FiducialPosition, AC_x, AC_y, AC_z)
+
+    PC_x = db.Column(db.Float())
+    PC_y = db.Column(db.Float())
+    PC_z = db.Column(db.Float())
+    PC = composite(FiducialPosition, PC_x, PC_y, PC_z)
+
+    ICS_x = db.Column(db.Float())
+    ICS_y = db.Column(db.Float())
+    ICS_z = db.Column(db.Float())
+    ICS = composite(FiducialPosition, ICS_x, ICS_y, ICS_z)
+
+    PMJ_x = db.Column(db.Float())
+    PMJ_y = db.Column(db.Float())
+    PMJ_z = db.Column(db.Float())
+    PMJ = composite(FiducialPosition, PMJ_x, PMJ_y, PMJ_z)
+
+    SIPF_x = db.Column(db.Float())
+    SIPF_y = db.Column(db.Float())
+    SIPF_z = db.Column(db.Float())
+    SIPF = composite(FiducialPosition, SIPF_x, SIPF_y, SIPF_z)
+
+    RSLMS_x = db.Column(db.Float())
+    RSLMS_y = db.Column(db.Float())
+    RSLMS_z = db.Column(db.Float())
+    RSLMS = composite(FiducialPosition, RSLMS_x, RSLMS_y, RSLMS_z)
+
+    LSLMS_x = db.Column(db.Float())
+    LSLMS_y = db.Column(db.Float())
+    LSLMS_z = db.Column(db.Float())
+    LSLMS = composite(FiducialPosition, LSLMS_x, LSLMS_y, LSLMS_z)
+
+    RILMS_x = db.Column(db.Float())
+    RILMS_y = db.Column(db.Float())
+    RILMS_z = db.Column(db.Float())
+    RILMS = composite(FiducialPosition, RILMS_x, RILMS_y, RILMS_z)
+
+    LILMS_x = db.Column(db.Float())
+    LILMS_y = db.Column(db.Float())
+    LILMS_z = db.Column(db.Float())
+    LILMS = composite(FiducialPosition, LILMS_x, LILMS_y, LILMS_z)
+
+    CUL_x = db.Column(db.Float())
+    CUL_y = db.Column(db.Float())
+    CUL_z = db.Column(db.Float())
+    CUL = composite(FiducialPosition, CUL_x, CUL_y, CUL_z)
+
+    IMS_x = db.Column(db.Float())
+    IMS_y = db.Column(db.Float())
+    IMS_z = db.Column(db.Float())
+    IMS = composite(FiducialPosition, IMS_x, IMS_y, IMS_z)
+
+    RMB_x = db.Column(db.Float())
+    RMB_y = db.Column(db.Float())
+    RMB_z = db.Column(db.Float())
+    RMB = composite(FiducialPosition, RMB_x, RMB_y, RMB_z)
+
+    LMB_x = db.Column(db.Float())
+    LMB_y = db.Column(db.Float())
+    LMB_z = db.Column(db.Float())
+    LMB = composite(FiducialPosition, LMB_x, LMB_y, LMB_z)
+
+    PG_x = db.Column(db.Float())
+    PG_y = db.Column(db.Float())
+    PG_z = db.Column(db.Float())
+    PG = composite(FiducialPosition, PG_x, PG_y, PG_z)
+
+    RLVAC_x = db.Column(db.Float())
+    RLVAC_y = db.Column(db.Float())
+    RLVAC_z = db.Column(db.Float())
+    RLVAC = composite(FiducialPosition, RLVAC_x, RLVAC_y, RLVAC_z)
+
+    LLVAC_x = db.Column(db.Float())
+    LLVAC_y = db.Column(db.Float())
+    LLVAC_z = db.Column(db.Float())
+    LLVAC = composite(FiducialPosition, LLVAC_x, LLVAC_y, LLVAC_z)
+
+    RLVPC_x = db.Column(db.Float())
+    RLVPC_y = db.Column(db.Float())
+    RLVPC_z = db.Column(db.Float())
+    RLVPC = composite(FiducialPosition, RLVPC_x, RLVPC_y, RLVPC_z)
+
+    LLVPC_x = db.Column(db.Float())
+    LLVPC_y = db.Column(db.Float())
+    LLVPC_z = db.Column(db.Float())
+    LLVPC = composite(FiducialPosition, LLVPC_x, LLVPC_y, LLVPC_z)
+
+    GENU_x = db.Column(db.Float())
+    GENU_y = db.Column(db.Float())
+    GENU_z = db.Column(db.Float())
+    GENU = composite(FiducialPosition, GENU_x, GENU_y, GENU_z)
+
+    SPLE_x = db.Column(db.Float())
+    SPLE_y = db.Column(db.Float())
+    SPLE_z = db.Column(db.Float())
+    SPLE = composite(FiducialPosition, SPLE_x, SPLE_y, SPLE_z)
+
+    RALTH_x = db.Column(db.Float())
+    RALTH_y = db.Column(db.Float())
+    RALTH_z = db.Column(db.Float())
+    RALTH = composite(FiducialPosition, RALTH_x, RALTH_y, RALTH_z)
+
+    LALTH_x = db.Column(db.Float())
+    LALTH_y = db.Column(db.Float())
+    LALTH_z = db.Column(db.Float())
+    LALTH = composite(FiducialPosition, LALTH_x, LALTH_y, LALTH_z)
+
+    RSAMTH_x = db.Column(db.Float())
+    RSAMTH_y = db.Column(db.Float())
+    RSAMTH_z = db.Column(db.Float())
+    RSAMTH = composite(FiducialPosition, RSAMTH_x, RSAMTH_y, RSAMTH_z)
+
+    LSAMTH_x = db.Column(db.Float())
+    LSAMTH_y = db.Column(db.Float())
+    LSAMTH_z = db.Column(db.Float())
+    LSAMTH = composite(FiducialPosition, LSAMTH_x, LSAMTH_y, LSAMTH_z)
+
+    RIAMTH_x = db.Column(db.Float())
+    RIAMTH_y = db.Column(db.Float())
+    RIAMTH_z = db.Column(db.Float())
+    RIAMTH = composite(FiducialPosition, RIAMTH_x, RIAMTH_y, RIAMTH_z)
+
+    LIAMTH_x = db.Column(db.Float())
+    LIAMTH_y = db.Column(db.Float())
+    LIAMTH_z = db.Column(db.Float())
+    LIAMTH = composite(FiducialPosition, LIAMTH_x, LIAMTH_y, LIAMTH_z)
+
+    RIGO_x = db.Column(db.Float())
+    RIGO_y = db.Column(db.Float())
+    RIGO_z = db.Column(db.Float())
+    RIGO = composite(FiducialPosition, RIGO_x, RIGO_y, RIGO_z)
+
+    LIGO_x = db.Column(db.Float())
+    LIGO_y = db.Column(db.Float())
+    LIGO_z = db.Column(db.Float())
+    LIGO = composite(FiducialPosition, LIGO_x, LIGO_y, LIGO_z)
+
+    RVOH_x = db.Column(db.Float())
+    RVOH_y = db.Column(db.Float())
+    RVOH_z = db.Column(db.Float())
+    RVOH = composite(FiducialPosition, RVOH_x, RVOH_y, RVOH_z)
+
+    LVOH_x = db.Column(db.Float())
+    LVOH_y = db.Column(db.Float())
+    LVOH_z = db.Column(db.Float())
+    LVOH = composite(FiducialPosition, LVOH_x, LVOH_y, LVOH_z)
+
+    ROSF_x = db.Column(db.Float())
+    ROSF_y = db.Column(db.Float())
+    ROSF_z = db.Column(db.Float())
+    ROSF = composite(FiducialPosition, ROSF_x, ROSF_y, ROSF_z)
+
+    LOSF_x = db.Column(db.Float())
+    LOSF_y = db.Column(db.Float())
+    LOSF_z = db.Column(db.Float())
+    LOSF = composite(FiducialPosition, LOSF_x, LOSF_y, LOSF_z)
+
+    def __init__(self):
+        self.no_of_fiducials = 0
+
+    def __repr__(self):
+        return "<id {}>".format(self.id)
+
+    def serialize(self):
+        """Produce a dict of each column."""
+        serialized = {}
+        for base in fiducial_names:
+            exec(
+                "serialized[%s] = self.%s.__composite_values__()"
+                % (base, base)
+            )
+        return serialized
+
+    def add_fiducial(self, desc, points):
+        for d, p in zip(desc, points):
+            exec("self.%s=%s" % (d, p))
+        # exec("%s = composite(FiducialPosition, self.%s, self.%s, self.%s)" % (desc[0][:-2], desc[0], desc[1], desc[2]))
+        self.no_of_fiducials += 1
+
+    def validate(self):
+        """Validate that the class represents a valid AFIDs set.
+
+        Returns
+        -------
+        bool
+            True if the Afids set is valid.
+        """
+        valid = self.no_of_fiducials == 32
+        for label, name in EXPECTED_MAP.items():
+            try:
+                exec("valid = valid and math.isfinite(self.%s_x)" % (name[-1]))
+                exec("valid = valid and math.isfinite(self.%s_y)" % (name[-1]))
+                exec("valid = valid and math.isfinite(self.%s_z)" % (name[-1]))
+            except ValueError:
+                valid = False
+            except KeyError:
+                valid = False
+        return valid
 
 
 class InvalidFileError(Exception):
@@ -134,7 +410,7 @@ def csv_to_afids(in_csv):
 
         expected_label += 1
         row_desc = parse_fcsv_field(row, "desc", row_label)
-        
+
         # Check to see if row description is not empty
         if not isinstance(row_desc, str):
             raise InvalidFileError(
@@ -150,7 +426,7 @@ def csv_to_afids(in_csv):
             )
 
         # Ensure the full FID name is used
-        row_desc = EXPECTED_MAP[row_label][0]
+        row_desc = EXPECTED_MAP[row_label][-1]
 
         row_x = parse_fcsv_field(row, "x", row_label, parsed_coord)
         parse_fcsv_float(row_x, "x", row_label)
@@ -168,7 +444,7 @@ def csv_to_afids(in_csv):
                 f"in row {row_label}"
             )
 
-        row_descriptors = [f'{row_desc}_x', f'{row_desc}_y', f'{row_desc}_z']
+        row_descriptors = [f"{row_desc}_x", f"{row_desc}_y", f"{row_desc}_z"]
         afids.add_fiducial(row_descriptors, [row_x, row_y, row_z])
 
     # Check for too few rows
@@ -230,7 +506,7 @@ def json_to_afids(in_json):
         raise InvalidFileError("Not fiducial markup file")
 
     # Read json file and dump to AFIDs object
-    afids = Afids()
+    afids = FiducialSet()
     fid_coord = in_json["markups"][0]["coordinateSystem"]
 
     # Check for too many or too few fiducials
@@ -254,7 +530,7 @@ def json_to_afids(in_json):
             )
 
         # Ensure full FID name is used
-        fid_desc = EXPECTED_MAP[fid_label][0]
+        fid_desc = EXPECTED_MAP[fid_label][-1]
         fid_position = parse_json_key(in_json, "position", fid, fid_coord)
 
         if len(fid_position) != 3:
@@ -271,6 +547,7 @@ def json_to_afids(in_json):
                     "a real number"
                 )
 
-        afids.add_fiducial(fid_label, fid_desc, fid_position)
+        fid_descriptors = [f"{fid_desc}_x", f"{fid_desc}_y", f"{fid_desc}_z"]
+        afids.add_fiducial(fid_descriptors, fid_position)
 
     return afids
