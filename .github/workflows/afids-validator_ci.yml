@@ -7,7 +7,9 @@ on:
 jobs:
   test:
     name: Setup environment & test
-    if: github.event.pull_request.draft == 'false' || !contains(github.event.head_commit.message, '[skip ci]')
+    if: | 
+      github.event.pull_request.draft == false || 
+      !contains(github.event.head_commit.message, '[skip ci]')
     runs-on: ubuntu-latest
     strategy:
       matrix:
