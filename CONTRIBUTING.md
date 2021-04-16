@@ -13,9 +13,8 @@ First off, thank you for considering contributing to the AFIDs validator. Follow
 - Ensure code is run through [`black`](https://black.readthedocs.io/en/stable/) with the `-l 79` flag to ensure proper line lengths.
 - Create issues for any major changes and enhancements that you wish to make to allow for community discussion.
 - Label issues and PRs with the appropriate tag found below.
+- If a PR is a work in progress, please create as a draft PR or use `[skip ci]` in commit messages to avoid triggering actions workflow. 
 - Be welcoming to newcomers and respectful of everyone. See the [Python Community Code of Conduct](https://www.python.org/psf/conduct/).
-
-
 
 Unsure where to begin contributing to AFIDs? Here are two places to start
 - Beginner issues - issues which should only require a few lines of code, and a test or two.
