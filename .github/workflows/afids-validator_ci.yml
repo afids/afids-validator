@@ -48,7 +48,7 @@ jobs:
         shell: bash
         run: |
           sudo systemctl start postgresql.service
-          pg.isready
+          pg_isready
 
       - name: Setup PostgreSQL db
         shell: bash
