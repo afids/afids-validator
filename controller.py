@@ -23,7 +23,7 @@ db = SQLAlchemy(app)
 class FiducialSet(db.Model):
     """SQL model for a set of AFIDs."""
 
-    __tablename__ = "fid_db"
+    __tablename__ = "afids_db"
 
     id = db.Column(db.Integer, primary_key=True)
     c = [
