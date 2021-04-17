@@ -53,8 +53,8 @@ jobs:
       - name: Setup PostgreSQL db
         shell: bash
         run: |
-          sudo postgres psql --command="CREATE USER ghtest PASSWORD 'ghpass'"
-          sudo postgres createdb --owner=ghtest afids_actions_db
+          sudo -u postgres psql --command="CREATE USER ghtest PASSWORD 'ghpass'"
+          sudo -u postgres createdb --owner=ghtest afids_actions_db
           PGPASSWORD=ghpass psql --username=ghtest --host=localhost --list afids_actions_db
 
       - name: Test AFIDs validator
