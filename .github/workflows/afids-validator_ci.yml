@@ -52,10 +52,14 @@ jobs:
 
       - name: Setup PostgreSQL db
         shell: bash
+        env:
+          psql_db_owner: ${{ secrets.PSQL_DB_OWNER }} # PostgreSQL User
+          psql_db_key: ${{ secrets.PSQL_DB_PW }}      # PostgreSQL Pass
+          psql_db_name: fid_db                        # PostgreSQL DB
         run: |
-          sudo -u postgres psql --command="CREATE USER ghtest PASSWORD 'ghpass'"
-          sudo -u postgres createdb --owner=ghtest afids_actions_db
-          PGPASSWORD=ghpass psql --username=ghtest --host=localhost --list afids_actions_db
+          sudo -u postgres psql --command="CREATE USER $psql_db_owner PASSWORD '$psql_db_key'"
+          sudo -u postgres createdb --owner=$psql_db_owner $psql_db_name
+          PGPASSWORD=ghpass psql --username=$psql_db_owner --host=localhost --list $psql_db_name
 
       - name: Test AFIDs validator
         shell: bash
@@ -124,5 +128,5 @@ jobs:
         uses: akhileshns/heroku-deploy@v3.0.4
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }} # Heroku API Key 
-          heroku_app_name: afids-validator # Heroku app name
-          heroku_email: ${{ secrets.HEROKU_EMAIL }} # Heroku email
+          heroku_app_name: afids-validator              # Heroku app name
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}     # Heroku email
