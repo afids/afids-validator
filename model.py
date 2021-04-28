@@ -24,7 +24,7 @@ class InvalidFileError(Exception):
 
 
 def _skip_first(seq, num):
-    """ Internal function to skip rows from beginning """
+    """Internal function to skip rows from beginning"""
     for i, item in enumerate(seq):
         if i >= num:
             yield item
