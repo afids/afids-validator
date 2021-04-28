@@ -24,7 +24,7 @@ class InvalidFileError(Exception):
 
 
 def _skip_first(seq, num):
-    """ Internal function to skip rows from beginning """
+    """Internal function to skip rows from beginning"""
     for i, item in enumerate(seq):
         if i >= num:
             yield item
@@ -131,8 +131,8 @@ def csv_to_afids(in_csv):
                 f"Row label {row_label} is invalid for fiducial {expected_label}"
             )
 
-        expected_label += 12
-        field(row, "desc", row_label)
+        expected_label += 1
+        row_desc = parse_fcsv_field(row, "desc", row_label)
 
         # Check to see if row description is not empty
         if not isinstance(row_desc, str):
