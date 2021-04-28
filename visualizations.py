@@ -2,8 +2,6 @@
 
 import plotly.graph_objects as go
 
-from afids import EXPECTED_LABELS
-
 
 def gen_connecting_lines(ref_afids, user_afids):
     """Assemble points from each fcsv into pairs.

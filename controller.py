@@ -8,9 +8,43 @@ from flask_sqlalchemy import SQLAlchemy
 import numpy as np
 import wtforms as wtf
 
-from model import csv_to_afids, json_to_afids, InvalidFileError
+# from model import csv_to_afids, json_to_afids, InvalidFileError
 from visualizations import generate_3d_scatter, generate_histogram
 
+fiducial_names = [
+    "AC",
+    "PC",
+    "ICS",
+    "PMJ",
+    "SIPF",
+    "RSLMS",
+    "LSLMS",
+    "RILMS",
+    "LILMS",
+    "CUL",
+    "IMS",
+    "RMB",
+    "LMB",
+    "PG",
+    "RLVAC",
+    "LLVAC",
+    "RLVPC",
+    "LLVPC",
+    "GENU",
+    "SPLE",
+    "RALTH",
+    "LALTH",
+    "RSAMTH",
+    "LSAMTH",
+    "RIAMTH",
+    "LIAMTH",
+    "RIGO",
+    "LIGO",
+    "RVOH",
+    "LVOH",
+    "ROSF",
+    "LOSF",
+]
 
 app = Flask(__name__)
 
@@ -18,159 +52,6 @@ app.config.from_object(os.environ["APP_SETTINGS"])
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
-
-
-class FiducialSet(db.Model):
-    """SQL model for a set of AFIDs."""
-
-    __tablename__ = "fid_db"
-
-    id = db.Column(db.Integer, primary_key=True)
-    c = [
-        "AC",
-        "PC",
-        "ICS",
-        "PMJ",
-        "SIPF",
-        "RSLMS",
-        "LSLMS",
-        "RILMS",
-        "LILMS",
-        "CUL",
-        "IMS",
-        "RMB",
-        "LMB",
-        "PG",
-        "RLVAC",
-        "LLVAC",
-        "RLVPC",
-        "LLVPC",
-        "GENU",
-        "SPLE",
-        "RALTH",
-        "LALTH",
-        "RSAMTH",
-        "LSAMTH",
-        "RIAMTH",
-        "LIAMTH",
-        "RIGO",
-        "LIGO",
-        "RVOH",
-        "LVOH",
-        "ROSF",
-        "LOSF",
-    ]
-
-    for base in c:
-        exec("%s_x = %s" % (base, "db.Column(db.Float())"))
-        exec("%s_y = %s" % (base, "db.Column(db.Float())"))
-        exec("%s_z = %s" % (base, "db.Column(db.Float())"))
-
-    def __repr__(self):
-        return "<id {}>".format(self.id)
-
-    def serialize(self):
-        """Produce a dict of each column."""
-        serialized = {
-            "AC_x": self.AC_x,
-            "AC_y": self.AC_y,
-            "AC_z": self.AC_z,
-            "PC_x": self.PC_x,
-            "PC_y": self.PC_y,
-            "PC_z": self.PC_z,
-            "ICS_x": self.ICS_x,
-            "ICS_y": self.ICS_y,
-            "ICS_z": self.ICS_z,
-            "PMJ_x": self.PMJ_x,
-            "PMJ_y": self.PMJ_y,
-            "PMJ_z": self.PMJ_z,
-            "SIPF_x": self.SIPF_x,
-            "SIPF_y": self.SIPF_y,
-            "SIPF_z": self.SIPF_z,
-            "RSLMS_x": self.RSLMS_x,
-            "RSLMS_y": self.RSLMS_y,
-            "RSLMS_z": self.RSLMS_z,
-            "LSLMS_x": self.LSLMS_x,
-            "LSLMS_y": self.LSLMS_y,
-            "LSLMS_z": self.LSLMS_z,
-            "RILMS_x": self.RILMS_x,
-            "RILMS_y": self.RILMS_y,
-            "RILMS_z": self.RILMS_z,
-            "LILMS_x": self.LILMS_x,
-            "LILMS_y": self.LILMS_y,
-            "LILMS_z": self.LILMS_z,
-            "CUL_x": self.CUL_x,
-            "CUL_y": self.CUL_y,
-            "CUL_z": self.CUL_z,
-            "IMS_x": self.IMS_x,
-            "IMS_y": self.IMS_y,
-            "IMS_z": self.IMS_z,
-            "RMB_x": self.RMB_x,
-            "RMB_y": self.RMB_y,
-            "RMB_z": self.RMB_z,
-            "LMB_x": self.LMB_x,
-            "LMB_y": self.LMB_y,
-            "LMB_z": self.LMB_z,
-            "PG_x": self.PG_x,
-            "PG_y": self.PG_y,
-            "PG_z": self.PG_z,
-            "RLVAC_x": self.RLVAC_x,
-            "RLVAC_y": self.RLVAC_y,
-            "RLVAC_z": self.RLVAC_z,
-            "LLVAC_x": self.LLVAC_x,
-            "LLVAC_y": self.LLVAC_y,
-            "LLVAC_z": self.LLVAC_z,
-            "RLVPC_x": self.RLVPC_x,
-            "RLVPC_y": self.RLVPC_y,
-            "RLVPC_z": self.RLVPC_z,
-            "LLVPC_x": self.LLVPC_x,
-            "LLVPC_y": self.LLVPC_y,
-            "LLVPC_z": self.LLVPC_z,
-            "GENU_x": self.GENU_x,
-            "GENU_y": self.GENU_y,
-            "GENU_z": self.GENU_z,
-            "SPLE_x": self.SPLE_x,
-            "SPLE_y": self.SPLE_y,
-            "SPLE_z": self.SPLE_z,
-            "RALTH_x": self.RALTH_x,
-            "RALTH_y": self.RALTH_y,
-            "RALTH_z": self.RALTH_z,
-            "LALTH_x": self.LALTH_x,
-            "LALTH_y": self.LALTH_y,
-            "LALTH_z": self.LALTH_z,
-            "RSAMTH_x": self.RSAMTH_x,
-            "RSAMTH_y": self.RSAMTH_y,
-            "RSAMTH_z": self.RSAMTH_z,
-            "LSAMTH_x": self.LSAMTH_x,
-            "LSAMTH_y": self.LSAMTH_y,
-            "LSAMTH_z": self.LSAMTH_z,
-            "RIAMTH_x": self.RIAMTH_x,
-            "RIAMTH_y": self.RIAMTH_y,
-            "RIAMTH_z": self.RIAMTH_z,
-            "LIAMTH_x": self.LIAMTH_x,
-            "LIAMTH_y": self.LIAMTH_y,
-            "LIAMTH_z": self.LIAMTH_z,
-            "RIGO_x": self.RIGO_x,
-            "RIGO_y": self.RIGO_y,
-            "RIGO_z": self.RIGO_z,
-            "LIGO_x": self.LIGO_x,
-            "LIGO_y": self.LIGO_y,
-            "LIGO_z": self.LIGO_z,
-            "RVOH_x": self.RVOH_x,
-            "RVOH_y": self.RVOH_y,
-            "RVOH_z": self.RVOH_z,
-            "LVOH_x": self.LVOH_x,
-            "LVOH_y": self.LVOH_y,
-            "LVOH_z": self.LVOH_z,
-            "ROSF_x": self.ROSF_x,
-            "ROSF_y": self.ROSF_y,
-            "ROSF_z": self.ROSF_z,
-            "LOSF_x": self.LOSF_x,
-            "LOSF_y": self.LOSF_y,
-            "LOSF_z": self.LOSF_z,
-        }
-
-        return serialized
 
 
 class Average(wtf.Form):
