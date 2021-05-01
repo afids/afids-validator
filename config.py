@@ -13,17 +13,25 @@ class Config(object):
     the AFIDs validator. Ideally, variables such as secret keys and such should
     be set by environment variable rather than explicitely here.
     """
+
     SECRET_KEY = (
         os.environ.get("SECRET_KEY") or "this-really-needs-to-be-changed"
     )
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+<<<<<<< HEAD
     AFIDS_DIR = "afidsvalidator/afids-templates"
     ALLOWED_EXTENSIONS = ["fcsv", "csv", "json"]
+=======
+    SQLALCHEMY_TRACK_MODIFICATIONS = (
+        os.environ.get("SQLALCHEMY_TRACK_MODIFICATIONS") or False
+    )
+>>>>>>> fd43009... Add sql tracking to config
 
 
 class ProductionConfig(Config):
     """Config used in production"""
-    CSRF_ENABLED = True # Security flag
+
+    CSRF_ENABLED = True  # Security flag
     DEBUG = False
     TESTING = False
 
