@@ -233,3 +233,10 @@ def get_all():
     for fset in fiducial_sets:
         serialized_fset.append(fset.serialize())
     return render_template("db.html", serialized_fset=serialized_fset)
+<<<<<<< HEAD:afidsvalidator/views.py
+=======
+
+
+if __name__ == "__main__":
+    app.run()
+>>>>>>> dc8510c... rm debug=True; call from config:controller.py
