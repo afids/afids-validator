@@ -9,6 +9,7 @@ load_dotenv(f"{basedir}/.env")
 
 class Config(object):
     """Configuration class
+
     This class contains all of the global configuration variables needed for
     the AFIDs validator. Ideally, variables such as secret keys and such should
     be set by environment variable rather than explicitely here.
