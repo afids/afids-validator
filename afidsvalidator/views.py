@@ -2,8 +2,14 @@
 
 import os
 from datetime import datetime, timezone
+<<<<<<< HEAD:afidsvalidator/views.py
 
 from flask import render_template, request, jsonify, Blueprint, current_app
+=======
+from flask import Flask, render_template, request
+from flask_sqlalchemy import SQLAlchemy
+from config import DevelopmentConfig
+>>>>>>> df63271... update to use config.py rather than grab from environ:controller.py
 import numpy as np
 import wtforms as wtf
 

@@ -3,6 +3,7 @@
 import os
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
+from config import DevelopmentConfig
 
 from afidsvalidator import create_app
 from afidsvalidator.model import db
