@@ -29,7 +29,6 @@ from afidsvalidator.visualizations import (
 
 validator = Blueprint("validator", __name__, template_folder="templates")
 
-
 class Average(wtf.Form):
     """Form for selecting and submitting a file."""
 

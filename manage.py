@@ -8,8 +8,8 @@ from config import DevelopmentConfig
 from afidsvalidator import create_app
 from afidsvalidator.model import db
 
-
 app = create_app()
+
 app.config.from_object(os.environ["APP_SETTINGS"])
 
 postgres_uri = os.environ["DATABASE_URL"]
