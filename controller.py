@@ -84,12 +84,8 @@ def validator():
     labels = []
     template_afids = None
 
-    # Identify all human templates
-    human_templates = []
-    for human_dir in os.listdir(AFIDS_HUMAN_DIR):
-        if "tpl" in human_dir:
-            human_dir = human_dir[4:]
-        human_templates.append(human_dir.split("_")[0])
+    # Set all dropdown choices
+    form_choices = ["Validate file structure", "Human", "Macaque"]
 
     timestamp = str(
         datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
@@ -99,8 +95,8 @@ def validator():
         return render_template(
             "validator.html",
             form=form,
+            form_choices=form_choices,
             result=result,
-            human_templates=human_templates,
             template_afids=template_afids,
             index=[],
             labels=labels,
@@ -111,8 +107,8 @@ def validator():
         return render_template(
             "validator.html",
             form=form,
+            form_choices=form_choices,
             result=result,
-            human_templates=human_templates,
             template_afids=template_afids,
             index=[],
             labels=labels,
@@ -128,8 +124,8 @@ def validator():
         return render_template(
             "validator.html",
             form=form,
+            form_choices=form_choices,
             result=result,
-            human_templates=human_templates,
             template_afids=template_afids,
             index=[],
             labels=labels,
@@ -146,8 +142,8 @@ def validator():
         return render_template(
             "validator.html",
             form=form,
+            form_choices=form_choices,
             result=result,
-            human_templates=human_templates,
             template_afids=template_afids,
             index=[],
             labels=labels,
@@ -161,24 +157,24 @@ def validator():
             f"Invalid AFIDs set, please double check your file ({timestamp})"
         )
 
-    fid_template = request.form["fid_template"]
+    fid_species = request.form["fid_species"]
 
-    if fid_template == "Validate file structure":
+    if fid_species == "Validate file structure":
         return render_template(
             "validator.html",
             form=form,
+            form_choices=form_choices,
             result=result,
-            human_templates=human_templates,
             template_afids=template_afids,
             index=[],
             labels=labels,
             distances=distances,
         )
 
+    fid_template = request.form["fid_template"]
     result = f"{result}<br>{fid_template} selected"
-
     # Need to pull from correct folder when more templates are added
-    if fid_template in human_templates:
+    if fid_species == "Human":
         template_file_path = os.path.join(
             AFIDS_HUMAN_DIR, f"tpl-{fid_template}_afids.fcsv"
         )
@@ -215,8 +211,8 @@ def validator():
     return render_template(
         "validator.html",
         form=form,
+        form_choices=form_choices,
         result=result,
-        human_templates=human_templates,
         template_afids=template_afids,
         index=list(range(len(EXPECTED_DESCS))),
         labels=labels,
@@ -225,6 +221,24 @@ def validator():
         scatter_html=generate_3d_scatter(template_afids, user_afids),
         histogram_html=generate_histogram(template_afids, user_afids),
     )
+
+
+@app.route("/validator/<species>")
+def get_templates(species):
+    """Get templates corresponding to specific species"""
+    templates = []
+    if species == "Validate file structure":
+        template_obj = {}
+        template_obj["name"] = "No template required"
+        templates.append(template_obj)
+    elif species == "Human":
+        for human_templates in os.listdir(AFIDS_HUMAN_DIR):
+            if "tpl" in human_templates:
+                template_obj = {}
+                template_obj["name"] = human_templates[4:].split("_")[0]
+                templates.append(template_obj)
+
+    return jsonify({"templates": templates})
 
 
 @app.route("/getall")
