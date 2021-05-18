@@ -17,7 +17,6 @@ if postgres_uri.startswith("postgres://"):
     postgres_uri.replace("postgres://", "postgresql://", 1)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
 
-migrate = Migrate(app, db)
 manager = Manager(app)
 
 manager.add_command("db", MigrateCommand)
