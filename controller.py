@@ -85,7 +85,7 @@ def validator():
     template_afids = None
 
     # Set all dropdown choices
-    form_choices = ["Validate file structure", "Human", "Macaque"]
+    form_choices = ["Validate file structure", "Human", "Macaca"]
 
     timestamp = str(
         datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
