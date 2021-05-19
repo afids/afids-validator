@@ -124,6 +124,7 @@
       let species_select = document.getElementById("species");
       let template_select = document.getElementById("templates");
 
+      // Populate dropdown choices on load by species
       window.onload = function() {
         species = species_select.value;
 
@@ -140,6 +141,7 @@
         });
       }
 
+      // Populate dropdown choices if species is changed
       species_select.onchange = function() {
         species = species_select.value;
 
