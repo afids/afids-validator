@@ -28,7 +28,7 @@ class Average(wtf.Form):
 
 # Relative path of directory for uploaded files
 UPLOAD_DIR = "uploads/"
-AFIDS_HUMAN_DIR = "afids-templates/human/"
+AFIDS_DIR = "afids-templates"
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_DIR
 app.secret_key = "MySecretKey"
@@ -85,8 +85,11 @@ def validator():
     template_afids = None
 
     # Set all dropdown choices
-    form_choices = ["Validate file structure", "Human", "Macaca"]
+    form_choices = os.listdir(AFIDS_DIR)
+    form_choices = [choice.capitalize() for choice in form_choices]
+    form_choices.sort()
 
+    # Get time stamp
     timestamp = str(
         datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
     )
@@ -158,8 +161,10 @@ def validator():
         )
 
     fid_species = request.form["fid_species"]
+    fid_species = fid_species.lower()
+    fid_template = request.form["fid_template"]
 
-    if fid_species == "Validate file structure":
+    if fid_template == "Validate file structure":
         return render_template(
             "validator.html",
             form=form,
@@ -171,13 +176,11 @@ def validator():
             distances=distances,
         )
 
-    fid_template = request.form["fid_template"]
     result = f"{result}<br>{fid_template} selected"
     # Need to pull from correct folder when more templates are added
-    if fid_species == "Human":
-        template_file_path = os.path.join(
-            AFIDS_HUMAN_DIR, f"tpl-{fid_template}_afids.fcsv"
-        )
+    template_file_path = (
+        f"{AFIDS_DIR}/{fid_species.lower()}/tpl-{fid_template}_afids.fcsv"
+    )
 
     with open(template_file_path, "r") as template_file:
         template_afids = csv_to_afids(template_file.read())
@@ -226,17 +229,15 @@ def validator():
 @app.route("/validator/<species>")
 def get_templates(species):
     """Get templates corresponding to specific species"""
-    templates = []
-    if species == "Validate file structure":
-        template_obj = {}
-        template_obj["name"] = "No template required"
-        templates.append(template_obj)
-    elif species == "Human":
-        for human_templates in os.listdir(AFIDS_HUMAN_DIR):
-            if "tpl" in human_templates:
-                template_obj = {}
-                template_obj["name"] = human_templates[4:].split("_")[0]
-                templates.append(template_obj)
+    # Alawys include a validate object
+    template_obj = {}
+    template_obj["name"] = "Validate file structure"
+    templates = [template_obj]
+    for species_templates in os.listdir(f"{AFIDS_DIR}/{species.lower()}"):
+        if "tpl" in species_templates:
+            template_obj = {}
+            template_obj["name"] = species_templates[4:].split("_")[0]
+            templates.append(template_obj)
 
     return jsonify({"templates": templates})
 
