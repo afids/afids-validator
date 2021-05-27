@@ -18,7 +18,12 @@ header .nav-link {
   color: #fff;
 }
 
-header .nav-link:hover {
+.nav .nav-link {
+  color: #fff;
+}
+
+header .nav-link:hover,
+.nav .nav-link:hover {
   color: #00ff01;
 }
 
@@ -45,7 +50,7 @@ footer .nav-link:hover {
 
 /* Misc */
 #afids-video {
-    text-align: center;
+  text-align: center;
 }
 
 /* figcaption {
