@@ -44,12 +44,9 @@ footer .nav-link:hover {
 }
 
 /* Misc */
-/* hr {
-    position: relative;
-    border-top: .2vw solid;
-    margin-top: -1%;
-    color: #00ff01;
-} */
+#afids-video {
+    text-align: center;
+}
 
 /* figcaption {
     text-align: center;
