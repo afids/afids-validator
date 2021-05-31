@@ -1,8 +1,8 @@
 import unittest
 import model
-from model import db
+from model import FiducialSet, db
 from controller import app
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData
 
 
 class TestFiducialSet(unittest.TestCase):
@@ -239,6 +239,23 @@ class TestJsonValidation(unittest.TestCase):
                 model.json_to_afids(json_file.read())
 
         self.assertEqual(custom_message.exception.message, "Too few fiducials")
+
+class TestDBreadandwrite(unittest.TestCase):
+    db.create_all()
+    engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"], echo=True)
+    
+    def test_session_add(self):
+        test_afids = model.FiducialSet()
+        for label, descs in model.EXPECTED_MAP.items():
+            names = [f"{descs[-1]}_x", f"{descs[-1]}_y", f"{descs[-1]}_z"]
+            test_afids.add_fiducial(names, ["0", "1", "2"])
+        self.assertTrue(test_afids.validate())
+        db.session.add(test_afids)
+        db.session.commit()
+
+    def test_table_contents(self):
+        first_fid = FiducialSet.query.filter_by(id=1).first()
+        self.assertTrue(first_fid.validate())
 
 
 
