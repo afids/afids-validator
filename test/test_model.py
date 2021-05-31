@@ -1,5 +1,8 @@
 import unittest
 import model
+from model import db
+from controller import app
+from sqlalchemy import create_engine
 
 
 class TestFiducialSet(unittest.TestCase):
@@ -236,6 +239,8 @@ class TestJsonValidation(unittest.TestCase):
                 model.json_to_afids(json_file.read())
 
         self.assertEqual(custom_message.exception.message, "Too few fiducials")
+
+
 
 
 if __name__ == "__main__":

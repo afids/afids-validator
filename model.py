@@ -10,8 +10,6 @@ from pkg_resources import parse_version
 
 from controller import db
 from sqlalchemy.orm import composite
-from sqlalchemy import create_engine
-from sqlalchemy import insert
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
@@ -73,9 +71,6 @@ class FiducialPosition(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
-    def testpenguin(self):
-        return "i exist"
 
 
 class FiducialSet(db.Model):
@@ -255,20 +250,22 @@ class FiducialSet(db.Model):
     def __repr__(self):
         return "<id {}>".format(self.id)
 
-    def serialize(self):
-        """Produce a dict of each column."""
-        serialized = {}
-        for base in fiducial_names:
-            exec(
-                "serialized[%s] = self.%s.__composite_values__()"
-                % (base, base)
-            )
-        return serialized
+    # def serialize(self):
+    #     """Produce a dict of each column."""
+    #     serialized = {}
+    #     for base in fiducial_names:
+    #         exec(
+    #             "serialized[%s] = self.%s.__composite_values__()"
+    #             % (base, base)
+    #         )
+    #     return serialized
 
-    def add_fiducial(self, desc, points):
+    def add_fiducial(self, desc, points):  
         for d, p in zip(desc, points):
-            exec("self.%s=%s" % (d, p))
-        exec("self.%s = FiducialPosition(self.%s, self.%s, self.%s)" % (desc[0][:-2], desc[0], desc[1], desc[2]))
+            setattr(self, d, float(p))
+        setattr(self, desc[0][:-2], FiducialPosition(getattr(self, desc[0]),
+                                                     getattr(self, desc[1]), 
+                                                     getattr(self, desc[2])))
         self.no_of_fiducials += 1
 
     def validate(self):
@@ -282,15 +279,14 @@ class FiducialSet(db.Model):
         valid = self.no_of_fiducials == 32
         for label, name in EXPECTED_MAP.items():
             try:
-                exec("valid = valid and math.isfinite(self.%s_x)" % (name[-1]))
-                exec("valid = valid and math.isfinite(self.%s_y)" % (name[-1]))
-                exec("valid = valid and math.isfinite(self.%s_z)" % (name[-1]))
+                valid = valid and math.isfinite(getattr(self,f'{name[-1]}_x'))
+                valid = valid and math.isfinite(getattr(self,f'{name[-1]}_y'))
+                valid = valid and math.isfinite(getattr(self,f'{name[-1]}_z'))
             except ValueError:
                 valid = False
             except KeyError:
                 valid = False
         return valid
-
 
 class InvalidFileError(Exception):
     """Exception raised when a file to be parsed is invalid.
