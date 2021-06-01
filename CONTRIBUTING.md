@@ -13,19 +13,19 @@ First off, thank you for considering contributing to the AFIDs validator. Follow
 - Ensure code is run through [`black`](https://black.readthedocs.io/en/stable/) with the `-l 79` flag to ensure proper line lengths.
 - Create issues for any major changes and enhancements that you wish to make to allow for community discussion.
 - Label issues and PRs with the appropriate tag found below.
+- If a PR is a work in progress, please create as a draft PR or use `[skip ci]` in commit messages to avoid triggering actions workflow.
 - Be welcoming to newcomers and respectful of everyone. See the [Python Community Code of Conduct](https://www.python.org/psf/conduct/).
-
-
 
 Unsure where to begin contributing to AFIDs? Here are two places to start
 - Beginner issues - issues which should only require a few lines of code, and a test or two.
 - Help wanted issues - issues which should be a bit more involved than beginner issues.
 
 ## Getting started
-Setup instructions for local testing are found in the README. 
+Setup instructions for local testing are found in the README.
 
 ### Development Setup
 **Ensure local repository is up-to-date prior to making changes and/or pushing back to Git. Best practice is to test locally on a new branch, and make a pull request (PR) to pull in new changes**
+
 1. `git checkout master`
 2. `git pull`
 3. `git checkout -b feature-branch`
@@ -34,6 +34,11 @@ Setup instructions for local testing are found in the README.
 _If the migrations folder has been changed, run `python manage.py db upgrade`_
 6. Format code to conform to repository formatting by running `black -l 79 <file.py>` (eg. `<file.py>` == `controller.py`)
 7. Push to changes to git (`git push -u origin feature-branch`) and create a PR if needed
+
+We **strongly** recommend setting up a virtual environment, installing the necessary requirements from `requirement.txt`, and installing the pre-commit hook for automatic.
+For more about pre-commit hooks, check out the following [documentation](https://pre-commit.com/). To install the pre-commit hook, run the following line of code from the directory where this repository is cloned:
+
+`pre-commit install`
 
 ### How to label issues
 Please use the following labels to help organize your issues and PRs.

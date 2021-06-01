@@ -7,7 +7,9 @@
         <section class="col-9">
           <div class="row">
               <div class="col-9">
-                  <p>Use the following form to compare user placed fiducials to one of the available templates!
+                  <p>Use the following form to compare user placed fiducials to one of the available templates!</p>
+                  <p>If you choose to "Upload to Database", fiducials from the file will be uploaded and stored. These 
+                  placements may be used in the future to identify fiducials users are having difficulty placing.
                   </p>
               </div>
           </div>
@@ -15,21 +17,25 @@
           <!-- Template submission form -->
           <form method=post action="" enctype="multipart/form-data">
             <!-- Dropdown for template selection -->
-            <fieldset class="form-group">
-              <legend>Select a template to compare against.</legend>
-              <select class="form-control" name="fid_template" method="GET" action="/">
-                <option value="Validate file structure">Validate file structure</option>></option>
-                <optgroup label="Human">
-                  {% for human_template in human_templates %}
-                  <option value="{{human_template}}">{{human_template}}</option>
-                  {% endfor %}
-                </optgroup>
-              </select>
-            </fieldset>
+            <div class="row">
+              <div class="col-9">
+                <fieldset class="form-group">
+                  <legend>Select a template to compare against.</legend>
+                  <select class="form-control" name="fid_template" method="GET" action="/">
+                    <option value="Validate file structure">Validate file structure</option>></option>
+                    <optgroup label="Human">
+                      {% for human_template in human_templates %}
+                      <option value="{{human_template}}">{{human_template}}</option>
+                      {% endfor %}
+                    </optgroup>
+                  </select>
+                </fieldset>
+              </div>
+            </div>
 
             <!-- User template "upload" -->
             <fieldset class="form-group">
-              <legend>Select the AFIDs FCSV to validate.</legend>
+              <legend>Select the AFIDs file to validate.</legend>
               {% for field in form %}
               {{ field }}
               {% if field.errors %}
