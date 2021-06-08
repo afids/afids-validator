@@ -277,9 +277,9 @@ class FiducialSet(db.Model):
         valid = self.no_of_fiducials == 32
         for label, name in EXPECTED_MAP.items():
             try:
-                valid = valid and math.isfinite(getattr(self,f'{name[-1]}_x'))
-                valid = valid and math.isfinite(getattr(self,f'{name[-1]}_y'))
-                valid = valid and math.isfinite(getattr(self,f'{name[-1]}_z'))
+                valid = valid and math.isfinite(getattr(self, name[-1]).x)
+                valid = valid and math.isfinite(getattr(self, name[-1]).y)
+                valid = valid and math.isfinite(getattr(self, name[-1]).z)
             except ValueError:
                 valid = False
             except KeyError:
