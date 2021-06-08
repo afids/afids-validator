@@ -258,12 +258,18 @@ class FiducialSet(db.Model):
     #         )
     #     return serialized
 
-    def add_fiducial(self, desc, points):  
+    def add_fiducial(self, desc, points):
         for d, p in zip(desc, points):
             setattr(self, d, float(p))
-        setattr(self, desc[0][:-2], FiducialPosition(getattr(self, desc[0]),
-                                                     getattr(self, desc[1]), 
-                                                     getattr(self, desc[2])))
+        setattr(
+            self,
+            desc[0][:-2],
+            FiducialPosition(
+                getattr(self, desc[0]),
+                getattr(self, desc[1]),
+                getattr(self, desc[2]),
+            ),
+        )
         self.no_of_fiducials += 1
 
     def validate(self):
@@ -285,6 +291,7 @@ class FiducialSet(db.Model):
             except KeyError:
                 valid = False
         return valid
+
 
 class InvalidFileError(Exception):
     """Exception raised when a file to be parsed is invalid.

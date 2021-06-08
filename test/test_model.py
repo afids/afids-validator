@@ -240,10 +240,11 @@ class TestJsonValidation(unittest.TestCase):
 
         self.assertEqual(custom_message.exception.message, "Too few fiducials")
 
+
 class TestDBreadandwrite(unittest.TestCase):
     db.create_all()
     engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"], echo=True)
-    
+
     def test_session_add(self):
         test_afids = model.FiducialSet()
         for label, descs in model.EXPECTED_MAP.items():
@@ -255,16 +256,13 @@ class TestDBreadandwrite(unittest.TestCase):
 
     def test_composite_access(self):
         first_fid = FiducialSet.query.filter_by(id=1).first()
-        self.assertTrue(first_fid.AC.x==0.0)
-        self.assertTrue(first_fid.AC.y==1.0)
-        self.assertTrue(first_fid.AC.z==2.0)
+        self.assertTrue(first_fid.AC.x == 0.0)
+        self.assertTrue(first_fid.AC.y == 1.0)
+        self.assertTrue(first_fid.AC.z == 2.0)
 
     def test_table_contents(self):
         first_fid = FiducialSet.query.filter_by(id=1).first()
         self.assertTrue(first_fid.validate())
-
-
-
 
 
 if __name__ == "__main__":
