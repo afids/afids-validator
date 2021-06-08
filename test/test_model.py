@@ -253,16 +253,17 @@ class TestDBreadandwrite(unittest.TestCase):
         db.session.add(test_afids)
         db.session.commit()
 
+
     def test_composite_access(self):
-        print(FiducialSet.__dict__, dir(FiducialSet))
-        first_fid = FiducialSet.query.first()
+        print(db.session.query(FiducialSet.id).all())
+        first_fid = db.session.query(FiducialSet).first()
         print(first_fid)
         self.assertTrue(first_fid.AC.x == 0.0)
         self.assertTrue(first_fid.AC.y == 1.0)
         self.assertTrue(first_fid.AC.z == 2.0)
 
     def test_table_contents(self):
-        first_fid = FiducialSet.query.filter_by(id=1).first()
+        first_fid = db.session.query(FiducialSet).first()
         self.assertTrue(first_fid.validate())
 
 
