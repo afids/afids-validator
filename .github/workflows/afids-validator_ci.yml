@@ -59,12 +59,14 @@ jobs:
           psql_db_name: ${{ secrets.PSQL_DB_NAME }}     # PostgreSQL DB
         run: |
           sudo -u postgres psql --command="CREATE USER $psql_db_owner PASSWORD '$psql_db_pw'"
+          sudo -u postgres createdb --owner=$psql_db_owner $psql_db_name
           PGPASSWORD=$psql_db_pw psql --username=$psql_db_owner --host=localhost --list $psql_db_name
 
       - name: Test AFIDs validator
         shell: bash
         env:
           APP_SETTINGS: ${{ secrets.APP_SETTINGS }}     # Sets flask environment
+          DATABASE_URL: postgresql://${{ secrets.PSQL_DB_OWNER }}:${{ secrets.PSQL_DB_PASS }}@localhost/${{ secrets.PSQL_DB_NAME }}
         run: |
           source ~/.afidsvenv/bin/activate
           python -m unittest
