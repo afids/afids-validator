@@ -243,10 +243,9 @@ class TestJsonValidation(unittest.TestCase):
 
 class TestDBreadandwrite(unittest.TestCase):
     db.create_all()
-    engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"], echo=True)
 
     def test_session_add(self):
-        test_afids = model.FiducialSet()
+        test_afids = FiducialSet()
         for label, descs in model.EXPECTED_MAP.items():
             names = [f"{descs[-1]}_x", f"{descs[-1]}_y", f"{descs[-1]}_z"]
             test_afids.add_fiducial(names, ["0", "1", "2"])
@@ -255,6 +254,7 @@ class TestDBreadandwrite(unittest.TestCase):
         db.session.commit()
 
     def test_composite_access(self):
+        print(FiducialSet)
         first_fid = FiducialSet.query.filter_by(id=1).first()
         self.assertTrue(first_fid.AC.x == 0.0)
         self.assertTrue(first_fid.AC.y == 1.0)
