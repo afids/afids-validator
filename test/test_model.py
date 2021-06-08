@@ -254,6 +254,7 @@ class TestDBreadandwrite(unittest.TestCase):
         db.session.commit()
 
     def test_composite_access(self):
+        print(FiducialSet.__dict__, dir(FiducialSet))
         first_fid = FiducialSet.query.first()
         print(first_fid)
         self.assertTrue(first_fid.AC.x == 0.0)
