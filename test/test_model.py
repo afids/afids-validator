@@ -1,4 +1,6 @@
 import unittest
+
+unittest.TestLoader.sortTestMethodsUsing = None
 import model
 from model import FiducialSet, db
 from controller import app
@@ -252,21 +254,9 @@ class TestDBreadandwrite(unittest.TestCase):
         self.assertTrue(test_afids.validate())
         db.session.add(test_afids)
         db.session.commit()
-        print('wrote to db test ran and passed')
-
 
     def test_composite_access(self):
-        test_afids = FiducialSet()
-        for label, descs in model.EXPECTED_MAP.items():
-            names = [f"{descs[-1]}_x", f"{descs[-1]}_y", f"{descs[-1]}_z"]
-            test_afids.add_fiducial(names, ["0", "1", "2"])
-        self.assertTrue(test_afids.validate())
-        db.session.add(test_afids)
-        db.session.commit()
-
-        print(db.session.query(FiducialSet.id).all())
         first_fid = db.session.query(FiducialSet).first()
-        print(first_fid)
         self.assertTrue(first_fid.AC.x == 0.0)
         self.assertTrue(first_fid.AC.y == 1.0)
         self.assertTrue(first_fid.AC.z == 2.0)
