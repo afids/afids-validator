@@ -1,6 +1,4 @@
 import unittest
-
-unittest.TestLoader.sortTestMethodsUsing = None
 import model
 from model import FiducialSet, db
 from controller import app
@@ -246,7 +244,7 @@ class TestJsonValidation(unittest.TestCase):
 class TestDBreadandwrite(unittest.TestCase):
     db.create_all()
 
-    def test_session_add(self):
+    def test_session_add_read_and_validate(self):
         test_afids = FiducialSet()
         for label, descs in model.EXPECTED_MAP.items():
             names = [f"{descs[-1]}_x", f"{descs[-1]}_y", f"{descs[-1]}_z"]
@@ -255,14 +253,10 @@ class TestDBreadandwrite(unittest.TestCase):
         db.session.add(test_afids)
         db.session.commit()
 
-    def test_composite_access(self):
         first_fid = db.session.query(FiducialSet).first()
         self.assertTrue(first_fid.AC.x == 0.0)
         self.assertTrue(first_fid.AC.y == 1.0)
         self.assertTrue(first_fid.AC.z == 2.0)
-
-    def test_table_contents(self):
-        first_fid = db.session.query(FiducialSet).first()
         self.assertTrue(first_fid.validate())
 
 
