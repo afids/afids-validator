@@ -59,7 +59,7 @@ jobs:
           psql_db_name: ${{ secrets.PSQL_DB_NAME }}     # PostgreSQL DB
         run: |
           sudo -u postgres psql --command="CREATE USER $psql_db_owner PASSWORD '$psql_db_pw'"
-          PGPASSWORD=$$psql_db_pw psql --username=$$psql_db_owner --host=localhost --list $$psql_db_name
+          PGPASSWORD=$psql_db_pw psql --username=$psql_db_owner --host=localhost --list $$psql_db_name
 
       - name: Test AFIDs validator
         shell: bash
