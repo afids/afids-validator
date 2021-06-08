@@ -10,10 +10,10 @@ jobs:
     if: |
       github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    environment: TEST
     strategy:
       matrix:
         python-version: [3.6]
-    environment: TEST
 
     steps:
       - name: Checkout pull request branch
@@ -53,12 +53,18 @@ jobs:
 
       - name: Setup PostgreSQL db
         shell: bash
+        env:
+          psql_db_owner: ${{ secrets.PSQL_DB_OWNER }}   # PostgreSQL User
+          psql_db_pw: ${{ secrets.PSQL_DB_PASS }}       # PostgreSQL Pass
+          psql_db_name: ${{ secrets.PSQL_DB_NAME }}     # PostgreSQL DB
         run: |
-          sudo -u postgres psql --command="CREATE USER $PSQL_DB_OWNER PASSWORD '$PSQL_DB_PASS'"
-          PGPASSWORD=$PSQL_DB_PASS psql --username=$PSQL_DB_OWNER --host=localhost --list
+          sudo -u postgres psql --command="CREATE USER $psql_db_owner PASSWORD '$psql_db_pw'"
+          PGPASSWORD=$$psql_db_pw psql --username=$$psql_db_owner --host=localhost --list $$psql_db_name
 
       - name: Test AFIDs validator
         shell: bash
+        env:
+          APP_SETTINGS: ${{ secrets.APP_SETTINGS }}     # Sets flask environment
         run: |
           source ~/.afidsvenv/bin/activate
           python -m unittest
