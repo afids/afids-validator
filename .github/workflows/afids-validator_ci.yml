@@ -13,6 +13,9 @@ jobs:
     strategy:
       matrix:
         python-version: [3.6]
+    env:
+      psql_db_owner: ${{ secrets.PSQL_DB_OWNER }} # PostgreSQL User
+      psql_db_pw: ${{ secrets.PSQL_DB_PW }}       # PostgreSQL Pass
 
     steps:
       - name: Checkout pull request branch
@@ -24,7 +27,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      
+
       - name: Cache environment
         uses: actions/cache@v2
         id: cache
@@ -42,7 +45,7 @@ jobs:
           pip install virtualenv
           python -m virtualenv ~/.afidsvenv
           source ~/.afidsvenv/bin/activate
-          pip install -r requirements.txt 
+          pip install -r requirements.txt
 
       - name: Start PostgreSQL services
         shell: bash
@@ -52,13 +55,8 @@ jobs:
 
       - name: Setup PostgreSQL db
         shell: bash
-        env:
-          psql_db_owner: ${{ secrets.PSQL_DB_OWNER }} # PostgreSQL User
-          psql_db_pw: ${{ secrets.PSQL_DB_PW }}       # PostgreSQL Pass
-          psql_db_name: fid_db                        # PostgreSQL DB
         run: |
           sudo -u postgres psql --command="CREATE USER $psql_db_owner PASSWORD '$psql_db_pw'"
-          sudo -u postgres createdb --owner=$psql_db_owner $psql_db_name
           PGPASSWORD=$psql_db_pw psql --username=$psql_db_owner --host=localhost --list $psql_db_name
 
       - name: Test AFIDs validator
@@ -88,7 +86,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install black
-        run: | 
+        run: |
           python -m pip install --upgrade pip
           pip install black
 
@@ -116,10 +114,10 @@ jobs:
     name: Heroku deployment
     needs: [test]
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true 
+    if: github.event.pull_request.merged == true
 
     steps:
-      - name: Checkout master 
+      - name: Checkout master
         uses: actions/checkout@master
         with:
           ref: refs/heads/master
@@ -127,6 +125,6 @@ jobs:
       - name: Deploy heroku app
         uses: akhileshns/heroku-deploy@v3.0.4
         with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }} # Heroku API Key 
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }} # Heroku API Key
           heroku_app_name: afids-validator              # Heroku app name
           heroku_email: ${{ secrets.HEROKU_EMAIL }}     # Heroku email
