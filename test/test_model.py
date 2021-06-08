@@ -252,8 +252,7 @@ class TestDBreadandwrite(unittest.TestCase):
         self.assertTrue(test_afids.validate())
         db.session.add(test_afids)
         db.session.commit()
-        print('wrote to db test ran and passed')
-
+        print("wrote to db test ran and passed")
 
     def test_composite_access(self):
         test_afids = FiducialSet()
