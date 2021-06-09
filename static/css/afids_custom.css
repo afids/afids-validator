@@ -11,9 +11,7 @@ body {
 /* Nav */
 header .nav-link {
   font-family: "Bebas Neue", serif;
-  font-size: 2vw;
-  margin-left: 1vw;
-  margin-right: 1vw;
+  font-size: 32px;
   color: #fff;
 }
 
