@@ -34,20 +34,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-venv
 
-      - name: Install necessary requirements if required
+      - name: Setup envrionment
         if: steps.cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          pip install virtualenv
-          python -m virtualenv ~/.afidsvenv
-          source ~/.afidsvenv/bin/activate
           pip install -r requirements.txt
 
       - name: Test AFIDs validator
         shell: bash
         run: |
-          source ~/.afidsvenv/bin/activate
           python -m unittest
 
   linting:
