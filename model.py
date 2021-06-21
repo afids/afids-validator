@@ -80,170 +80,166 @@ class FiducialSet(db.Model):
     user_id = db.Column(db.String)
     date = db.Column(db.Date)
     template = db.Column(db.String)
-    no_of_fiducials = db.Column(db.Integer)
 
-    AC_x = db.Column(db.Float())
-    AC_y = db.Column(db.Float())
-    AC_z = db.Column(db.Float())
+    AC_x = db.Column(db.Float(), nullable=False)
+    AC_y = db.Column(db.Float(), nullable=False)
+    AC_z = db.Column(db.Float(), nullable=False)
     AC = composite(FiducialPosition, AC_x, AC_y, AC_z)
 
-    PC_x = db.Column(db.Float())
-    PC_y = db.Column(db.Float())
-    PC_z = db.Column(db.Float())
+    PC_x = db.Column(db.Float(), nullable=False)
+    PC_y = db.Column(db.Float(), nullable=False)
+    PC_z = db.Column(db.Float(), nullable=False)
     PC = composite(FiducialPosition, PC_x, PC_y, PC_z)
 
-    ICS_x = db.Column(db.Float())
-    ICS_y = db.Column(db.Float())
-    ICS_z = db.Column(db.Float())
+    ICS_x = db.Column(db.Float(), nullable=False)
+    ICS_y = db.Column(db.Float(), nullable=False)
+    ICS_z = db.Column(db.Float(), nullable=False)
     ICS = composite(FiducialPosition, ICS_x, ICS_y, ICS_z)
 
-    PMJ_x = db.Column(db.Float())
-    PMJ_y = db.Column(db.Float())
-    PMJ_z = db.Column(db.Float())
+    PMJ_x = db.Column(db.Float(), nullable=False)
+    PMJ_y = db.Column(db.Float(), nullable=False)
+    PMJ_z = db.Column(db.Float(), nullable=False)
     PMJ = composite(FiducialPosition, PMJ_x, PMJ_y, PMJ_z)
 
-    SIPF_x = db.Column(db.Float())
-    SIPF_y = db.Column(db.Float())
-    SIPF_z = db.Column(db.Float())
+    SIPF_x = db.Column(db.Float(), nullable=False)
+    SIPF_y = db.Column(db.Float(), nullable=False)
+    SIPF_z = db.Column(db.Float(), nullable=False)
     SIPF = composite(FiducialPosition, SIPF_x, SIPF_y, SIPF_z)
 
-    RSLMS_x = db.Column(db.Float())
-    RSLMS_y = db.Column(db.Float())
-    RSLMS_z = db.Column(db.Float())
+    RSLMS_x = db.Column(db.Float(), nullable=False)
+    RSLMS_y = db.Column(db.Float(), nullable=False)
+    RSLMS_z = db.Column(db.Float(), nullable=False)
     RSLMS = composite(FiducialPosition, RSLMS_x, RSLMS_y, RSLMS_z)
 
-    LSLMS_x = db.Column(db.Float())
-    LSLMS_y = db.Column(db.Float())
-    LSLMS_z = db.Column(db.Float())
+    LSLMS_x = db.Column(db.Float(), nullable=False)
+    LSLMS_y = db.Column(db.Float(), nullable=False)
+    LSLMS_z = db.Column(db.Float(), nullable=False)
     LSLMS = composite(FiducialPosition, LSLMS_x, LSLMS_y, LSLMS_z)
 
-    RILMS_x = db.Column(db.Float())
-    RILMS_y = db.Column(db.Float())
-    RILMS_z = db.Column(db.Float())
+    RILMS_x = db.Column(db.Float(), nullable=False)
+    RILMS_y = db.Column(db.Float(), nullable=False)
+    RILMS_z = db.Column(db.Float(), nullable=False)
     RILMS = composite(FiducialPosition, RILMS_x, RILMS_y, RILMS_z)
 
-    LILMS_x = db.Column(db.Float())
-    LILMS_y = db.Column(db.Float())
-    LILMS_z = db.Column(db.Float())
+    LILMS_x = db.Column(db.Float(), nullable=False)
+    LILMS_y = db.Column(db.Float(), nullable=False)
+    LILMS_z = db.Column(db.Float(), nullable=False)
     LILMS = composite(FiducialPosition, LILMS_x, LILMS_y, LILMS_z)
 
-    CUL_x = db.Column(db.Float())
-    CUL_y = db.Column(db.Float())
-    CUL_z = db.Column(db.Float())
+    CUL_x = db.Column(db.Float(), nullable=False)
+    CUL_y = db.Column(db.Float(), nullable=False)
+    CUL_z = db.Column(db.Float(), nullable=False)
     CUL = composite(FiducialPosition, CUL_x, CUL_y, CUL_z)
 
-    IMS_x = db.Column(db.Float())
-    IMS_y = db.Column(db.Float())
-    IMS_z = db.Column(db.Float())
+    IMS_x = db.Column(db.Float(), nullable=False)
+    IMS_y = db.Column(db.Float(), nullable=False)
+    IMS_z = db.Column(db.Float(), nullable=False)
     IMS = composite(FiducialPosition, IMS_x, IMS_y, IMS_z)
 
-    RMB_x = db.Column(db.Float())
-    RMB_y = db.Column(db.Float())
-    RMB_z = db.Column(db.Float())
+    RMB_x = db.Column(db.Float(), nullable=False)
+    RMB_y = db.Column(db.Float(), nullable=False)
+    RMB_z = db.Column(db.Float(), nullable=False)
     RMB = composite(FiducialPosition, RMB_x, RMB_y, RMB_z)
 
-    LMB_x = db.Column(db.Float())
-    LMB_y = db.Column(db.Float())
-    LMB_z = db.Column(db.Float())
+    LMB_x = db.Column(db.Float(), nullable=False)
+    LMB_y = db.Column(db.Float(), nullable=False)
+    LMB_z = db.Column(db.Float(), nullable=False)
     LMB = composite(FiducialPosition, LMB_x, LMB_y, LMB_z)
 
-    PG_x = db.Column(db.Float())
-    PG_y = db.Column(db.Float())
-    PG_z = db.Column(db.Float())
+    PG_x = db.Column(db.Float(), nullable=False)
+    PG_y = db.Column(db.Float(), nullable=False)
+    PG_z = db.Column(db.Float(), nullable=False)
     PG = composite(FiducialPosition, PG_x, PG_y, PG_z)
 
-    RLVAC_x = db.Column(db.Float())
-    RLVAC_y = db.Column(db.Float())
-    RLVAC_z = db.Column(db.Float())
+    RLVAC_x = db.Column(db.Float(), nullable=False)
+    RLVAC_y = db.Column(db.Float(), nullable=False)
+    RLVAC_z = db.Column(db.Float(), nullable=False)
     RLVAC = composite(FiducialPosition, RLVAC_x, RLVAC_y, RLVAC_z)
 
-    LLVAC_x = db.Column(db.Float())
-    LLVAC_y = db.Column(db.Float())
-    LLVAC_z = db.Column(db.Float())
+    LLVAC_x = db.Column(db.Float(), nullable=False)
+    LLVAC_y = db.Column(db.Float(), nullable=False)
+    LLVAC_z = db.Column(db.Float(), nullable=False)
     LLVAC = composite(FiducialPosition, LLVAC_x, LLVAC_y, LLVAC_z)
 
-    RLVPC_x = db.Column(db.Float())
-    RLVPC_y = db.Column(db.Float())
-    RLVPC_z = db.Column(db.Float())
+    RLVPC_x = db.Column(db.Float(), nullable=False)
+    RLVPC_y = db.Column(db.Float(), nullable=False)
+    RLVPC_z = db.Column(db.Float(), nullable=False)
     RLVPC = composite(FiducialPosition, RLVPC_x, RLVPC_y, RLVPC_z)
 
-    LLVPC_x = db.Column(db.Float())
-    LLVPC_y = db.Column(db.Float())
-    LLVPC_z = db.Column(db.Float())
+    LLVPC_x = db.Column(db.Float(), nullable=False)
+    LLVPC_y = db.Column(db.Float(), nullable=False)
+    LLVPC_z = db.Column(db.Float(), nullable=False)
     LLVPC = composite(FiducialPosition, LLVPC_x, LLVPC_y, LLVPC_z)
 
-    GENU_x = db.Column(db.Float())
-    GENU_y = db.Column(db.Float())
-    GENU_z = db.Column(db.Float())
+    GENU_x = db.Column(db.Float(), nullable=False)
+    GENU_y = db.Column(db.Float(), nullable=False)
+    GENU_z = db.Column(db.Float(), nullable=False)
     GENU = composite(FiducialPosition, GENU_x, GENU_y, GENU_z)
 
-    SPLE_x = db.Column(db.Float())
-    SPLE_y = db.Column(db.Float())
-    SPLE_z = db.Column(db.Float())
+    SPLE_x = db.Column(db.Float(), nullable=False)
+    SPLE_y = db.Column(db.Float(), nullable=False)
+    SPLE_z = db.Column(db.Float(), nullable=False)
     SPLE = composite(FiducialPosition, SPLE_x, SPLE_y, SPLE_z)
 
-    RALTH_x = db.Column(db.Float())
-    RALTH_y = db.Column(db.Float())
-    RALTH_z = db.Column(db.Float())
+    RALTH_x = db.Column(db.Float(), nullable=False)
+    RALTH_y = db.Column(db.Float(), nullable=False)
+    RALTH_z = db.Column(db.Float(), nullable=False)
     RALTH = composite(FiducialPosition, RALTH_x, RALTH_y, RALTH_z)
 
-    LALTH_x = db.Column(db.Float())
-    LALTH_y = db.Column(db.Float())
-    LALTH_z = db.Column(db.Float())
+    LALTH_x = db.Column(db.Float(), nullable=False)
+    LALTH_y = db.Column(db.Float(), nullable=False)
+    LALTH_z = db.Column(db.Float(), nullable=False)
     LALTH = composite(FiducialPosition, LALTH_x, LALTH_y, LALTH_z)
 
-    RSAMTH_x = db.Column(db.Float())
-    RSAMTH_y = db.Column(db.Float())
-    RSAMTH_z = db.Column(db.Float())
+    RSAMTH_x = db.Column(db.Float(), nullable=False)
+    RSAMTH_y = db.Column(db.Float(), nullable=False)
+    RSAMTH_z = db.Column(db.Float(), nullable=False)
     RSAMTH = composite(FiducialPosition, RSAMTH_x, RSAMTH_y, RSAMTH_z)
 
-    LSAMTH_x = db.Column(db.Float())
-    LSAMTH_y = db.Column(db.Float())
-    LSAMTH_z = db.Column(db.Float())
+    LSAMTH_x = db.Column(db.Float(), nullable=False)
+    LSAMTH_y = db.Column(db.Float(), nullable=False)
+    LSAMTH_z = db.Column(db.Float(), nullable=False)
     LSAMTH = composite(FiducialPosition, LSAMTH_x, LSAMTH_y, LSAMTH_z)
 
-    RIAMTH_x = db.Column(db.Float())
-    RIAMTH_y = db.Column(db.Float())
-    RIAMTH_z = db.Column(db.Float())
+    RIAMTH_x = db.Column(db.Float(), nullable=False)
+    RIAMTH_y = db.Column(db.Float(), nullable=False)
+    RIAMTH_z = db.Column(db.Float(), nullable=False)
     RIAMTH = composite(FiducialPosition, RIAMTH_x, RIAMTH_y, RIAMTH_z)
 
-    LIAMTH_x = db.Column(db.Float())
-    LIAMTH_y = db.Column(db.Float())
-    LIAMTH_z = db.Column(db.Float())
+    LIAMTH_x = db.Column(db.Float(), nullable=False)
+    LIAMTH_y = db.Column(db.Float(), nullable=False)
+    LIAMTH_z = db.Column(db.Float(), nullable=False)
     LIAMTH = composite(FiducialPosition, LIAMTH_x, LIAMTH_y, LIAMTH_z)
 
-    RIGO_x = db.Column(db.Float())
-    RIGO_y = db.Column(db.Float())
-    RIGO_z = db.Column(db.Float())
+    RIGO_x = db.Column(db.Float(), nullable=False)
+    RIGO_y = db.Column(db.Float(), nullable=False)
+    RIGO_z = db.Column(db.Float(), nullable=False)
     RIGO = composite(FiducialPosition, RIGO_x, RIGO_y, RIGO_z)
 
-    LIGO_x = db.Column(db.Float())
-    LIGO_y = db.Column(db.Float())
-    LIGO_z = db.Column(db.Float())
+    LIGO_x = db.Column(db.Float(), nullable=False)
+    LIGO_y = db.Column(db.Float(), nullable=False)
+    LIGO_z = db.Column(db.Float(), nullable=False)
     LIGO = composite(FiducialPosition, LIGO_x, LIGO_y, LIGO_z)
 
-    RVOH_x = db.Column(db.Float())
-    RVOH_y = db.Column(db.Float())
-    RVOH_z = db.Column(db.Float())
+    RVOH_x = db.Column(db.Float(), nullable=False)
+    RVOH_y = db.Column(db.Float(), nullable=False)
+    RVOH_z = db.Column(db.Float(), nullable=False)
     RVOH = composite(FiducialPosition, RVOH_x, RVOH_y, RVOH_z)
 
-    LVOH_x = db.Column(db.Float())
-    LVOH_y = db.Column(db.Float())
-    LVOH_z = db.Column(db.Float())
+    LVOH_x = db.Column(db.Float(), nullable=False)
+    LVOH_y = db.Column(db.Float(), nullable=False)
+    LVOH_z = db.Column(db.Float(), nullable=False)
     LVOH = composite(FiducialPosition, LVOH_x, LVOH_y, LVOH_z)
 
-    ROSF_x = db.Column(db.Float())
-    ROSF_y = db.Column(db.Float())
-    ROSF_z = db.Column(db.Float())
+    ROSF_x = db.Column(db.Float(), nullable=False)
+    ROSF_y = db.Column(db.Float(), nullable=False)
+    ROSF_z = db.Column(db.Float(), nullable=False)
     ROSF = composite(FiducialPosition, ROSF_x, ROSF_y, ROSF_z)
 
-    LOSF_x = db.Column(db.Float())
-    LOSF_y = db.Column(db.Float())
-    LOSF_z = db.Column(db.Float())
+    LOSF_x = db.Column(db.Float(), nullable=False)
+    LOSF_y = db.Column(db.Float(), nullable=False)
+    LOSF_z = db.Column(db.Float(), nullable=False)
     LOSF = composite(FiducialPosition, LOSF_x, LOSF_y, LOSF_z)
-
-    def __init__(self):
-        self.no_of_fiducials = 0
 
     def __repr__(self):
         return "<id {}>".format(self.id)
@@ -270,7 +266,6 @@ class FiducialSet(db.Model):
                 getattr(self, desc[2]),
             ),
         )
-        self.no_of_fiducials += 1
 
     def validate(self):
         """Validate that the class represents a valid AFIDs set.
@@ -280,7 +275,7 @@ class FiducialSet(db.Model):
         bool
             True if the Afids set is valid.
         """
-        valid = self.no_of_fiducials == 32
+        valid=True
         for label, name in EXPECTED_MAP.items():
             try:
                 valid = valid and math.isfinite(getattr(self, name[-1]).x)
@@ -288,7 +283,7 @@ class FiducialSet(db.Model):
                 valid = valid and math.isfinite(getattr(self, name[-1]).z)
             except ValueError:
                 valid = False
-            except KeyError:
+            except AttributeError:
                 valid = False
         return valid
 
@@ -401,6 +396,7 @@ def csv_to_afids(in_csv):
     afids = FiducialSet()
 
     expected_label = 1
+    afids_count = 0
     for row in _skip_first(csv_reader, 3):
         if expected_label > 32:
             raise InvalidFileError("Too many rows")
@@ -451,9 +447,10 @@ def csv_to_afids(in_csv):
 
         row_descriptors = [f"{row_desc}_x", f"{row_desc}_y", f"{row_desc}_z"]
         afids.add_fiducial(row_descriptors, [row_x, row_y, row_z])
+        afids_count+=1
 
     # Check for too few rows
-    if afids.no_of_fiducials < 32:
+    if afids_count < 32:
         raise InvalidFileError("Too few rows")
 
     return afids

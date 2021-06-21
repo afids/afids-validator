@@ -11,41 +11,6 @@ import wtforms as wtf
 # from model import csv_to_afids, json_to_afids, InvalidFileError
 from visualizations import generate_3d_scatter, generate_histogram
 
-fiducial_names = [
-    "AC",
-    "PC",
-    "ICS",
-    "PMJ",
-    "SIPF",
-    "RSLMS",
-    "LSLMS",
-    "RILMS",
-    "LILMS",
-    "CUL",
-    "IMS",
-    "RMB",
-    "LMB",
-    "PG",
-    "RLVAC",
-    "LLVAC",
-    "RLVPC",
-    "LLVPC",
-    "GENU",
-    "SPLE",
-    "RALTH",
-    "LALTH",
-    "RSAMTH",
-    "LSAMTH",
-    "RIAMTH",
-    "LIAMTH",
-    "RIGO",
-    "LIGO",
-    "RVOH",
-    "LVOH",
-    "ROSF",
-    "LOSF",
-]
-
 app = Flask(__name__)
 
 app.config.from_object(os.environ["APP_SETTINGS"])

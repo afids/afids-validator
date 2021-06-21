@@ -31,10 +31,10 @@ class TestFcsvValidation(unittest.TestCase):
         self.assertTrue(fcsv_afids.validate())
 
         self.assertEqual(
-            float(fcsv_afids.AC_x),
+            fcsv_afids.AC_x,
             -0.07077182344203692,
         )
-        self.assertEqual(float(fcsv_afids.AC_y), 0.2548674381652525)
+        self.assertEqual(fcsv_afids.AC_y, 0.2548674381652525)
 
     def test_valid_nhp(self):
         with open("test/resources/valid_nhp.fcsv", "r") as fcsv:
@@ -152,11 +152,11 @@ class TestJsonValidation(unittest.TestCase):
         self.assertTrue(json_afids.validate())
 
         self.assertEqual(
-            float(json_afids.AC_x),
+            json_afids.AC_x,
             0.07077182344203692,
         )
         self.assertEqual(
-            float(json_afids.AC_y),
+            json_afids.AC_y,
             -0.2548674381652525,
         )
 
