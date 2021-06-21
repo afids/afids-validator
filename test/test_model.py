@@ -1,20 +1,19 @@
 import unittest
 import model
-from model import FiducialSet, db
+from model import HumanFiducialSet, db
 from controller import app
 from sqlalchemy import create_engine, MetaData
 
 
-class TestFiducialSet(unittest.TestCase):
+class TestHumanFiducialSet(unittest.TestCase):
     def test_empty_afids(self):
-        test_afids = model.FiducialSet()
+        test_afids = model.HumanFiducialSet()
         self.assertFalse(test_afids.validate())
 
     def test_valid_afids(self):
-        test_afids = model.FiducialSet()
+        test_afids = model.HumanFiducialSet()
         for label, descs in model.EXPECTED_MAP.items():
-            names = [f"{descs[-1]}_x", f"{descs[-1]}_y", f"{descs[-1]}_z"]
-            test_afids.add_fiducial(names, ["0", "1", "2"])
+            test_afids.add_fiducial(descs[-1], ["0", "1", "2"])
         self.assertTrue(test_afids.validate())
 
 
@@ -245,15 +244,14 @@ class TestDBreadandwrite(unittest.TestCase):
     db.create_all()
 
     def test_session_add_read_and_validate(self):
-        test_afids = FiducialSet()
+        test_afids = HumanFiducialSet()
         for label, descs in model.EXPECTED_MAP.items():
-            names = [f"{descs[-1]}_x", f"{descs[-1]}_y", f"{descs[-1]}_z"]
-            test_afids.add_fiducial(names, ["0", "1", "2"])
+            test_afids.add_fiducial(descs[-1], ["0", "1", "2"])
         self.assertTrue(test_afids.validate())
         db.session.add(test_afids)
         db.session.commit()
 
-        first_fid = db.session.query(FiducialSet).first()
+        first_fid = db.session.query(HumanFiducialSet).first()
         self.assertTrue(first_fid.AC.x == 0.0)
         self.assertTrue(first_fid.AC.y == 1.0)
         self.assertTrue(first_fid.AC.z == 2.0)

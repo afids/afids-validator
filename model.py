@@ -38,7 +38,7 @@ EXPECTED_DESCS = [
     ["R superior AM temporal horn", "RSAMTH"],
     ["L superior AM temporal horn", "LSAMTH"],
     ["R inferior AM temporal horn", "RIAMTH"],
-    ["L inferior AM temporal horn", "RIAMTH"],
+    ["L inferior AM temporal horn", "LIAMTH"],
     ["R indusium griseum origin", "RIGO"],
     ["L indusium griseum origin", "LIGO"],
     ["R ventral occipital horn", "RVOH"],
@@ -73,8 +73,56 @@ class FiducialPosition(object):
         return not self.__eq__(other)
 
 
-class FiducialSet(db.Model):
-    """SQL model for a set of AFIDs."""
+class FiducialSet():
+    """Base class for afids."""
+    def __repr__(self):
+        return "<id {}>".format(self.id)
+
+    # def serialize(self):
+    #     """Produce a dict of each column."""
+    #     serialized = {}
+    #     for base in fiducial_names:
+    #         exec(
+    #             "serialized[%s] = self.%s.__composite_values__()"
+    #             % (base, base)
+    #         )
+    #     return serialized
+
+    def add_fiducial(self, desc, points):
+        for d, p in zip(['_x', '_y', '_z'], points):
+            setattr(self, ''.join([desc,d]), float(p))
+        setattr(
+            self,
+            desc,
+            FiducialPosition(
+                getattr(self, ''.join([desc,'_x'])),
+                getattr(self, ''.join([desc,'_y'])),
+                getattr(self, ''.join([desc,'_z'])),
+            ),
+        )
+
+    def validate(self):
+        """Validate that the class represents a valid AFIDs set.
+
+        Returns
+        -------
+        bool
+            True if the Afids set is valid.
+        """
+        valid=True
+        for label, name in EXPECTED_MAP.items():
+            try:
+                valid = valid and math.isfinite(getattr(self, name[-1]).x)
+                valid = valid and math.isfinite(getattr(self, name[-1]).y)
+                valid = valid and math.isfinite(getattr(self, name[-1]).z)
+            except ValueError:
+                valid = False
+            except AttributeError:
+                valid = False
+        return valid
+
+class HumanFiducialSet(FiducialSet, db.Model):
+    """Base Human afids table"""
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String)
@@ -241,51 +289,7 @@ class FiducialSet(db.Model):
     LOSF_z = db.Column(db.Float(), nullable=False)
     LOSF = composite(FiducialPosition, LOSF_x, LOSF_y, LOSF_z)
 
-    def __repr__(self):
-        return "<id {}>".format(self.id)
-
-    # def serialize(self):
-    #     """Produce a dict of each column."""
-    #     serialized = {}
-    #     for base in fiducial_names:
-    #         exec(
-    #             "serialized[%s] = self.%s.__composite_values__()"
-    #             % (base, base)
-    #         )
-    #     return serialized
-
-    def add_fiducial(self, desc, points):
-        for d, p in zip(desc, points):
-            setattr(self, d, float(p))
-        setattr(
-            self,
-            desc[0][:-2],
-            FiducialPosition(
-                getattr(self, desc[0]),
-                getattr(self, desc[1]),
-                getattr(self, desc[2]),
-            ),
-        )
-
-    def validate(self):
-        """Validate that the class represents a valid AFIDs set.
-
-        Returns
-        -------
-        bool
-            True if the Afids set is valid.
-        """
-        valid=True
-        for label, name in EXPECTED_MAP.items():
-            try:
-                valid = valid and math.isfinite(getattr(self, name[-1]).x)
-                valid = valid and math.isfinite(getattr(self, name[-1]).y)
-                valid = valid and math.isfinite(getattr(self, name[-1]).z)
-            except ValueError:
-                valid = False
-            except AttributeError:
-                valid = False
-        return valid
+    
 
 
 class InvalidFileError(Exception):
@@ -445,8 +449,7 @@ def csv_to_afids(in_csv):
                 f"in row {row_label}"
             )
 
-        row_descriptors = [f"{row_desc}_x", f"{row_desc}_y", f"{row_desc}_z"]
-        afids.add_fiducial(row_descriptors, [row_x, row_y, row_z])
+        afids.add_fiducial(row_desc, [row_x, row_y, row_z])
         afids_count+=1
 
     # Check for too few rows
@@ -549,7 +552,6 @@ def json_to_afids(in_json):
                     "a real number"
                 )
 
-        fid_descriptors = [f"{fid_desc}_x", f"{fid_desc}_y", f"{fid_desc}_z"]
-        afids.add_fiducial(fid_descriptors, fid_position)
+        afids.add_fiducial(fid_desc, fid_position)
 
     return afids
