@@ -73,8 +73,9 @@ class FiducialPosition(object):
         return not self.__eq__(other)
 
 
-class FiducialSet():
+class FiducialSet:
     """Base class for afids."""
+
     def __repr__(self):
         return "<id {}>".format(self.id)
 
@@ -89,15 +90,15 @@ class FiducialSet():
     #     return serialized
 
     def add_fiducial(self, desc, points):
-        for d, p in zip(['_x', '_y', '_z'], points):
-            setattr(self, ''.join([desc,d]), float(p))
+        for d, p in zip(["_x", "_y", "_z"], points):
+            setattr(self, "".join([desc, d]), float(p))
         setattr(
             self,
             desc,
             FiducialPosition(
-                getattr(self, ''.join([desc,'_x'])),
-                getattr(self, ''.join([desc,'_y'])),
-                getattr(self, ''.join([desc,'_z'])),
+                getattr(self, "".join([desc, "_x"])),
+                getattr(self, "".join([desc, "_y"])),
+                getattr(self, "".join([desc, "_z"])),
             ),
         )
 
@@ -109,7 +110,7 @@ class FiducialSet():
         bool
             True if the Afids set is valid.
         """
-        valid=True
+        valid = True
         for label, name in EXPECTED_MAP.items():
             try:
                 valid = valid and math.isfinite(getattr(self, name[-1]).x)
@@ -120,6 +121,7 @@ class FiducialSet():
             except AttributeError:
                 valid = False
         return valid
+
 
 class HumanFiducialSet(FiducialSet, db.Model):
     """Base Human afids table"""
@@ -289,8 +291,6 @@ class HumanFiducialSet(FiducialSet, db.Model):
     LOSF_z = db.Column(db.Float(), nullable=False)
     LOSF = composite(FiducialPosition, LOSF_x, LOSF_y, LOSF_z)
 
-    
-
 
 class InvalidFileError(Exception):
     """Exception raised when a file to be parsed is invalid.
@@ -450,7 +450,7 @@ def csv_to_afids(in_csv):
             )
 
         afids.add_fiducial(row_desc, [row_x, row_y, row_z])
-        afids_count+=1
+        afids_count += 1
 
     # Check for too few rows
     if afids_count < 32:
