@@ -136,6 +136,7 @@ class FiducialSet:
 
 class HumanFiducialSet(FiducialSet, db.Model):
     """Base Human afids table"""
+    __name__="HumanFiducialSet"
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String)
