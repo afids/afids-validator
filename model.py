@@ -6,10 +6,22 @@ import json
 import math
 import re
 
+# stopping import loop
+import os
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
 from pkg_resources import parse_version
 
-from controller import db
 from sqlalchemy.orm import composite
+
+app = Flask(__name__)
+
+app.config.from_object(os.environ["APP_SETTINGS"])
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db = SQLAlchemy(app)
+
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
@@ -79,15 +91,14 @@ class FiducialSet:
     def __repr__(self):
         return "<id {}>".format(self.id)
 
-    # def serialize(self):
-    #     """Produce a dict of each column."""
-    #     serialized = {}
-    #     for base in fiducial_names:
-    #         exec(
-    #             "serialized[%s] = self.%s.__composite_values__()"
-    #             % (base, base)
-    #         )
-    #     return serialized
+    def serialize(self):
+        """Produce a dict of each column."""
+        serialized = {}
+        for desc in EXPECTED_DESCS:
+            serialized[desc[-1]] = list(
+                getattr(self, desc[-1]).__composite_values__()
+            )
+        return serialized
 
     def add_fiducial(self, desc, points):
         for d, p in zip(["_x", "_y", "_z"], points):
@@ -362,6 +373,7 @@ def csv_to_afids(in_csv):
 
     # Assume versions always in form x.y
     parsed_version = None
+    print(in_csv)
     try:
         parsed_version = re.findall(r"\d+\.\d+", in_csv.splitlines()[0])[0]
         parsed_coord = re.split(r"\s", in_csv.splitlines()[1])[-1]
@@ -397,7 +409,7 @@ def csv_to_afids(in_csv):
     csv_reader = csv.DictReader(in_csv, fields)
 
     # Read csv file and dump to AFIDs object
-    afids = FiducialSet()
+    afids = HumanFiducialSet()
 
     expected_label = 1
     afids_count = 0
@@ -511,7 +523,7 @@ def json_to_afids(in_json):
         raise InvalidFileError("Not fiducial markup file")
 
     # Read json file and dump to AFIDs object
-    afids = FiducialSet()
+    afids = HumanFiducialSet()
     fid_coord = in_json["markups"][0]["coordinateSystem"]
 
     # Check for too many or too few fiducials
