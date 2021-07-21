@@ -374,7 +374,6 @@ def csv_to_afids(in_csv):
 
     # Assume versions always in form x.y
     parsed_version = None
-    print(in_csv)
     try:
         parsed_version = re.findall(r"\d+\.\d+", in_csv.splitlines()[0])[0]
         parsed_coord = re.split(r"\s", in_csv.splitlines()[1])[-1]

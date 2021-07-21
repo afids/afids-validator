@@ -1,6 +1,6 @@
 import unittest
 import model
-from model import HumanFiducialSet, db
+from model import HumanFiducialSet
 from controller import app
 from sqlalchemy import create_engine, MetaData
 
@@ -241,21 +241,12 @@ class TestJsonValidation(unittest.TestCase):
 
 
 class TestDBreadandwrite(unittest.TestCase):
-    db.create_all()
 
-    def test_session_add_read_and_validate(self):
+    def test_add_read_and_validate(self):
         test_afids = HumanFiducialSet()
-        for label, descs in model.EXPECTED_MAP.items():
+        for descs in model.EXPECTED_DESCS:
             test_afids.add_fiducial(descs[-1], ["0", "1", "2"])
         self.assertTrue(test_afids.validate())
-        db.session.add(test_afids)
-        db.session.commit()
-
-        first_fid = db.session.query(HumanFiducialSet).first()
-        self.assertTrue(first_fid.AC.x == 0.0)
-        self.assertTrue(first_fid.AC.y == 1.0)
-        self.assertTrue(first_fid.AC.z == 2.0)
-        self.assertTrue(first_fid.validate())
 
 
 if __name__ == "__main__":
