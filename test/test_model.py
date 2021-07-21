@@ -241,7 +241,6 @@ class TestJsonValidation(unittest.TestCase):
 
 
 class TestDBreadandwrite(unittest.TestCase):
-
     def test_add_read_and_validate(self):
         test_afids = HumanFiducialSet()
         for descs in model.EXPECTED_DESCS:
