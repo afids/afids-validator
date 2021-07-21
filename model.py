@@ -18,7 +18,10 @@ from sqlalchemy.orm import composite
 app = Flask(__name__)
 
 app.config.from_object(os.environ["APP_SETTINGS"])
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+heroku_uri = os.environ["DATABASE_URL"]
+if heroku_uri.startswith("postgres://"):
+    heroku_uri = heroku_uri.replace("postgres://", "postgresql://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = heroku_uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
