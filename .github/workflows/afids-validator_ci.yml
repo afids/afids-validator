@@ -10,6 +10,7 @@ jobs:
     if: |
       github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    environment: TEST
     strategy:
       matrix:
         python-version: [3.6]
@@ -40,9 +41,29 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          
+      - name: Start PostgreSQL services
+        shell: bash
+        run: |
+          sudo systemctl start postgresql.service
+          pg_isready
+          
+      - name: Setup PostgreSQL db
+        shell: bash
+        env:
+          psql_db_owner: ${{ secrets.PSQL_DB_OWNER }}   # PostgreSQL User
+          psql_db_pw: ${{ secrets.PSQL_DB_PASS }}       # PostgreSQL Pass
+          psql_db_name: ${{ secrets.PSQL_DB_NAME }}     # PostgreSQL DB
+        run: |
+          sudo -u postgres psql --command="CREATE USER $psql_db_owner PASSWORD '$psql_db_pw'"
+          sudo -u postgres createdb --owner=$psql_db_owner $psql_db_name
+          PGPASSWORD=$psql_db_pw psql --username=$psql_db_owner --host=localhost --list $psql_db_name
 
       - name: Test AFIDs validator
         shell: bash
+        env:
+          APP_SETTINGS: ${{ secrets.APP_SETTINGS }}     # Sets flask environment
+          DATABASE_URL: postgresql://${{ secrets.PSQL_DB_OWNER }}:${{ secrets.PSQL_DB_PASS }}@localhost/${{ secrets.PSQL_DB_NAME }}
         run: |
           python -m unittest
 

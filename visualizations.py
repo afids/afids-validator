@@ -1,8 +1,7 @@
 """Utilities for generating AFIDs-related graphics"""
 
 import plotly.graph_objects as go
-
-from afids import EXPECTED_LABELS
+from model import EXPECTED_DESCS
 
 
 def gen_connecting_lines(ref_afids, user_afids):
@@ -24,22 +23,22 @@ def gen_connecting_lines(ref_afids, user_afids):
     connecting_lines = []
     for ref_entry, user_entry in [
         (
-            ref_afids.fiducials[label]["positions"],
-            user_afids.fiducials[label]["positions"],
+            getattr(ref_afids, desc[-1]),
+            getattr(user_afids, desc[-1]),
         )
-        for label in EXPECTED_LABELS
+        for desc in EXPECTED_DESCS
     ]:
         connecting_lines.append(
             [
                 {
-                    "x": float(ref_entry["x"]),
-                    "y": float(ref_entry["y"]),
-                    "z": float(ref_entry["z"]),
+                    "x": ref_entry.x,
+                    "y": ref_entry.y,
+                    "z": ref_entry.z,
                 },
                 {
-                    "x": float(user_entry["x"]),
-                    "y": float(user_entry["y"]),
-                    "z": float(user_entry["z"]),
+                    "x": user_entry.x,
+                    "y": user_entry.y,
+                    "z": user_entry.z,
                 },
             ]
         )
@@ -123,24 +122,13 @@ def generate_3d_scatter(ref_afids, user_afids):
         connecting_lines
     )
 
-    ids = [
-        ref_afids.get_fiducial_description(label) for label in EXPECTED_LABELS
-    ]
+    ids = [desc[-1] for desc in EXPECTED_DESCS]
 
     dset1 = [
         go.Scatter3d(
-            x=[
-                float(ref_afids.get_fiducial_position(label, "x"))
-                for label in EXPECTED_LABELS
-            ],
-            y=[
-                float(ref_afids.get_fiducial_position(label, "y"))
-                for label in EXPECTED_LABELS
-            ],
-            z=[
-                float(ref_afids.get_fiducial_position(label, "z"))
-                for label in EXPECTED_LABELS
-            ],
+            x=[getattr(ref_afids, desc[-1]).x for desc in EXPECTED_DESCS],
+            y=[getattr(ref_afids, desc[-1]).y for desc in EXPECTED_DESCS],
+            z=[getattr(ref_afids, desc[-1]).z for desc in EXPECTED_DESCS],
             showlegend=True,
             mode="markers",
             marker=dict(
@@ -155,18 +143,9 @@ def generate_3d_scatter(ref_afids, user_afids):
             name="Template AFIDs",
         ),
         go.Scatter3d(
-            x=[
-                float(user_afids.get_fiducial_position(label, "x"))
-                for label in EXPECTED_LABELS
-            ],
-            y=[
-                float(user_afids.get_fiducial_position(label, "y"))
-                for label in EXPECTED_LABELS
-            ],
-            z=[
-                float(user_afids.get_fiducial_position(label, "z"))
-                for label in EXPECTED_LABELS
-            ],
+            x=[getattr(user_afids, desc[-1]).x for desc in EXPECTED_DESCS],
+            y=[getattr(user_afids, desc[-1]).y for desc in EXPECTED_DESCS],
+            z=[getattr(user_afids, desc[-1]).z for desc in EXPECTED_DESCS],
             showlegend=True,
             mode="markers",
             marker=dict(
@@ -239,9 +218,7 @@ def generate_histogram(ref_afids, user_afids):
     connecting_lines = gen_connecting_lines(ref_afids, user_afids)
     _, _, _, lines_magnitudes = calculate_magnitudes(connecting_lines)
 
-    ids = [
-        ref_afids.get_fiducial_description(label) for label in EXPECTED_LABELS
-    ]
+    ids = [desc[-1] for desc in EXPECTED_DESCS]
 
     # next figure: histogram of distances
     lines_magnitudes_unique = [
