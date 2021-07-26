@@ -25,7 +25,8 @@
                 {% endfor %}
               </select>
               <select id="templates" class="form-control" name="fid_template" method="GET" action="/">
-                <option value="No template">No template required</option>
+                <!-- Will autoload on page ready, start with blank option -->
+                <option value=""></option>
               </select>
             </fieldset>
 
