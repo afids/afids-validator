@@ -2,7 +2,7 @@
 
 import os
 from datetime import datetime, timezone
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import numpy as np
 import wtforms as wtf
