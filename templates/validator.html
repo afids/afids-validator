@@ -129,8 +129,8 @@
           response.json().then(function(data) {
             let template_HTML = "";
 
-            for (let template of data.templates) {
-              template_HTML += '<option value="' + template.name + '">' + template.name + '</option>';
+            for (let template of data) {
+              template_HTML += '<option value="' + template + '">' + template + '</option>';
             }
 
             template_select.innerHTML = template_HTML;
@@ -146,8 +146,8 @@
           response.json().then(function(data) {
             let template_HTML = "";
 
-            for (let template of data.templates) {
-              template_HTML += '<option value="' + template.name + '">' + template.name + '</option>';
+            for (let template of data) {
+              template_HTML += '<option value="' + template + '">' + template + '</option>';
             }
 
             template_select.innerHTML = template_HTML;

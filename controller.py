@@ -229,17 +229,16 @@ def validator():
 @app.route("/validator/<species>")
 def get_templates(species):
     """Get templates corresponding to specific species"""
-    # Alawys include a validate object
-    template_obj = {}
-    template_obj["name"] = "Validate file structure"
-    templates = [template_obj]
-    for species_templates in os.listdir(f"{AFIDS_DIR}/{species.lower()}"):
-        if "tpl" in species_templates:
-            template_obj = {}
-            template_obj["name"] = species_templates[4:].split("_")[0]
-            templates.append(template_obj)
-
-    return jsonify({"templates": templates})
+    return jsonify(
+        ["Validate file structure"]
+        + [
+            species_templates[4:].split("_")[0]
+            for species_templates in os.listdir(
+                f"{AFIDS_DIR}/{species.lower()}"
+            )
+            if "tpl" in species_templates
+        ]
+    )
 
 
 @app.route("/getall")
