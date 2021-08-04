@@ -121,8 +121,7 @@
       let species_select = document.getElementById("species");
       let template_select = document.getElementById("templates");
 
-      // Populate dropdown choices on load by species
-      window.onload = function() {
+      let update_dropdown = function() {
         species = species_select.value;
 
         fetch("/validator/" + species).then(function(response) {
@@ -137,22 +136,11 @@
           });
         });
       }
+
+      // Populate dropdown choices on load by species
+      window.onload = update_dropdown
 
       // Populate dropdown choices if species is changed
-      species_select.onchange = function() {
-        species = species_select.value;
-
-        fetch("/validator/" + species).then(function(response) {
-          response.json().then(function(data) {
-            let template_HTML = "";
-
-            for (let template of data) {
-              template_HTML += '<option value="' + template + '">' + template + '</option>';
-            }
-
-            template_select.innerHTML = template_HTML;
-          });
-        });
-      }
+      species_select.onchange = update_dropdown
     </script>
 {% endblock %}
