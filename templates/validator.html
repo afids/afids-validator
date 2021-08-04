@@ -15,23 +15,20 @@
           </div>
 
           <!-- Template submission form -->
-          <form method=post action="" enctype="multipart/form-data">
+          <form method=POST action="" enctype="multipart/form-data">
             <!-- Dropdown for template selection -->
-            <div class="row">
-              <div class="col-9">
-                <fieldset class="form-group">
-                  <legend>Select a template to compare against.</legend>
-                  <select class="form-control" name="fid_template" method="GET" action="/">
-                    <option value="Validate file structure">Validate file structure</option>></option>
-                    <optgroup label="Human">
-                      {% for human_template in human_templates %}
-                      <option value="{{human_template}}">{{human_template}}</option>
-                      {% endfor %}
-                    </optgroup>
-                  </select>
-                </fieldset>
-              </div>
-            </div>
+            <fieldset class="form-group">
+              <legend>Select a template to compare against.</legend>
+              <select id="species" class="form-control" name="fid_species" method="GET" action="/">
+                {% for choice in form_choices %}
+                <option value="{{choice}}">{{choice}}</option>
+                {% endfor %}
+              </select>
+              <select id="templates" class="form-control" name="fid_template" method="GET" action="/">
+                <!-- Will autoload on page ready, start with blank option -->
+                <option value=""></option>
+              </select>
+            </fieldset>
 
             <!-- User template "upload" -->
             <fieldset class="form-group">
@@ -47,8 +44,8 @@
               {% endif %}
               {% endfor %}
             </fieldset>
-	    <input type="checkbox" id="db_checkbox" name="db_checkbox"/>
-	    <label for="db_checkbox">Upload to Database</label>
+	          <input type="checkbox" id="db_checkbox" name="db_checkbox"/>
+	          <label for="db_checkbox">Upload to Database</label>
           </form>
 
           {% if result != "" %}
@@ -118,4 +115,32 @@
         </section> -->
       </div>
     </div>
+
+    <script>
+      // Grab associated templates to species
+      let species_select = document.getElementById("species");
+      let template_select = document.getElementById("templates");
+
+      let update_dropdown = function() {
+        species = species_select.value;
+
+        fetch("/validator/" + species).then(function(response) {
+          response.json().then(function(data) {
+            let template_HTML = "";
+
+            for (let template of data) {
+              template_HTML += '<option value="' + template + '">' + template + '</option>';
+            }
+
+            template_select.innerHTML = template_HTML;
+          });
+        });
+      }
+
+      // Populate dropdown choices on load by species
+      window.onload = update_dropdown
+
+      // Populate dropdown choices if species is changed
+      species_select.onchange = update_dropdown
+    </script>
 {% endblock %}
