@@ -2,22 +2,23 @@
 
 import os
 from datetime import datetime, timezone
-from flask import Flask, render_template, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
+
+from flask import render_template, request, jsonify
 import numpy as np
 import wtforms as wtf
 
-from model import (
+from afidsvalidator import app, db
+from afidsvalidator.model import (
     csv_to_afids,
     json_to_afids,
     InvalidFileError,
-    db,
-    app,
     EXPECTED_DESCS,
     HumanFiducialSet,
 )
-from visualizations import generate_3d_scatter, generate_histogram
+from afidsvalidator.visualizations import generate_3d_scatter, generate_histogram
 
+
+AFIDS_DIR = "afidsvalidator/afids-templates"
 
 class Average(wtf.Form):
     """Form for selecting and submitting a file."""
@@ -25,16 +26,6 @@ class Average(wtf.Form):
     filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
     submit = wtf.SubmitField(label="Submit")
 
-
-# Relative path of directory for uploaded files
-UPLOAD_DIR = "uploads/"
-AFIDS_DIR = "afids-templates"
-
-app.config["UPLOAD_FOLDER"] = UPLOAD_DIR
-app.secret_key = "MySecretKey"
-
-if not os.path.isdir(UPLOAD_DIR):
-    os.mkdir(UPLOAD_DIR)
 
 # Allowed file types for file upload
 ALLOWED_EXTENSIONS = ["fcsv", "csv", "json"]
@@ -249,7 +240,3 @@ def get_all():
     for fset in fiducial_sets:
         serialized_fset.append(fset.serialize())
     return render_template("db.html", serialized_fset=serialized_fset)
-
-
-if __name__ == "__main__":
-    app.run(debug=True)

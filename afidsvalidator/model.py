@@ -6,25 +6,10 @@ import json
 import math
 import re
 
-# stopping import loop
-import os
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-
 from pkg_resources import parse_version
-
 from sqlalchemy.orm import composite
 
-app = Flask(__name__)
-
-app.config.from_object(os.environ["APP_SETTINGS"])
-heroku_uri = os.environ["DATABASE_URL"]
-if heroku_uri.startswith("postgres://"):
-    heroku_uri = heroku_uri.replace("postgres://", "postgresql://", 1)
-app.config["SQLALCHEMY_DATABASE_URI"] = heroku_uri
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db = SQLAlchemy(app)
-
+from afidsvalidator import db
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
