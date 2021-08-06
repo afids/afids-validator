@@ -4,7 +4,6 @@ from sqlalchemy import create_engine, MetaData
 
 from afidsvalidator import model
 from afidsvalidator.model import HumanFiducialSet
-from afidsvalidator import app
 
 
 class TestHumanFiducialSet(unittest.TestCase):

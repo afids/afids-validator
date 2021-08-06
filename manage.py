@@ -4,8 +4,11 @@ import os
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
-from afidsvalidator import app, db
+from afidsvalidator import create_app
+from afidsvalidator.model import db
 
+
+app = create_app()
 app.config.from_object(os.environ["APP_SETTINGS"])
 
 postgres_uri = os.environ["DATABASE_URL"]
