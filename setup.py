@@ -13,5 +13,5 @@ setup(
         "plotly~=4.12",
         "psycopg2-binary~=2.8",
         "WTForms~=2.2",
-    ]
+    ],
 )

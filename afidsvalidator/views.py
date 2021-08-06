@@ -15,10 +15,14 @@ from afidsvalidator.model import (
     EXPECTED_DESCS,
     HumanFiducialSet,
 )
-from afidsvalidator.visualizations import generate_3d_scatter, generate_histogram
+from afidsvalidator.visualizations import (
+    generate_3d_scatter,
+    generate_histogram,
+)
 
 
 AFIDS_DIR = "afidsvalidator/afids-templates"
+
 
 class Average(wtf.Form):
     """Form for selecting and submitting a file."""
@@ -31,7 +35,7 @@ class Average(wtf.Form):
 ALLOWED_EXTENSIONS = ["fcsv", "csv", "json"]
 
 
-## TO BE DEPECRATED
+# TO BE DEPECRATED
 def allowed_file(filename):
     """Does filename have the right extension?"""
     file_ext = filename.rsplit(".", 1)[1]
@@ -85,19 +89,7 @@ def validator():
         datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
     )
 
-    if not request.method == "POST":
-        return render_template(
-            "validator.html",
-            form=form,
-            form_choices=form_choices,
-            result=result,
-            template_afids=template_afids,
-            index=[],
-            labels=labels,
-            distances=distances,
-        )
-
-    if not request.files:
+    if not (request.method == "POST" and request.files):
         return render_template(
             "validator.html",
             form=form,
