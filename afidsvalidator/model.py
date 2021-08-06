@@ -8,8 +8,8 @@ import re
 
 from pkg_resources import parse_version
 from sqlalchemy.orm import composite
+from flask_sqlalchemy import SQLAlchemy
 
-from afidsvalidator import db
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
@@ -47,6 +47,8 @@ EXPECTED_DESCS = [
     ["L olfactory sulcal fundus", "LOSF"],
 ]
 EXPECTED_MAP = dict(zip(EXPECTED_LABELS, EXPECTED_DESCS))
+
+db = SQLAlchemy()
 
 
 class FiducialPosition(object):
