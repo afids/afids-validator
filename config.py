@@ -12,6 +12,8 @@ class Config:
     CSRF_ENABLED = True
     SECRET_KEY = "this-really-needs-to-be-changed"
     SQLALCHEMY_DATABASE_URI = os.environ["DATABASE_URL"]
+    AFIDS_DIR = "afidsvalidator/afids-templates"
+    ALLOWED_EXTENSIONS = ["fcsv", "csv", "json"]
 
 
 class ProductionConfig(Config):

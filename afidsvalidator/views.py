@@ -3,7 +3,7 @@
 import os
 from datetime import datetime, timezone
 
-from flask import render_template, request, jsonify, Blueprint
+from flask import render_template, request, jsonify, Blueprint, current_app
 import numpy as np
 import wtforms as wtf
 
@@ -24,18 +24,11 @@ from afidsvalidator.visualizations import (
 validator = Blueprint("validator", __name__, template_folder="templates")
 
 
-AFIDS_DIR = "afidsvalidator/afids-templates"
-
-
 class Average(wtf.Form):
     """Form for selecting and submitting a file."""
 
     filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
     submit = wtf.SubmitField(label="Submit")
-
-
-# Allowed file types for file upload
-ALLOWED_EXTENSIONS = ["fcsv", "csv", "json"]
 
 
 # TO BE DEPECRATED
@@ -45,7 +38,8 @@ def allowed_file(filename):
 
     return (
         file_ext,
-        "." in filename and file_ext in ALLOWED_EXTENSIONS,
+        "." in filename
+        and file_ext in current_app.config["ALLOWED_EXTENSIONS"],
     )
 
 
@@ -83,7 +77,7 @@ def validate():
     template_afids = None
 
     # Set all dropdown choices
-    form_choices = os.listdir(AFIDS_DIR)
+    form_choices = os.listdir(current_app.config["AFIDS_DIR"])
     form_choices = [choice.capitalize() for choice in form_choices]
     form_choices.sort()
 
@@ -122,7 +116,7 @@ def validate():
         )
 
     try:
-        if upload_ext in ALLOWED_EXTENSIONS[:2]:
+        if upload_ext in current_app.config["ALLOWED_EXTENSIONS"][:2]:
             user_afids = csv_to_afids(upload.read().decode("utf-8"))
         else:
             user_afids = json_to_afids(upload.read().decode("utf-8"))
@@ -164,9 +158,7 @@ def validate():
 
     result = f"{result}<br>{fid_template} selected"
     # Need to pull from correct folder when more templates are added
-    template_file_path = (
-        f"{AFIDS_DIR}/{fid_species.lower()}/tpl-{fid_template}_afids.fcsv"
-    )
+    template_file_path = f"{current_app.config['AFIDS_DIR']}/{fid_species.lower()}/tpl-{fid_template}_afids.fcsv"
 
     with open(template_file_path, "r") as template_file:
         template_afids = csv_to_afids(template_file.read())
@@ -220,7 +212,7 @@ def get_templates(species):
         + [
             species_templates[4:].split("_")[0]
             for species_templates in os.listdir(
-                f"{AFIDS_DIR}/{species.lower()}"
+                f"{current_app.config['AFIDS_DIR']}/{species.lower()}"
             )
             if "tpl" in species_templates
         ]
