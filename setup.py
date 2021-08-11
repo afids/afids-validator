@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="afidsvalidator",
-    packages="afidsvalidator",
+    packages=["afidsvalidator"],
     include_package_data=True,
     install_requires=[
         "Flask~=1.1",
