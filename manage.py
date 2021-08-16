@@ -8,17 +8,7 @@ from config import DevelopmentConfig
 from afidsvalidator import create_app
 from afidsvalidator.model import db
 
-app = create_app()
-
-<<<<<<< HEAD
-app.config.from_object(os.environ["APP_SETTINGS"])
-
-postgres_uri = os.environ["DATABASE_URL"]
-if postgres_uri.startswith("postgres://"):
-    postgres_uri.replace("postgres://", "postgresql://", 1)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
-
-=======
+# Grab environment
 if os.environ.get("FLASK_ENV").lower() == "production":
     from config import ProductionConfig
 
@@ -29,12 +19,13 @@ elif os.environ.get("FLASK_ENV").lower() == "testing":
     config_settings = TestingConfig
 else:
     config_settings = DevelopmentConfig
+
+# Set up app
+app = create_app()
 app.config.from_object(config_settings)
 
-migrate = Migrate(app, db)
->>>>>>> 92c7a0f... lint manage.py
+# Set up db
 manager = Manager(app)
-
 manager.add_command("db", MigrateCommand)
 
 if __name__ == "__main__":
