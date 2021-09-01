@@ -1,1 +1,1 @@
-web: gunicorn afidsvalidator:create_app()
+web: gunicorn "afidsvalidator:create_app()"
