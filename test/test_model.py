@@ -1,8 +1,9 @@
 import unittest
-import model
-from model import HumanFiducialSet
-from controller import app
+
 from sqlalchemy import create_engine, MetaData
+
+from afidsvalidator import model
+from afidsvalidator.model import HumanFiducialSet
 
 
 class TestHumanFiducialSet(unittest.TestCase):

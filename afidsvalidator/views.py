@@ -2,21 +2,26 @@
 
 import os
 from datetime import datetime, timezone
-from flask import Flask, render_template, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
+
+from flask import render_template, request, jsonify, Blueprint, current_app
 import numpy as np
 import wtforms as wtf
 
-from model import (
+from afidsvalidator.model import (
+    db,
     csv_to_afids,
     json_to_afids,
     InvalidFileError,
-    db,
-    app,
     EXPECTED_DESCS,
     HumanFiducialSet,
 )
-from visualizations import generate_3d_scatter, generate_histogram
+from afidsvalidator.visualizations import (
+    generate_3d_scatter,
+    generate_histogram,
+)
+
+
+validator = Blueprint("validator", __name__, template_folder="templates")
 
 
 class Average(wtf.Form):
@@ -26,56 +31,43 @@ class Average(wtf.Form):
     submit = wtf.SubmitField(label="Submit")
 
 
-# Relative path of directory for uploaded files
-UPLOAD_DIR = "uploads/"
-AFIDS_DIR = "afids-templates"
-
-app.config["UPLOAD_FOLDER"] = UPLOAD_DIR
-app.secret_key = "MySecretKey"
-
-if not os.path.isdir(UPLOAD_DIR):
-    os.mkdir(UPLOAD_DIR)
-
-# Allowed file types for file upload
-ALLOWED_EXTENSIONS = ["fcsv", "csv", "json"]
-
-
-## TO BE DEPECRATED
+# TO BE DEPECRATED
 def allowed_file(filename):
     """Does filename have the right extension?"""
     file_ext = filename.rsplit(".", 1)[1]
 
     return (
         file_ext,
-        "." in filename and file_ext in ALLOWED_EXTENSIONS,
+        "." in filename
+        and file_ext in current_app.config["ALLOWED_EXTENSIONS"],
     )
 
 
 # Routes to web pages / application
 # Homepage
-@app.route("/")
+@validator.route("/")
 def index():
     """Render the static index page."""
     return render_template("index.html")
 
 
 # Contact
-@app.route("/contact.html")
+@validator.route("/contact.html")
 def contact():
     """Render the static contact page."""
     return render_template("contact.html")
 
 
 # Login
-@app.route("/login.html")
+@validator.route("/login.html")
 def login():
     """Render the static login page."""
     return render_template("login.html")
 
 
 # Validator
-@app.route("/validator.html", methods=["GET", "POST"])
-def validator():
+@validator.route("/validator.html", methods=["GET", "POST"])
+def validate():
     """Present the validator form, or validate an AFIDs set."""
     form = Average(request.form)
 
@@ -85,7 +77,7 @@ def validator():
     template_afids = None
 
     # Set all dropdown choices
-    form_choices = os.listdir(AFIDS_DIR)
+    form_choices = os.listdir(current_app.config["AFIDS_DIR"])
     form_choices = [choice.capitalize() for choice in form_choices]
     form_choices.sort()
 
@@ -94,19 +86,7 @@ def validator():
         datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
     )
 
-    if not request.method == "POST":
-        return render_template(
-            "validator.html",
-            form=form,
-            form_choices=form_choices,
-            result=result,
-            template_afids=template_afids,
-            index=[],
-            labels=labels,
-            distances=distances,
-        )
-
-    if not request.files:
+    if not (request.method == "POST" and request.files):
         return render_template(
             "validator.html",
             form=form,
@@ -136,7 +116,7 @@ def validator():
         )
 
     try:
-        if upload_ext in ALLOWED_EXTENSIONS[:2]:
+        if upload_ext in current_app.config["ALLOWED_EXTENSIONS"][:2]:
             user_afids = csv_to_afids(upload.read().decode("utf-8"))
         else:
             user_afids = json_to_afids(upload.read().decode("utf-8"))
@@ -178,9 +158,7 @@ def validator():
 
     result = f"{result}<br>{fid_template} selected"
     # Need to pull from correct folder when more templates are added
-    template_file_path = (
-        f"{AFIDS_DIR}/{fid_species.lower()}/tpl-{fid_template}_afids.fcsv"
-    )
+    template_file_path = f"{current_app.config['AFIDS_DIR']}/{fid_species.lower()}/tpl-{fid_template}_afids.fcsv"
 
     with open(template_file_path, "r") as template_file:
         template_afids = csv_to_afids(template_file.read())
@@ -226,7 +204,7 @@ def validator():
     )
 
 
-@app.route("/validator/<species>")
+@validator.route("/validator/<species>")
 def get_templates(species):
     """Get templates corresponding to specific species"""
     return jsonify(
@@ -234,14 +212,14 @@ def get_templates(species):
         + [
             species_templates[4:].split("_")[0]
             for species_templates in os.listdir(
-                f"{AFIDS_DIR}/{species.lower()}"
+                f"{current_app.config['AFIDS_DIR']}/{species.lower()}"
             )
             if "tpl" in species_templates
         ]
     )
 
 
-@app.route("/getall")
+@validator.route("/getall")
 def get_all():
     """Dump all AFIDs sets in the database."""
     fiducial_sets = HumanFiducialSet.query.all()
@@ -249,7 +227,3 @@ def get_all():
     for fset in fiducial_sets:
         serialized_fset.append(fset.serialize())
     return render_template("db.html", serialized_fset=serialized_fset)
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
