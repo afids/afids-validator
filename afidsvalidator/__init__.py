@@ -4,9 +4,20 @@ import os
 
 from flask import Flask
 
+from config import *
+
 from afidsvalidator.views import validator
 from afidsvalidator.model import db
 
+# Grab environment
+if os.environ.get("FLASK_ENV").lower() == "development":
+    config_setings = DevelopmentConfig
+elif os.environ.get("FLASK_ENV").lower() == "testing":
+    config_settings = TestingConfig
+elif os.environ.get("FLASK_ENV").lower() == "production":
+    config_settings = ProductionConfig
+else:
+    raise Exception("Invalid environment")
 
 # Relative path of directory for uploaded files
 UPLOAD_DIR = "uploads/"
@@ -16,7 +27,7 @@ def create_app():
     app = Flask(__name__)
     app.register_blueprint(validator)
 
-    app.config.from_object(os.environ["APP_SETTINGS"])
+    app.config.from_object(config_settings)
 
     app.config["UPLOAD_FOLDER"] = UPLOAD_DIR
     app.secret_key = "MySecretKey"
