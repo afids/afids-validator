@@ -27,14 +27,8 @@ _Install via `apt-get` or `snap`_
     psql fid_db
     \password
     ```
-8. Create environment for development `touch .env`
-9. Add configuration to `.env` file
-   ```
-   export APP_SETTINGS="config.DevelopmentConfig"
-   export DATABASE_URL="postgresql://<user>:<password>@localhost/fid_db"
-   ```
-10. `source .env`
-11. `python manage.py db upgrade`
-12. `python manage.py runserver`
+8. Update configuration in `.env.template` and rename to `.env` file
+9. `python manage.py db upgrade`
+10. `python manage.py runserver`
 
 If there are no errors, you can test it out locally at http://localhost:5000

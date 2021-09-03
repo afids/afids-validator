@@ -12,6 +12,7 @@ setup(
         "numpy~=1.17",
         "plotly~=4.12",
         "psycopg2-binary~=2.8",
+        "python-dotenv~=0.17",
         "WTForms~=2.2",
     ],
 )

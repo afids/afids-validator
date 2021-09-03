@@ -1,34 +1,52 @@
 """Configuration classes for flask/heroku."""
 
 import os
-
+from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(f"{basedir}/.env")
 
 
-class Config:
-    DEBUG = False
-    TESTING = False
-    CSRF_ENABLED = True
-    SECRET_KEY = "this-really-needs-to-be-changed"
-    SQLALCHEMY_DATABASE_URI = os.environ["DATABASE_URL"]
+class Config(object):
+    """Configuration class
+
+    This class contains all of the global configuration variables needed for
+    the AFIDs validator. Ideally, variables such as secret keys and such should
+    be set by environment variable rather than explicitely here.
+    """
+
+    SECRET_KEY = (
+        os.environ.get("SECRET_KEY") or "this-really-needs-to-be-changed"
+    )
+
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     AFIDS_DIR = "afidsvalidator/afids-templates"
     ALLOWED_EXTENSIONS = ["fcsv", "csv", "json"]
+    SQLALCHEMY_TRACK_MODIFICATIONS = (
+        os.environ.get("SQLALCHEMY_TRACK_MODIFICATIONS") or False
+    )
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+    if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
 
 
 class ProductionConfig(Config):
+    """Config used in production"""
+
+    CSRF_ENABLED = True  # Security flag
     DEBUG = False
-
-
-class StagingConfig(Config):
-    DEVELOPMENT = True
-    DEBUG = True
+    TESTING = False
 
 
 class DevelopmentConfig(Config):
+    """Config used in development"""
+
     DEVELOPMENT = True
     DEBUG = True
 
 
 class TestingConfig(Config):
+    """Config used for pytest"""
+
+    DEBUG = True
     TESTING = True
