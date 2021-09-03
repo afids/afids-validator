@@ -9,7 +9,23 @@ from config import *
 from afidsvalidator.views import validator
 from afidsvalidator.model import db
 
+
+class ConfigException(Exception):
+    """Exception raised when configuration is is invalid.
+
+    Attributes:
+        message -- explanation of why the config is invalid
+    """
+
+    def __init__(self, message):
+        Exception.__init__(self)
+        self.message = message
+
+
 # Grab environment
+if os.environ.get("FLASK_ENV") is None:
+    raise ConfigException("Environment is not defined")
+
 if os.environ.get("FLASK_ENV").lower() == "development":
     config_settings = DevelopmentConfig()
 elif os.environ.get("FLASK_ENV").lower() == "testing":
@@ -17,7 +33,7 @@ elif os.environ.get("FLASK_ENV").lower() == "testing":
 elif os.environ.get("FLASK_ENV").lower() == "production":
     config_settings = ProductionConfig()
 else:
-    raise Exception("Invalid environment")
+    raise ConfigException("Defined environment is invalid")
 
 # Relative path of directory for uploaded files
 UPLOAD_DIR = "uploads/"
