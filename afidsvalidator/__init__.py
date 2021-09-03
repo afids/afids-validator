@@ -11,11 +11,11 @@ from afidsvalidator.model import db
 
 # Grab environment
 if os.environ.get("FLASK_ENV").lower() == "development":
-    config_setings = DevelopmentConfig
+    config_settings = DevelopmentConfig()
 elif os.environ.get("FLASK_ENV").lower() == "testing":
-    config_settings = TestingConfig
+    config_settings = TestingConfig()
 elif os.environ.get("FLASK_ENV").lower() == "production":
-    config_settings = ProductionConfig
+    config_settings = ProductionConfig()
 else:
     raise Exception("Invalid environment")
 
