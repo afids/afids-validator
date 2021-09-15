@@ -31,7 +31,7 @@ jobs:
         id: cache
         with:
           path: ${{ env.pythonLocation }}
-          key: ${{ env.pythonLocation }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ env.pythonLocation }}-pip-${{ hashFiles('**/setup.py') }}
           restore-keys: |
             ${{ env.pythonLocation }}-pip
 
