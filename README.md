@@ -1,4 +1,4 @@
-[![AFIDs](https://github.com/afids/afids-validator/blob/master/static/images/banner.png)](./static/images/banner.png)
+[![AFIDs](https://github.com/afids/afids-validator/blob/master/afidsvalidator/static/images/banner.png)](./static/images/banner.png)
 
 [![](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fafids_project)](https://twitter.com/afids_project)
 [![AFIDs Validator CI/CD](https://github.com/afids/afids-validator/actions/workflows/afids-validator_ci.yml/badge.svg)](https://github.com/afids/afids-validator/actions/workflows/afids-validator_ci.yml)
