@@ -113,23 +113,20 @@ jobs:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
   bump_version:
-    name: Update release
+    name: Draft and update release
     needs: [linting]
     runs-on: ubuntu-latest
 
     steps:
-        - name: Update change log
+        - name: Draft and update change log
           uses: release-drafter/release-drafter@v5
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
-    name: Deploy and release
+    name: Deploy and publish
     needs: [test]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x]
     if: github.event.pull_request.merged == true
 
     steps:
@@ -145,13 +142,9 @@ jobs:
       #     heroku_app_name: afids-validator # Heroku app name
       #     heroku_email: ${{ secrets.HEROKU_EMAIL }} # Heroku email
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - name: Publish change log
+        uses: release-drafter/release-drafter@v5
         with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: NPM install
-        run: npm install
-
-      - name: Release version
-        run: npm run release
+          publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
