@@ -127,9 +127,6 @@ jobs:
     name: Deploy and release
     needs: [test]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x]
     if: github.event.pull_request.merged == true
 
     steps:
