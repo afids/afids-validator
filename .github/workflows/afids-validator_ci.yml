@@ -113,7 +113,7 @@ jobs:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
   deploy:
-    name: Heroku deployment
+    name: Release and deploy
     needs: [test]
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
