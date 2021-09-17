@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "A web application to validate fidicual markup files conform to the AFIDs protocol",
     "authors": "Jason Kai (kaitj), Tristan Kuehn (tkuehn), Olivia Stanley (ostanley), Jak Loree-Spacek (jakspacek), Patrick Park (Park-Patrick), Greydon Gilmore (greydongilmore) and Jon C. Lau (jclauneuro)",
-    "license": "GPL-3.0 License",
+    "license": "GPL-3.0s License",
     "repository": "https://github.com/afids/afids-validator",
     "dependencies": {
       "Flask": "1.1",
