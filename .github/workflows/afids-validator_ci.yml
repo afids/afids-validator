@@ -124,6 +124,11 @@ jobs:
         with:
           ref: refs/heads/master
 
+      - name: Draft release
+        uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Deploy heroku app
         uses: akhileshns/heroku-deploy@v3.0.4
         with:
