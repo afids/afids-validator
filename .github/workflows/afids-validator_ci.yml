@@ -113,7 +113,7 @@ jobs:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
   deploy:
-    name: Heroku deploy
+    name: Release and deploy
     needs: [test]
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
@@ -123,6 +123,11 @@ jobs:
         uses: actions/checkout@master
         with:
           ref: refs/heads/master
+
+      - name: Draft release
+        uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy heroku app
         uses: akhileshns/heroku-deploy@v3.0.4
