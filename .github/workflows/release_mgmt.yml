@@ -1,4 +1,4 @@
-name: AFIDs Validator Version Bumper
+name: AFIDs Validator Release Management
 
 on:
   push:
