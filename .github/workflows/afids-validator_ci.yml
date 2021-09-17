@@ -113,7 +113,7 @@ jobs:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
   deploy:
-    name: Heroku deployment
+    name: Deploy and release
     needs: [test]
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
@@ -130,3 +130,8 @@ jobs:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }} # Heroku API Key
           heroku_app_name: afids-validator # Heroku app name
           heroku_email: ${{ secrets.HEROKU_EMAIL }} # Heroku email
+
+      - name: Draft release
+        uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
