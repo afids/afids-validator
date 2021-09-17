@@ -112,6 +112,17 @@ jobs:
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
+  bump_version:
+    name: Update Release
+    needs: [linting]
+    runs-on: ubuntu-latest
+
+    steps:
+        - name: Update change log
+          uses: release-drafter/release-drafter@v5
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   deploy:
     name: Deploy and release
     needs: [test]
@@ -130,8 +141,3 @@ jobs:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }} # Heroku API Key
           heroku_app_name: afids-validator # Heroku app name
           heroku_email: ${{ secrets.HEROKU_EMAIL }} # Heroku email
-
-      - name: Draft release
-        uses: release-drafter/release-drafter@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
