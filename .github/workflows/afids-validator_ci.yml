@@ -113,7 +113,7 @@ jobs:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
   bump_version:
-    name: Update Release
+    name: Update release
     needs: [linting]
     runs-on: ubuntu-latest
 
