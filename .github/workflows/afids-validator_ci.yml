@@ -127,6 +127,9 @@ jobs:
     name: Deploy and release
     needs: [test]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
     if: github.event.pull_request.merged == true
 
     steps:
@@ -135,9 +138,20 @@ jobs:
         with:
           ref: refs/heads/master
 
-      - name: Deploy heroku app
-        uses: akhileshns/heroku-deploy@v3.0.4
+      # - name: Deploy heroku app
+      #   uses: akhileshns/heroku-deploy@v3.0.4
+      #   with:
+      #     heroku_api_key: ${{ secrets.HEROKU_API_KEY }} # Heroku API Key
+      #     heroku_app_name: afids-validator # Heroku app name
+      #     heroku_email: ${{ secrets.HEROKU_EMAIL }} # Heroku email
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
         with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }} # Heroku API Key
-          heroku_app_name: afids-validator # Heroku app name
-          heroku_email: ${{ secrets.HEROKU_EMAIL }} # Heroku email
+          node-version: ${{ matrix.node-version }}
+
+      - name: NPM install
+        run: npm install
+
+      - name: Release version
+        run: npm run release
