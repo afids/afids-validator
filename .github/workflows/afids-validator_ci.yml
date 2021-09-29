@@ -155,9 +155,15 @@ jobs:
         with:
           include: "setup.py"
           find: "v[0-9]+/[0-9+].[0-9]+"
-          replace: "version=${{ steps.update_version.outputs.tag_name }}"
+          replace: ${{ steps.update_version.outputs.tag_name }}
+
+      - name: Commit setup.py
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "Update setup.py version" -a
 
       - name: Push to master
-        uses: mikeal/publish-to-github-action@master
-        env:
+        uses: ad-m/github-push-action@master
+        with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
