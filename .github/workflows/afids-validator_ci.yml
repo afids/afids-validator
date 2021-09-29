@@ -144,7 +144,7 @@ jobs:
 
       - name: Get current version
         id: current_version
-        uses: pozetronic/github-action-get-latest-release@master
+        uses: pozetroninc/github-action-get-latest-release@master
         with:
           repository: afids/afids-validator
           excludes: prerelease, draft
