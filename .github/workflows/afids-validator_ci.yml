@@ -135,12 +135,12 @@ jobs:
         with:
           ref: refs/heads/master
 
-      # - name: Deploy heroku app
-      #   uses: akhileshns/heroku-deploy@v3.0.4
-      #   with:
-      #     heroku_api_key: ${{ secrets.HEROKU_API_KEY }} # Heroku API Key
-      #     heroku_app_name: afids-validator # Heroku app name
-      #     heroku_email: ${{ secrets.HEROKU_EMAIL }} # Heroku email
+      - name: Deploy heroku app
+        uses: akhileshns/heroku-deploy@v3.0.4
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }} # Heroku API Key
+          heroku_app_name: afids-validator # Heroku app name
+          heroku_email: ${{ secrets.HEROKU_EMAIL }} # Heroku email
 
       - name: Publish change log
         id: update_version
