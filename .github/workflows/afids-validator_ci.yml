@@ -112,8 +112,19 @@ jobs:
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
+  bump_version:
+    name: Draft and update release
+    needs: [linting]
+    runs-on: ubuntu-latest
+
+    steps:
+        - name: Draft and update change log
+          uses: release-drafter/release-drafter@v5
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   deploy:
-    name: Heroku deployment
+    name: Deploy and release
     needs: [test]
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
@@ -130,3 +141,29 @@ jobs:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }} # Heroku API Key
           heroku_app_name: afids-validator # Heroku app name
           heroku_email: ${{ secrets.HEROKU_EMAIL }} # Heroku email
+
+      - name: Publish change log
+        id: update_version
+        uses: release-drafter/release-drafter@v5
+        with:
+          publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update setup.py version
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
+          include: "setup.py"
+          find: "v[0-9]+.[0-9]+.[0-9]+"
+          replace: "${{ steps.update_version.outputs.tag_name }}"
+
+      - name: Commit setup.py
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "Update setup.py version" -a
+
+      - name: Push to master
+        uses: ad-m/github-push-action@master
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

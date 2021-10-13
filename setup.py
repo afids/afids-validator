@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name="afidsvalidator",
+    name="AFIDs Validator",
     packages=["afidsvalidator"],
     include_package_data=True,
     install_requires=[
@@ -15,4 +15,5 @@ setup(
         "python-dotenv~=0.17",
         "WTForms~=2.2",
     ],
+    version="v1.0.0",
 )
