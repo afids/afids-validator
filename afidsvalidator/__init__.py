@@ -7,7 +7,8 @@ from flask import Flask
 from config import *
 
 from afidsvalidator.views import validator
-from afidsvalidator.model import db
+from afidsvalidator.model import db, login_manager
+from afidsvalidator.orcid import orcid_blueprint
 
 
 class ConfigException(Exception):
@@ -41,7 +42,6 @@ UPLOAD_DIR = "uploads/"
 
 def create_app():
     app = Flask(__name__)
-    app.register_blueprint(validator)
 
     app.config.from_object(config_settings)
 
@@ -57,7 +57,9 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = heroku_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
+    login_manager.init_app(app)
     app.register_blueprint(validator)
+    app.register_blueprint(orcid_blueprint)
 
     return app
 

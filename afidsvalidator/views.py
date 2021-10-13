@@ -3,7 +3,15 @@
 import os
 from datetime import datetime, timezone
 
-from flask import render_template, request, jsonify, Blueprint, current_app
+from flask import (
+    render_template,
+    request,
+    jsonify,
+    Blueprint,
+    current_app,
+    redirect,
+)
+from flask_login import logout_user
 import numpy as np
 import wtforms as wtf
 
@@ -63,6 +71,13 @@ def contact():
 def login():
     """Render the static login page."""
     return render_template("login.html")
+
+
+@validator.route("/logout.html")
+def logout():
+    """Log out user and render the index."""
+    logout_user()
+    return redirect("/")
 
 
 # Validator

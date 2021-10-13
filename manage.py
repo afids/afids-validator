@@ -1,18 +1,13 @@
 """Flask database management script."""
 
-import os
-from flask_script import Manager
-from flask_migrate import Migrate, MigrateCommand
+from flask_migrate import Migrate
 
 from afidsvalidator import create_app
 from afidsvalidator.model import db
 
+
+migrate = Migrate(render_as_batch=True, compare_type=True)
+
 # Set up app
 app = create_app()
-
-# Set up db
-manager = Manager(app)
-manager.add_command("db", MigrateCommand)
-
-if __name__ == "__main__":
-    manager.run()
+migrate.init_app(app, db)
