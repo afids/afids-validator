@@ -1,6 +1,5 @@
 """Set up blueprint for ORCID authentication."""
 
-from flask import flash
 from flask_dance.consumer import OAuth2ConsumerBlueprint, oauth_authorized
 from flask_dance.consumer.storage.sqla import SQLAlchemyStorage
 from flask_login import current_user, login_user
