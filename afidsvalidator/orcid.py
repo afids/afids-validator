@@ -10,9 +10,9 @@ from afidsvalidator.model import db, OAuth, User
 orcid_blueprint = OAuth2ConsumerBlueprint(
     "orcid",
     __name__,
-    base_url="https://api.sandbox.orcid.org/v3.0",
-    token_url="https://sandbox.orcid.org/oauth/token",
-    authorization_url="https://sandbox.orcid.org/oauth/authorize",
+    base_url="https://api.orcid.org/v3.0",
+    token_url="https://orcid.org/oauth/token",
+    authorization_url="https://orcid.org/oauth/authorize",
     storage=SQLAlchemyStorage(
         OAuth, db.session, user=current_user, user_required=True
     ),
