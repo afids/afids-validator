@@ -12,15 +12,32 @@ Anatomical fiducials (AFIDs) is an open framework for evaluating correspondence 
 # [afids-validator (https://afids-validator.herokuapp.com)](https://afids-validator.herokuapp.com)
 
 ## Development
+`poetry` (v1.2.0a2) is used to manage dependencies. To install, run the following command:
+
+```
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python - --version 1.2.0a2
+```
+
+For detailed setup instructions, see the documentation (here)[https://python-poetry.org/].
+
+
+
 ### Required Packages
 _Install via `apt-get` or `snap`_
 * postgresql
 * heroku
 
 ### Setup for local testing
+<<<<<<< HEAD
 1. Git clone the afids-validator repository `git clone https://github.com/afids/afids-validator.git`
 3. Set up python virtual environment `python -m virtualenv <venv directory>`
 4. In virtual environment, install required modules `pip install -r requirements.txt --no-cache-dir`
+=======
+1. Git clone the fid-validator repository `git clone https://github.com/afids/afids-validator.git`
+2. Add heroku as a remote `heroku git:remote -a afids-validator`
+3. Set up python environment via `poetry shell`
+4. Install the required libraries via `poetry install --without actions --with dev`
+>>>>>>> 4bc6df3 (add dev group and update readme)
 5. Create a superuser via postgres `sudo createuser --interactive`
 6. Create a database via postgres `createdb fid_db`
 7. Set password for the created database
@@ -29,9 +46,10 @@ _Install via `apt-get` or `snap`_
     \password
     ```
 8. Update configuration in `.env.template` and rename to `.env` file
-9. `python manage.py db upgrade`
-10. `python manage.py runserver`
+10. `python manage.py db upgrade`
+11. `python manage.py runserver`
 
+<<<<<<< HEAD
 If there are no errors, you can test it out locally at http://localhost:5000
 
 #### Testing login
@@ -43,3 +61,11 @@ To test the login with ORCID iD:
 3. Update your local `.env` file with your new credentials.
 4. Locally change the URLs in `afidsvalidator/orcid.py` to start with api.sandbox.orcid.org
 5. Run the application and test your login.
+=======
+If there are no errors, you can test it out locally at http://localhost:5000. You may need to run `poetry shell` again before step 10.
+
+#### Pip testing environment instructions
+If you are using `pip` and `virtualenv` to set up your environment, replace steps 3 and 4 with the following:
+3. Set up python environment via `python -m virtualenv <venv directory>`
+4. In virtual environment, install required modules `pip install -r requirements.txt --no-cache-dir`
+>>>>>>> 4bc6df3 (add dev group and update readme)
