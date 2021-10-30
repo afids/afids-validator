@@ -65,6 +65,7 @@ To test the login with ORCID iD:
 If there are no errors, you can test it out locally at http://localhost:5000. You may need to run `poetry shell` again before step 10.
 
 #### Pip testing environment instructions
+_These files will be deprecated at a later time_
 If you are using `pip` and `virtualenv` to set up your environment, replace steps 3 and 4 with the following:
 3. Set up python environment via `python -m virtualenv <venv directory>`
 4. In virtual environment, install required modules `pip install -r requirements.txt --no-cache-dir`
