@@ -91,7 +91,7 @@ jobs:
       - name: Setup Poetry ${{ matrix.poetry-version }}
         uses: Gr1N/setup-poetry@v7
         with:
-          poetry-version: ${{ matrix.poetry-version }
+          poetry-version: ${{ matrix.poetry-version }}
 
       - name: Cache environment
         uses: actions/cache@v2
