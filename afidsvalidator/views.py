@@ -182,7 +182,7 @@ def validate():
 
     if request.form.get("db_checkbox"):
         if current_user.is_authenticated:
-            user_afids.afids_user_id=current_user.id
+            user_afids.afids_user_id = current_user.id
         db.session.add(user_afids)
         db.session.commit()
         print("Fiducial set added")
