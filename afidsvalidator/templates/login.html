@@ -5,7 +5,16 @@
     <div class="container">
       <div class="row">
         <div class="col text-center">
-            <a class="btn btn-light" role="button" href="{{ url_for("orcid.login") }}">Login with ORCID</a>
+            <a class="btn btn-light" role="button" href="{{ url_for("orcid.login") }}">
+                <div class="row">
+                    <div class="col-4">
+                        <img src={{ url_for("static", filename="images/ORCIDiD_iconvector.svg") }} class="img-fluid" alt="ORCID iD Icon">
+                    </div>
+                    <div class="col-8">
+                        Login with ORCID
+                    </div>
+                </div>
+            </a>
         </div>
       </div>
     </div>
