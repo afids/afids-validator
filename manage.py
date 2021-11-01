@@ -11,3 +11,5 @@ migrate = Migrate(render_as_batch=True, compare_type=True)
 # Set up app
 app = create_app()
 migrate.init_app(app, db)
+
+app.run()
