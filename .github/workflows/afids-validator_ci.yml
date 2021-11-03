@@ -118,10 +118,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-        - name: Draft and update change log
-          uses: release-drafter/release-drafter@v5
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Draft and update change log
+        uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy_test:
     name: Deploy test heroku app
