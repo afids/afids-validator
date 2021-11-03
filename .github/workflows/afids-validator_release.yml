@@ -10,17 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
   steps:
-    - name: Checkout master
-      uses: actions/checkout@master
-      with:
-        ref: refs/heads/master
+    - name: Checkout latest tag
+      id: semver_checkout
+      uses: EasyDesk/action-semver-checkout@v1
 
     - name: Update setup.py version
       uses: jacobtomlinson/gha-find-replace@master
       with:
         include: "setup.py"
         find: "v[0-9]+.[0-9]+.[0-9]+"
-        replace: "${{ steps.update_version.outputs.tag_name }}"
+        replace: "v${{ steps.semver_checkout.outputs.version }}"
 
     - name: Commit setup.py
       run: |
@@ -36,6 +35,6 @@ jobs:
     - name: Deploy heroku app
       uses: akhileshns/heroku@v3.0.4
       with:
-        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+        heroku_api_key: ${{ secrets.HEROKU_PROD_API }} ## UPDATE TO USE PRODUCTION API
         heroku_app_name: afids-validator
         heroku_email: ${{ secrets.HEROKU_EMAIL }}
