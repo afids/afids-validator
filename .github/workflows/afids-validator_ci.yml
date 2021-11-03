@@ -112,8 +112,8 @@ jobs:
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
-  draft_release:
-    name: Draft and update release
+  draft_changelog:
+    name: Draft and update change log
     needs: [linting]
     runs-on: ubuntu-latest
 
@@ -122,3 +122,12 @@ jobs:
           uses: release-drafter/release-drafter@v5
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy_test:
+    name: Deploy test heroku app
+    needs: [linting]
+    uses: akhileshns/heroku@v3.0.4
+    with:
+      heroku_api_key: ${{ secrets.HEROKU_TEST_API }}
+      heroku_app_name: afids-validator
+      heroku_email: ${{ secrets.HEROKU_EMAIL }}
