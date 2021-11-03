@@ -35,6 +35,6 @@ jobs:
     - name: Deploy heroku app
       uses: akhileshns/heroku@v3.0.4
       with:
-        heroku_api_key: ${{ secrets.HEROKU_PROD_API }} ## UPDATE TO USE PRODUCTION API
+        heroku_api_key: ${{ secrets.HEROKU_PROD_API }}
         heroku_app_name: afids-validator
         heroku_email: ${{ secrets.HEROKU_EMAIL }}

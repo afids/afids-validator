@@ -126,8 +126,13 @@ jobs:
   deploy_test:
     name: Deploy test heroku app
     needs: [linting]
-    uses: akhileshns/heroku@v3.0.4
-    with:
-      heroku_api_key: ${{ secrets.HEROKU_TEST_API }}
-      heroku_app_name: afids-validator
-      heroku_email: ${{ secrets.HEROKU_EMAIL }}
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+
+    steps:
+      - name: Deploy test heroku app
+        uses: akhileshns/heroku@v3.0.4
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_TEST_API }}
+          heroku_app_name: afids-validator
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
