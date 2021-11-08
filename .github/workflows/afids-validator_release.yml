@@ -32,6 +32,12 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Modify release to match release versions
+        run: |
+          git tag -a v${{ steps.semver_checkout.outputs.version }}
+          git push
+          git push origin -f v${{ steps.semver_checkout.outputs.version }}
+
       - name: Deploy heroku app
         uses: akhileshns/heroku@v3.0.4
         with:
