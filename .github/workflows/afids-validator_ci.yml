@@ -114,7 +114,7 @@ jobs:
 
   draft_changelog:
     name: Draft and update change log
-    needs: [linting]
+    needs: [test]
     runs-on: ubuntu-latest
 
     steps:
