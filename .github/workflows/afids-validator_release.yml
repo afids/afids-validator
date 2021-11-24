@@ -35,9 +35,9 @@ jobs:
 
       - name: Modify release to match release versions
         run: |
-          git tag -a -f -m "{{ env.GITHUB_REF }}" {{ env.GITHUB_REF }}
+          git tag -a -f -m "$GITHUB_REF" "$GITHUB_REF"
           git push
-          git push origin -f ${{ env.GITHUB_REF }}
+          git push origin -f "$GITHUB_REF"
 
       - name: Deploy heroku app
         uses: akhileshns/heroku-deploy@v3.0.4
