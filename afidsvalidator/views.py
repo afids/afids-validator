@@ -3,7 +3,15 @@
 import os
 from datetime import datetime, timezone
 
-from flask import render_template, request, jsonify, Blueprint, current_app
+from flask import (
+    render_template,
+    request,
+    jsonify,
+    Blueprint,
+    current_app,
+    redirect,
+)
+from flask_login import logout_user, current_user
 import numpy as np
 import wtforms as wtf
 
@@ -48,21 +56,28 @@ def allowed_file(filename):
 @validator.route("/")
 def index():
     """Render the static index page."""
-    return render_template("index.html")
+    return render_template("index.html", current_user=current_user)
 
 
 # Contact
 @validator.route("/contact.html")
 def contact():
     """Render the static contact page."""
-    return render_template("contact.html")
+    return render_template("contact.html", current_user=current_user)
 
 
 # Login
 @validator.route("/login.html")
 def login():
     """Render the static login page."""
-    return render_template("login.html")
+    return render_template("login.html", current_user=current_user)
+
+
+@validator.route("/logout.html")
+def logout():
+    """Log out user and render the index."""
+    logout_user()
+    return redirect("/")
 
 
 # Validator
@@ -131,6 +146,7 @@ def validate():
             index=[],
             labels=labels,
             distances=distances,
+            current_user=current_user,
         )
 
     if user_afids.validate():
@@ -154,6 +170,7 @@ def validate():
             index=[],
             labels=labels,
             distances=distances,
+            current_user=current_user,
         )
 
     result = f"{result}<br>{fid_template} selected"
@@ -164,6 +181,8 @@ def validate():
         template_afids = csv_to_afids(template_file.read())
 
     if request.form.get("db_checkbox"):
+        if current_user.is_authenticated:
+            user_afids.afids_user_id = current_user.id
         db.session.add(user_afids)
         db.session.commit()
         print("Fiducial set added")
@@ -201,6 +220,7 @@ def validate():
         timestamp=timestamp,
         scatter_html=generate_3d_scatter(template_afids, user_afids),
         histogram_html=generate_histogram(template_afids, user_afids),
+        current_user=current_user,
     )
 
 

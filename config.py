@@ -29,6 +29,9 @@ class Config(object):
     if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
         SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
 
+    ORCID_OAUTH_CLIENT_ID = os.environ.get("ORCID_OAUTH_CLIENT_ID")
+    ORCID_OAUTH_CLIENT_SECRET = os.environ.get("ORCID_OAUTH_CLIENT_SECRET")
+
 
 class ProductionConfig(Config):
     """Config used in production"""

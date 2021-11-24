@@ -34,3 +34,13 @@ _Install via `apt-get` or `snap`_
 10. `python manage.py runserver`
 
 If there are no errors, you can test it out locally at http://localhost:5000
+
+#### Testing login
+
+To test the login with ORCID iD:
+
+1. Create an account (with a mailinator.com email address) on sandbox.orcid.org
+2. Follow [these instructions](https://info.orcid.org/documentation/integration-guide/registering-a-public-api-client/#easy-faq-2606) to get a client ID and client secret. Set the `Redirect URIs` to your local testing address (eg. `127.0.0.1:5000`, `localhost:5000`)
+3. Update your local `.env` file with your new credentials.
+4. Locally change the URLs in `afidsvalidator/orcid.py` to start with api.sandbox.orcid.org
+5. Run the application and test your login.

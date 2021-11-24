@@ -9,6 +9,8 @@ import re
 from pkg_resources import parse_version
 from sqlalchemy.orm import composite
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin
+from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
 
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
@@ -49,6 +51,29 @@ EXPECTED_DESCS = [
 EXPECTED_MAP = dict(zip(EXPECTED_LABELS, EXPECTED_DESCS))
 
 db = SQLAlchemy()
+login_manager = LoginManager()
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
+
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=True)
+    oauths = db.relationship("OAuth", backref="user", lazy=True)
+    human_fiducial_sets = db.relationship(
+        "HumanFiducialSet", backref="user", lazy=True
+    )
+
+    def __repr__(self):
+        return f"<email={self.email}>"
+
+
+class OAuth(OAuthConsumerMixin, db.Model):
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    provider_user_id = db.Column(db.String(20), nullable=False)
 
 
 class FiducialPosition(object):
@@ -130,7 +155,9 @@ class HumanFiducialSet(FiducialSet, db.Model):
     __name__ = "HumanFiducialSet"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String)
+    afids_user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=True
+    )
     date = db.Column(db.Date)
     template = db.Column(db.String)
 
