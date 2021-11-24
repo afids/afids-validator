@@ -18,5 +18,5 @@ setup(
         "python-dotenv~=0.17",
         "WTForms~=2.2",
     ],
-    version="v1.1.2",
+    version="vv0.1.0-dev.645+06581fea",
 )
