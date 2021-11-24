@@ -126,6 +126,7 @@ jobs:
   deploy_test:
     name: Deploy test heroku app
     runs-on: ubuntu-latest
+    needs: [test]
     if: github.event.pull_request.merged == true
 
     steps:
