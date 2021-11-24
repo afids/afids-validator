@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 .*env/
+.env
 .vscode/
 afids.code-workspace
 *.egg-info
