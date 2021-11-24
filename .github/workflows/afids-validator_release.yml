@@ -34,7 +34,7 @@ jobs:
 
       - name: Modify release to match release versions
         run: |
-          git tag -a -m v${{ steps.semver_checkout.outputs.version }}
+          git tag -a v${{ steps.semver_checkout.outputs.version }} -m "v${{ steps.semver_checkout.outputs.version }}"
           git push
           git push origin -f v${{ steps.semver_checkout.outputs.version }}
 
