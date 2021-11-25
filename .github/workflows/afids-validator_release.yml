@@ -14,14 +14,19 @@ jobs:
       - name: Checkout latest release tag
         uses: actions/checkout@master
         with:
-          ref: ${{ env.GITHUB_REF }}
+          ref: ${{ github.ref }}
+
+      - name: Extract version
+        id: latest-tag
+        run: |
+          echo ::set-output name=LATEST_VERSION::$(echo ${GITHUB_REF:10})
 
       - name: Update setup.py version
         uses: jacobtomlinson/gha-find-replace@master
         with:
           include: "setup.py"
           find: "v[0-9]+.[0-9]+.[0-9]+"
-          replace: "${{ env.GITHUB_REF }}"
+          replace: ${{ steps.latest-tag.outputs.LATEST_VERSION }}
 
       # - name: Commit setup.py
       #   run: |
