@@ -21,7 +21,7 @@ jobs:
         with:
           include: "setup.py"
           find: "v[0-9]+.[0-9]+.[0-9]+"
-          replace: ${{ env.GITHUB_REF }}
+          replace: "${{ env.GITHUB_REF }}"
 
       # - name: Commit setup.py
       #   run: |
