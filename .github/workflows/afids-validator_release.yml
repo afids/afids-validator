@@ -3,45 +3,66 @@ name: AFIDs Validator Release
 on:
   release:
     types: [published]
+    tags:
+      - 'v*.*.*'
 
 jobs:
   deploy:
-    name: Deploy and release
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout release tag
-        uses: actions/checkout@master
+      - uses: actions/checkout@master
         with:
-          ref: ${{ env.GITHUB_SHA }}
+          ref: ${{ env.GITHUB_REF }}
 
-      - name: Update setup.py version
-        uses: jacobtomlinson/gha-find-replace@master
-        with:
-          include: "setup.py"
-          find: "v[0-9]+.[0-9]+.[0-9]+"
-          replace: ${{ env.GITHUB_REF }}
-
-      - name: Commit setup.py
+      - name: Get latest release
         run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git commit -m "Update setup.py version" -a
+          echo $GITHUB_REF
+        # run: |
+        #    echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
 
-      - name: Push to master
-        uses: ad-m/github-push-action@master
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Checkout latest tag
+      #   uses: EasyDesk/action-semver-checkout@v1
+      #   id: semver-checkout
+      #   with:
+      #     token: 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
 
-      - name: Modify release to match release versions
-        run: |
-          git tag -a -f -m "$GITHUB_REF" "$GITHUB_REF"
-          git push
-          git push origin -f "$GITHUB_REF"
+      # - name: Test variables
+      #   run: |
+      #     echo ${{ steps.semver-checkout.outputs.version }}
 
-      - name: Deploy heroku app
-        uses: akhileshns/heroku-deploy@v3.0.4
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: afids-validator
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+      # - name: Checkout release tag
+      #   uses: actions/checkout@master
+      #   with:
+      #     ref: ${{ env.GITHUB_REF }}
+
+      # - name: Update setup.py version
+      #   uses: jacobtomlinson/gha-find-replace@master
+      #   with:
+      #     include: "setup.py"
+      #     find: "v[0-9]+.[0-9]+.[0-9]+"
+      #     replace: ${{ env.GITHUB_REF }}
+
+      # - name: Commit setup.py
+      #   run: |
+      #     git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      #     git config --local user.name "github-actions[bot]"
+      #     git commit -m "Update setup.py version" -a
+
+      # - name: Push to master
+      #   uses: ad-m/github-push-action@master
+      #   with:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Modify release to match release versions
+      #   run: |
+      #     git tag -a -f -m "$GITHUB_REF" "$GITHUB_REF"
+      #     git push
+      #     git push origin -f "$GITHUB_REF"
+
+      # - name: Deploy heroku app
+      #   uses: akhileshns/heroku-deploy@v3.0.4
+      #   with:
+      #     heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+      #     heroku_app_name: afids-validator
+      #     heroku_email: ${{ secrets.HEROKU_EMAIL }}
