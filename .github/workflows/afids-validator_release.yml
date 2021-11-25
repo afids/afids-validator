@@ -11,37 +11,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@master
+      - name: Checkout latest release tag
+        uses: actions/checkout@master
         with:
           ref: ${{ env.GITHUB_REF }}
 
-      - name: Get latest release
-        run: |
-          echo $GITHUB_REF
-        # run: |
-        #    echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
-
-      # - name: Checkout latest tag
-      #   uses: EasyDesk/action-semver-checkout@v1
-      #   id: semver-checkout
-      #   with:
-      #     token: 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
-
-      # - name: Test variables
-      #   run: |
-      #     echo ${{ steps.semver-checkout.outputs.version }}
-
-      # - name: Checkout release tag
-      #   uses: actions/checkout@master
-      #   with:
-      #     ref: ${{ env.GITHUB_REF }}
-
-      # - name: Update setup.py version
-      #   uses: jacobtomlinson/gha-find-replace@master
-      #   with:
-      #     include: "setup.py"
-      #     find: "v[0-9]+.[0-9]+.[0-9]+"
-      #     replace: ${{ env.GITHUB_REF }}
+      - name: Update setup.py version
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
+          include: "setup.py"
+          find: "v[0-9]+.[0-9]+.[0-9]+"
+          replace: ${{ env.GITHUB_REF }}
 
       # - name: Commit setup.py
       #   run: |
