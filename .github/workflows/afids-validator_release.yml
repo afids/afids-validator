@@ -16,38 +16,9 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - name: Grab release version
-        id: latest-tag
-        run: |
-          echo ::set-output name=LATEST_VERSION::$(echo ${GITHUB_REF:10})
-
-      - name: Update setup.py version
-        uses: jacobtomlinson/gha-find-replace@master
+      - name: Deploy heroku app
+        uses: akhileshns/heroku-deploy@v3.0.4
         with:
-          include: "setup.py"
-          find: "v[0-9]+.[0-9]+.[0-9]+"
-          replace: ${{ steps.latest-tag.outputs.LATEST_VERSION }}
-
-      - name: Commit setup.py
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git commit -m "Update setup.py version" -a
-
-      - name: Push to master
-        uses: ad-m/github-push-action@master
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Modify release to match release versions
-        run: |
-          git tag -a -f -m ${{ steps.latest-tag.outputs.LATEST_VERSION }} ${{ steps.latest-tag.outputs.LATEST_VERSION }}
-          git push
-          git push origin -f ${{ steps.latest-tag.outputs.LATEST_VERSION }}
-
-      # - name: Deploy heroku app
-      #   uses: akhileshns/heroku-deploy@v3.0.4
-      #   with:
-      #     heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-      #     heroku_app_name: afids-validator
-      #     heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: afids-validator
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
