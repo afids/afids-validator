@@ -18,7 +18,7 @@ _Install via `apt-get` or `snap`_
 * heroku
 
 ### Setup for local testing
-1. Git clone the fid-validator repository `git clone https://github.com/afids/afids-validator.git`
+1. Git clone the afids-validator repository `git clone https://github.com/afids/afids-validator.git`
 2. Add heroku as a remote `heroku git:remote -a afids-validator`
 3. Set up python virtual environment `python -m virtualenv <venv directory>`
 4. In virtual environment, install required modules `pip install -r requirements.txt --no-cache-dir`
@@ -44,3 +44,8 @@ To test the login with ORCID iD:
 3. Update your local `.env` file with your new credentials.
 4. Locally change the URLs in `afidsvalidator/orcid.py` to start with api.sandbox.orcid.org
 5. Run the application and test your login.
+
+### Testing on Heroku
+A test web app has been setup for the afids-validator at [https://afids-validator-test.herokuapp.com](https://afids-validator-test.herokuapp.com). Any new features will first be made available in the test app.
+
+**_Note stability of this test app is not guranteed and is meant for testing purposes only_**
