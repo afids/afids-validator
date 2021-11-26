@@ -131,12 +131,14 @@ jobs:
 
       - name: Update setup.py version
         uses: jacobtomlinson/gha-find-replace@master
+        id: find-replace
         with:
           include: "setup.py"
           find: "v[0-9]+.[0-9]+.[0-9]+"
           replace: ${{ steps.release-drafter.outputs.name }}
 
       - name: Commit updates
+        if: ${{ steps.find-replace.outputs.modifiedFiles }} != 0
         env:
           LATEST_VERSION: ${{ steps.release-drafter.outputs.name }}
         run: |
@@ -145,6 +147,7 @@ jobs:
           git commit -m "Bump version to $LATEST_VERSION" -a
 
       - name: Push changes
+        if: ${{ steps.find-replace.outputs.modifiedFiles }} != 0
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
