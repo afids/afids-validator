@@ -112,17 +112,6 @@ jobs:
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
-  draft_changelog:
-    name: Draft and update change log
-    needs: [test]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Draft and update change log
-        uses: release-drafter/release-drafter@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   deploy_test:
     name: Deploy test heroku app
     runs-on: ubuntu-latest
@@ -133,7 +122,33 @@ jobs:
         uses: actions/checkout@master
         with:
           ref: refs/heads/master
-    
+
+      - name: Draft and update change log
+        uses: release-drafter/release-drafter@v5
+        id: release-drafter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update setup.py version
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
+          include: "setup.py"
+          find: "v[0-9]+.[0-9]+.[0-9]+"
+          replace: ${{ steps.release-drafter.outputs.name }}
+
+      - name: Commit updates
+        env:
+          LATEST_VERSION: ${{ steps.release-drafter.outputs.name }}
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "Bump version to $LATEST_VERSION" -a
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Deploy test heroku app
         uses: akhileshns/heroku-deploy@v3.0.4
         with:
