@@ -39,22 +39,19 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@master
         with:
           include: "setup.py"
-          find: 'v(?:([0-9]+.[0-9]+.[0-9]+.+)|([0-9]+.[0-9]+.[0-9]+))'
+          find: 'v(?:([0-9]+.[0-9]+.[0-9]+.+[^_[:punct:]])|([0-9]+.[0-9]+.[0-9]+[^_[:punct:]]))'
           replace: '${{ steps.release-drafter.outputs.name }}"'
 
       - name: Commit updates
-        id: git-commit
         env:
           LATEST_VERSION: ${{ steps.release-drafter.outputs.name }}
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git diff-index --quiet HEAD || git commit -m "Bump version to $LATEST_VERSION" -a
-          echo '::set-output name=commit::true'
 
       - name: Push changes
         uses: ad-m/github-push-action@master
-        if: steps.git-commit.outputs.commit == 'true'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
