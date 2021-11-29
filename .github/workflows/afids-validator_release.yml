@@ -39,7 +39,7 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@master
         with:
           include: "setup.py"
-          find: 'v(?:([0-9]+.[0-9]+.[0-9]+.+[^_[:punct:]])|([0-9]+.[0-9]+.[0-9]+[^_[:punct:]]))'
+          find: 'v(?:([0-9]+\.[0-9]+\.[0-9]+.+[^_[:punct:]])|([0-9]+\.[0-9]+\.[0-9]+[^_[:punct:]]))'
           replace: '${{ steps.release-drafter.outputs.name }}"'
 
       - name: Commit updates
