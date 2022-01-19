@@ -1,20 +1,66 @@
 name: AFIDs Validator Release
 
 on:
-  release:
-    types: [published]
-    tags:
-      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      author:
+        description: "Author"
+        required: true
+        default: "github-actions[bot] (user publishing release)"
+      date:
+        description: "Date"
+        required: true
+        default: "YYYY-MM-DD"
+      comments:
+        description: "Comments"
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout latest release tag
-        uses: actions/checkout@master
+      - name: Print author
+        run: |
+          echo "Author: ${{ github.event.inputs.author }}"
+          echo "Date: ${{ github.event.inputs.date }}"
+          echo "Comments: ${{ github.event.inputs.comments }}"
+
+      - uses: actions/checkout@master
         with:
-          ref: ${{ github.ref }}
+          ref: refs/heads/master
+
+      - name: Draft change log
+        uses: release-drafter/release-drafter@v5
+        id: release-drafter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update setup.py version
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
+          include: "setup.py"
+          find: 'v(?:([0-9]+\.[0-9]+\.[0-9]+.+[^_[:punct:]])|([0-9]+\.[0-9]+\.[0-9]+[^_[:punct:]]))'
+          replace: '${{ steps.release-drafter.outputs.name }}"'
+
+      - name: Commit updates
+        env:
+          LATEST_VERSION: ${{ steps.release-drafter.outputs.name }}
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git diff-index --quiet HEAD || git commit -m "Bump version to $LATEST_VERSION" -a
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish change log
+        uses: release-drafter/release-drafter@v5
+        with:
+          publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy heroku app
         uses: akhileshns/heroku-deploy@v3.0.4

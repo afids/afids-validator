@@ -7,8 +7,7 @@ on:
 jobs:
   test:
     name: Setup environment & test
-    if: |
-      github.event.pull_request.draft == false
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     environment: TEST
     strategy:
@@ -129,26 +128,43 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get previous release version
+        run: |
+          echo "PREV_VER=$(cat setup.py | grep -o -E 'v[0-9]+\.[0-9]+\.[0-9]+.+[^_[:punct:]]')" >> $GITHUB_ENV
+
+      - name: Get previous bump version
+        env:
+          PREV_VER: ${{ env.PREV_VER }}
+        run: |
+          if [[ "$PREV_VER" != *"-pre."* ]]; then
+            echo "OLD_BUMP=0" >> $GITHUB_ENV
+          else
+            echo "OLD_BUMP=$(echo $PREV_VER | cut -d '.' -f 4)" >> $GITHUB_ENV
+          fi
+
+      - name: Bump version
+        env:
+          BUMP_VER: ${{ env.OLD_BUMP }}
+        run: |
+          echo "NEW_BUMP=$(($BUMP_VER + 1))" >> $GITHUB_ENV
+
       - name: Update setup.py version
         uses: jacobtomlinson/gha-find-replace@master
         with:
           include: "setup.py"
-          find: "v[0-9]+.[0-9]+.[0-9]+"
-          replace: ${{ steps.release-drafter.outputs.name }}
+          find: 'v(?:([0-9]+\.[0-9]+\.[0-9]+.+[^_[:punct:]])|([0-9]+\.[0-9]+\.[0-9]+[^_[:punct:]]))'
+          replace: '${{ steps.release-drafter.outputs.name }}-pre.${{ env.NEW_BUMP }}"'
 
       - name: Commit updates
-        id: git-commit
         env:
-          LATEST_VERSION: ${{ steps.release-drafter.outputs.name }}
+          LATEST_VERSION: ${{ steps.release-drafter.outputs.name }}-pre.${{ env.NEW_BUMP }}
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git diff-index --quiet HEAD || git commit -m "Bump version to $LATEST_VERSION" -a
-          echo '::set-output name=commit::true'
 
       - name: Push changes
         uses: ad-m/github-push-action@master
-        if: steps.git-commit.outputs.commit == 'true'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
