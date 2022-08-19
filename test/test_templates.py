@@ -5,7 +5,7 @@ from afidsvalidator import model
 
 
 class TestTemplates(unittest.TestCase):
-    def test_all_templates(self):
+    def test_human_templates(self):
         for template_file in Path(
             "afidsvalidator/afids-templates/human"
         ).iterdir():
