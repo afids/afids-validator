@@ -20,7 +20,7 @@ vtkMRMLMarkupsFiducialNode_16,-16.143,4.4655,25.685,0,0,0,1,1,1,0,16,L LV at AC,
 vtkMRMLMarkupsFiducialNode_17,19.58,-23.463,28.507,0,0,0,1,1,1,0,17,R LV at PC,vtkMRMLScalarVolumeNode1
 vtkMRMLMarkupsFiducialNode_18,-19.666,-23.452,27.885,0,0,0,1,1,1,0,18,L LV at PC,vtkMRMLScalarVolumeNode1
 vtkMRMLMarkupsFiducialNode_19,0.025,33.2105,3.1305,0,0,0,1,1,1,0,19,genu of CC,vtkMRMLScalarVolumeNode1
-vtkMRMLMarkupsFiducialNode_20,0.563,-39.4115,7.6585,0,0,0,1,1,1,0,20,splenium,vtkMRMLScalarVolumeNode1
+vtkMRMLMarkupsFiducialNode_20,0.563,-39.4115,7.6585,0,0,0,1,1,1,0,20,splenium of CC,vtkMRMLScalarVolumeNode1
 vtkMRMLMarkupsFiducialNode_21,34.341,-4.7005,-26.1515,0,0,0,1,1,1,0,21,R AL temporal horn,vtkMRMLScalarVolumeNode1
 vtkMRMLMarkupsFiducialNode_22,-33.368,-5.6025,-22.4175,0,0,0,1,1,1,0,22,L AL temporal horn,vtkMRMLScalarVolumeNode1
 vtkMRMLMarkupsFiducialNode_23,17.6445,-10.098,-18.0085,0,0,0,1,1,1,0,23,R superior AM temporal horn,vtkMRMLScalarVolumeNode1
