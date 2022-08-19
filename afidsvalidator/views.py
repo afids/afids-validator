@@ -236,7 +236,8 @@ def get_templates(species):
                     f"{current_app.config['AFIDS_DIR']}/{species.lower()}"
                 )
                 if "tpl" in species_templates
-            ]
+            ],
+            key=str.lower,
         )
     )
 
