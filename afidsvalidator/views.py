@@ -229,13 +229,15 @@ def get_templates(species):
     """Get templates corresponding to specific species"""
     return jsonify(
         ["Validate file structure"]
-        + [
-            species_templates[4:].split("_")[0]
-            for species_templates in os.listdir(
-                f"{current_app.config['AFIDS_DIR']}/{species.lower()}"
-            )
-            if "tpl" in species_templates
-        ]
+        + sorted(
+            [
+                species_templates[4:].split("_")[0]
+                for species_templates in os.listdir(
+                    f"{current_app.config['AFIDS_DIR']}/{species.lower()}"
+                )
+                if "tpl" in species_templates
+            ]
+        )
     )
 
 
