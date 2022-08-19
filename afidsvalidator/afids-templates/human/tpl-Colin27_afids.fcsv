@@ -29,7 +29,7 @@ vtkMRMLMarkupsFiducialNode_25,23.89074375,-1.8913829375,-27.64306875,0,0,0,1,1,1
 vtkMRMLMarkupsFiducialNode_26,-20.382253125,-3.704695625,-28.9971,0,0,0,1,1,1,0,26,L inferior AM temporal horn,vtkMRMLScalarVolumeNode1
 vtkMRMLMarkupsFiducialNode_27,13.6410125,-38.46600625,8.433885625,0,0,0,1,1,1,0,27,R indusium griseum origin,vtkMRMLScalarVolumeNode1
 vtkMRMLMarkupsFiducialNode_28,-14.791465625,-40.95736875,8.190668125,0,0,0,1,1,1,0,28,L indusium griseum origin,vtkMRMLScalarVolumeNode1
-vtkMRMLMarkupsFiducialNode_29,31.3859227272727,-56.9931545454545,0.184491410909091,0,0,0,1,1,1,0,29,R ventral occipital horn,vtkMRMLScalarVolumeNode1
-vtkMRMLMarkupsFiducialNode_30,-27.5849909090909,-64.5192318181818,1.3768485,0,0,0,1,1,1,0,30,L ventral occipital horn,vtkMRMLScalarVolumeNode1
+vtkMRMLMarkupsFiducialNode_29,27.4747875,-63.9652125,2.0995312825,0,0,0,1,1,1,0,29,R ventral occipital horn,vtkMRMLScalarVolumeNode1
+vtkMRMLMarkupsFiducialNode_30,-23.890625,-69.7058125,2.33407990625,0,0,0,1,1,1,0,30,L ventral occipital horn,vtkMRMLScalarVolumeNode1
 vtkMRMLMarkupsFiducialNode_31,13.3516125,22.4382375,-11.7592125,0,0,0,1,1,1,0,31,R olfactory sulcal fundus,vtkMRMLScalarVolumeNode1
 vtkMRMLMarkupsFiducialNode_32,-13.322734375,21.3597625,-12.51313125,0,0,0,1,1,1,0,32,L olfactory sulcal fundus,vtkMRMLScalarVolumeNode1
