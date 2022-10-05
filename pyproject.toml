@@ -1,15 +1,18 @@
 [tool.poetry]
 name = "afids-validator"
-version = "v1.1.2"
+version = "v1.2.3-pre.1"
 description = "Anatomical fiducials (AFIDs) validator for user placed markups"
 authors = ["Jason Kai <kaitj>", "Tristan Kuehn <tkkuehn>", "Olivia Stanley <ostanley>", "AFIDs contributors"]
 license = "GPL-3.0"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
+blinker = "^1.4
 Flask = "^1.1"
 Flask-Migrate = "^2.5"
 Flask-Script = "^2.0"
+flask-login = "^0.4"
+Flask-Dance = {extra = ["sqla"], version = "^5.0"}
 gunicorn = "^20.0"
 numpy = "^1.17"
 plotly = "^4.12"
@@ -18,13 +21,10 @@ python-dotenv = "^0.17"
 WTForms = "^2.2"
 
 [tool.poetry.group.actions.dependencies]
-black = "21.9b"
+black = "22.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^2.15"
-blinker = "^1.4"
-Flask-Login = "^0.5"
-Flask-Dance = {extras = ["sqla"], version = "^5.1"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
