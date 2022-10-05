@@ -6,12 +6,12 @@ authors = ["Jason Kai <kaitj>", "Tristan Kuehn <tkkuehn>", "Olivia Stanley <osta
 license = "GPL-3.0"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9, <3.11"
 blinker = "^1.4"
 Flask = "^1.1"
 Flask-Migrate = "^2.5"
 Flask-Script = "^2.0"
-flask-login = "^0.4"
+Flask-Login = "^0.4"
 Flask-Dance = {extras = ["sqla"], version = "^5.1"}
 gunicorn = "^20.0"
 numpy = "^1.17"
@@ -21,7 +21,7 @@ python-dotenv = "^0.17"
 WTForms = "^2.2"
 
 [tool.poetry.group.actions.dependencies]
-black = "22.1.0"
+black = "^22.8.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^2.15"
