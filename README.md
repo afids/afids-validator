@@ -25,12 +25,11 @@ For detailed setup instructions, see the documentation (here)[https://python-poe
 ### Required Packages
 _Install via `apt-get` or `snap`_
 * postgresql
-* heroku
 
 ### Setup for local testing
 1. Git clone the fid-validator repository `git clone https://github.com/afids/afids-validator.git`
 2. Set up python environment via `poetry shell`
-3. Install the required libraries via `poetry install --without actions --with dev`
+3. Install the required libraries via `poetry install --with dev`
 4. Create a superuser via postgres `sudo createuser --interactive`
 5. Create a database via postgres `createdb fid_db`
 6. Set password for the created database
