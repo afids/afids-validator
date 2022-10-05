@@ -12,10 +12,10 @@ Anatomical fiducials (AFIDs) is an open framework for evaluating correspondence 
 # [afids-validator (https://afids-validator.herokuapp.com)](https://afids-validator.herokuapp.com)
 
 ## Development
-`poetry` (v1.2.0a2) is used to manage dependencies. To install, run the following command:
+`poetry` (v1.2.0) is used to manage dependencies. To install, run the following command:
 
 ```
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python - --version 1.2.0a2
+curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0
 ```
 
 For detailed setup instructions, see the documentation (here)[https://python-poetry.org/].
