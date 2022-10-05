@@ -30,7 +30,7 @@ _Install via `apt-get` or `snap`_
 1. Git clone the fid-validator repository `git clone https://github.com/afids/afids-validator.git`
 2. Set up python environment via `poetry shell`
 3. Install the required libraries via `poetry install --with dev`
-4. Create a superuser via postgres `sudo createuser --interactive`
+4. Access the postgres CLI via `sudo su - postgres`
 5. Create a database via postgres `createdb fid_db`
 6. Set password for the created database
     ```
