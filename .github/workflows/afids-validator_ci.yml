@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
-        poetry-version: [1.2.0a2]
+        poetry-version: [1.2.0]
 
     steps:
       - name: Checkout pull request branch
@@ -75,7 +75,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
-        poetry-version: [1.2.0a2]
+        poetry-version: [1.2.0]
 
     steps:
       - name: Checkout pull request branch
@@ -134,7 +134,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-        - name: Draft and update change log
+        - name: Update change log
           uses: release-drafter/release-drafter@v5
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
