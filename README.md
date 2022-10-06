@@ -9,7 +9,7 @@
 
 Anatomical fiducials (AFIDs) is an open framework for evaluating correspondence in brain images and teaching neuroanatomy using anatomical fiducial placement. The AFIDs Validator project aims to build a web application that allows the user to upload an FCSV file generated using the AFIDs protocol, and validate that it conforms to the protocol.
 
-# [afids-validator (https://afids-validator.herokuapp.com)](https://afids-validator.herokuapp.com)
+# [afids-validator (https://validator.afids.io)](https://validator.afids.io)
 
 ## Development
 `poetry` (v1.2.0) is used to manage dependencies. To install, run the following command:
