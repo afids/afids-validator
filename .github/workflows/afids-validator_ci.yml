@@ -12,8 +12,7 @@ jobs:
     environment: TEST
     strategy:
       matrix:
-        python-version: [3.8]
-        poetry-version: [1.2.0]
+        python-version: [3.6]
 
     steps:
       - name: Checkout pull request branch
@@ -26,31 +25,30 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Setup Poetry ${{ matrix.poetry-version }}
-        uses: Gr1N/setup-poetry@v7
-        with:
-          poetry-version: ${{ matrix.poetry-version }}
-
       - name: Cache environment
         uses: actions/cache@v2
         id: cache
         with:
-          path: ~/.cache/pypoetry/virtualenvs
-          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-pip-${{ hashFiles('**/setup.py') }}
           restore-keys: |
-            ${{ runner.os }}-poetry-
+            ${{ env.pythonLocation }}-pip
 
       - name: Setup envrionment
         if: steps.cache.outputs.cache-hit != 'true'
+        shell: bash
         run: |
-          poetry install --with actions
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Start PostgreSQL services
+        shell: bash
         run: |
           sudo systemctl start postgresql.service
           pg_isready
 
       - name: Setup PostgreSQL db
+        shell: bash
         env:
           psql_db_owner: ${{ secrets.PSQL_DB_OWNER }}   # PostgreSQL User
           psql_db_pw: ${{ secrets.PSQL_DB_PASS }}       # PostgreSQL Pass
@@ -61,11 +59,12 @@ jobs:
           PGPASSWORD=$psql_db_pw psql --username=$psql_db_owner --host=localhost --list $psql_db_name
 
       - name: Test AFIDs validator
+        shell: bash
         env:
           FLASK_ENV: ${{ secrets.APP_SETTINGS }}     # Sets flask environment
           DATABASE_URL: postgresql://${{ secrets.PSQL_DB_OWNER }}:${{ secrets.PSQL_DB_PASS }}@localhost/${{ secrets.PSQL_DB_NAME }}
         run: |
-          poetry run python -m unittest
+          python -m unittest
 
   linting:
     name: Lint code
@@ -74,8 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8]
-        poetry-version: [1.2.0]
+        python-version: [3.6]
 
     steps:
       - name: Checkout pull request branch
@@ -88,25 +86,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Setup Poetry ${{ matrix.poetry-version }}
-        uses: Gr1N/setup-poetry@v7
-        with:
-          poetry-version: ${{ matrix.poetry-version }}
-
-      - name: Cache environment
-        uses: actions/cache@v2
-        id: cache
-        with:
-          path: ~/.cache/pypoetry/virtualenvs
-          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-
-
-      - name: Setup envrionment
-        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Install black
         run: |
-          poetry install --with actions
-
+          python -m pip install --upgrade pip
+          pip install black
 
       - name: Run black
         uses: wearerequired/lint-action@v1
@@ -128,13 +111,78 @@ jobs:
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
 
-  bump_version:
-    name: Draft and update release
-    needs: [linting]
+  deploy_test:
+    name: Deploy test heroku app
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
 
     steps:
-        - name: Update change log
-          uses: release-drafter/release-drafter@v5
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout master
+        uses: actions/checkout@master
+        with:
+          ref: refs/heads/master
+
+      - name: Draft and update change log
+        uses: release-drafter/release-drafter@v5
+        id: release-drafter
+        with:
+          commitish: ${{ github.event.pull_request.base.ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get previous release version
+        run: |
+          echo "PREV_VER=$(cat pyproject.toml | grep -o -E '(version\s=\s)([[:punct:]])([v][0-9]+\.[0-9]+\.[0-9]+.+)([[:punct:]])' | cut -d ' ' -f 3 | tr -d '"')" >> $GITHUB_ENV
+
+      - name: Get previous bump version
+        env:
+          PREV_VER: ${{ env.PREV_VER }}
+        run: |
+          if [[ "$PREV_VER" != *"-pre."* ]]; then
+            echo "OLD_BUMP=0" >> $GITHUB_ENV
+          else
+            echo "OLD_BUMP=$(echo $PREV_VER | cut -d '.' -f 4)" >> $GITHUB_ENV
+          fi
+
+      - name: Bump version
+        env:
+          BUMP_VER: ${{ env.OLD_BUMP }}
+        run: |
+          echo "NEW_BUMP=$(($BUMP_VER + 1))" >> $GITHUB_ENV
+
+      - name: Set new release version
+        env:
+          RD_RELEASE: ${{ steps.release-drafter.outputs.name }}
+        run: |
+          if [ ! -z "$RD_RELEASE" ]; then
+            echo "NEW_RELEASE=$RD_RELEASE" >> $GITHUB_ENV
+          else
+            echo "NEW_RELEASE=0.1.0" >> $GITHUB_ENV
+          fi
+
+      - name: Update version in pyproject.toml
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
+          include: 'pyproject.toml'
+          find: 'version = "v(?:([0-9]+\.[0-9]+\.[0-9]+.+)|([0-9]+\.[0-9]+\.[0-9]+))"'
+          replace: 'version = "v${{ env.NEW_RELEASE }}-pre.${{ env.NEW_BUMP }}"'
+
+      - name: Commit updates
+        env:
+          LATEST_VERSION: ${{ steps.release-drafter.outputs.name }}-pre.${{ env.NEW_BUMP }}
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git diff-index --quiet HEAD || git commit -m "Bump version to $LATEST_VERSION" -a
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy test heroku app
+        uses: akhileshns/heroku-deploy@v3.0.4
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: afids-validator-test
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
