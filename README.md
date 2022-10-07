@@ -27,7 +27,7 @@ _Install via `apt-get` or `snap`_
 * postgresql
 
 ### Setup for local testing
-1. Git clone the fid-validator repository `git clone https://github.com/afids/afids-validator.git`
+1. Git clone the afids-validator repository `git clone https://github.com/afids/afids-validator.git`
 2. Set up python environment via `poetry shell`
 3. Install the required libraries via `poetry install --with dev`
 4. Access the postgres CLI via `sudo su - postgres`
