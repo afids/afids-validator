@@ -40,7 +40,7 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
-      - name: Load cached venv 
+      - name: Load cached venv
         id: cached-poetry-dependencies
         uses: actions/cache@v2
         with:
@@ -107,7 +107,7 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
-      - name: Load cached venv 
+      - name: Load cached venv
         id: cached-poetry-dependencies
         uses: actions/cache@v2
         with:
@@ -196,7 +196,7 @@ jobs:
         with:
           include: 'pyproject.toml'
           find: 'version = "v(?:([0-9]+\.[0-9]+\.[0-9]+.+)|([0-9]+\.[0-9]+\.[0-9]+))"'
-          replace: 'version = "v${{ env.NEW_RELEASE }}-pre.${{ env.NEW_BUMP }}"'
+          replace: 'version = "${{ env.NEW_RELEASE }}-pre.${{ env.NEW_BUMP }}"'
 
       - name: Commit updates
         env:
