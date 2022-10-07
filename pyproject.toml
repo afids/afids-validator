@@ -31,6 +31,7 @@ poethepoet = "^0.16.2"
 
 [tool.poe.tasks]
 setup = "pre-commit install"
+test = { shell = "python -m unittest" }
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
