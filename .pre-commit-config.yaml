@@ -5,11 +5,28 @@ repos:
     -   id: check-yaml
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
+
 -   repo: https://github.com/pycqa/isort
     rev: 5.10.1
     hooks:
     -   id: isort
+
 -   repo: https://github.com/psf/black
     rev: 22.8.0
     hooks:
     -   id: black
+
+# -   repo: https://github.com/pycqa/flake8
+#     rev: 5.0.4
+#     hooks:
+#     -   id: flake8
+
+# Pylint needs to be installed locally for precommit
+# https://pylint.pycqa.org/en/latest/user_guide/installation/pre-commit-integration.html
+# -   repo: local
+#     hooks:
+#     -   id: pylint
+#         name: pylint
+#         entry: pylint
+#         language: system
+#         types: [python]
