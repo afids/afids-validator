@@ -9,28 +9,37 @@
 
 Anatomical fiducials (AFIDs) is an open framework for evaluating correspondence in brain images and teaching neuroanatomy using anatomical fiducial placement. The AFIDs Validator project aims to build a web application that allows the user to upload an FCSV file generated using the AFIDs protocol, and validate that it conforms to the protocol.
 
-# [afids-validator (https://afids-validator.herokuapp.com)](https://afids-validator.herokuapp.com)
+# [afids-validator (https://validator.afids.io)](https://validator.afids.io)
 
 ## Development
+`poetry` (v1.2.0) is used to manage dependencies. To install, run the following command:
+
+```
+curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0
+```
+
+For detailed setup instructions, see the documentation (here)[https://python-poetry.org/].
+
+
+
 ### Required Packages
 _Install via `apt-get` or `snap`_
 * postgresql
-* heroku
 
 ### Setup for local testing
 1. Git clone the afids-validator repository `git clone https://github.com/afids/afids-validator.git`
-3. Set up python virtual environment `python -m virtualenv <venv directory>`
-4. In virtual environment, install required modules `pip install -r requirements.txt --no-cache-dir`
-5. Create a superuser via postgres `sudo createuser --interactive`
-6. Create a database via postgres `createdb fid_db`
-7. Set password for the created database
+2. Set up python environment via `poetry shell`
+3. Install the required libraries via `poetry install --with dev`
+4. Access the postgres CLI via `sudo su - postgres`
+5. Create a database via postgres `createdb fid_db`
+6. Set password for the created database
     ```
     psql fid_db
     \password
     ```
 8. Update configuration in `.env.template` and rename to `.env` file
-9. `python manage.py db upgrade`
-10. `python manage.py runserver`
+10. `python manage.py db upgrade`
+11. `python manage.py runserver`
 
 If there are no errors, you can test it out locally at http://localhost:5000
 

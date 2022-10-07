@@ -81,7 +81,7 @@ def logout():
 
 
 # Validator
-@validator.route("/validator.html", methods=["GET", "POST"])
+@validator.route("/app.html", methods=["GET", "POST"])
 def validate():
     """Present the validator form, or validate an AFIDs set."""
     form = Average(request.form)
@@ -103,7 +103,7 @@ def validate():
 
     if not (request.method == "POST" and request.files):
         return render_template(
-            "validator.html",
+            "app.html",
             form=form,
             form_choices=form_choices,
             result=result,
@@ -120,7 +120,7 @@ def validate():
         result = f"Invalid file: extension not allowed ({timestamp})"
 
         return render_template(
-            "validator.html",
+            "app.html",
             form=form,
             form_choices=form_choices,
             result=result,
@@ -138,7 +138,7 @@ def validate():
     except InvalidFileError as err:
         result = f"Invalid file: {err.message} ({timestamp})"
         return render_template(
-            "validator.html",
+            "app.html",
             form=form,
             form_choices=form_choices,
             result=result,
@@ -162,7 +162,7 @@ def validate():
 
     if fid_template == "Validate file structure":
         return render_template(
-            "validator.html",
+            "app.html",
             form=form,
             form_choices=form_choices,
             result=result,
@@ -209,7 +209,7 @@ def validate():
         labels.append(desc[-1])
 
     return render_template(
-        "validator.html",
+        "app.html",
         form=form,
         form_choices=form_choices,
         result=result,

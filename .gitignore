@@ -1,9 +1,15 @@
+# Directories
 __pycache__/
-*.pyc
 .*env/
-.env
 .vscode/
-afids.code-workspace
-*.egg-info
 .jekyll-cache/
 _site/
+dist/
+
+# Files
+*.pyc
+.env
+*.egg-info
+
+# Workspaces
+afids.code-workspace
