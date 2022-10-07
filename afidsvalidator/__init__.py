@@ -4,11 +4,10 @@ import os
 
 from flask import Flask
 
-from config import *
-
-from afidsvalidator.views import validator
 from afidsvalidator.model import db, login_manager
 from afidsvalidator.orcid import orcid_blueprint
+from afidsvalidator.views import validator
+from config import *
 
 
 class ConfigException(Exception):

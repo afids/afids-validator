@@ -1,6 +1,7 @@
 """Utilities for generating AFIDs-related graphics"""
 
 import plotly.graph_objects as go
+
 from afidsvalidator.model import EXPECTED_DESCS
 
 

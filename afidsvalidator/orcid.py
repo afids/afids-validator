@@ -5,7 +5,7 @@ from flask_dance.consumer.storage.sqla import SQLAlchemyStorage
 from flask_login import current_user, login_user
 from sqlalchemy.orm.exc import NoResultFound
 
-from afidsvalidator.model import db, OAuth, User
+from afidsvalidator.model import OAuth, User, db
 
 orcid_blueprint = OAuth2ConsumerBlueprint(
     "orcid",
