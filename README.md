@@ -18,7 +18,7 @@ Anatomical fiducials (AFIDs) is an open framework for evaluating correspondence 
 curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0
 ```
 
-For detailed setup instructions, see the documentation (here)[https://python-poetry.org/].
+For detailed setup instructions, see the documentation [here](https://python-poetry.org/).
 
 
 
