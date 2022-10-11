@@ -3,31 +3,30 @@
 import os
 from datetime import datetime, timezone
 
-from flask import (
-    render_template,
-    request,
-    jsonify,
-    Blueprint,
-    current_app,
-    redirect,
-)
-from flask_login import logout_user, current_user
 import numpy as np
 import wtforms as wtf
+from flask import (
+    Blueprint,
+    current_app,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+)
+from flask_login import current_user, logout_user
 
 from afidsvalidator.model import (
-    db,
-    csv_to_afids,
-    json_to_afids,
-    InvalidFileError,
     EXPECTED_DESCS,
     HumanFiducialSet,
+    InvalidFileError,
+    csv_to_afids,
+    db,
+    json_to_afids,
 )
 from afidsvalidator.visualizations import (
     generate_3d_scatter,
     generate_histogram,
 )
-
 
 validator = Blueprint("validator", __name__, template_folder="templates")
 

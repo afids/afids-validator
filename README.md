@@ -18,7 +18,7 @@ Anatomical fiducials (AFIDs) is an open framework for evaluating correspondence 
 curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0
 ```
 
-For detailed setup instructions, see the documentation (here)[https://python-poetry.org/].
+For detailed setup instructions, see the documentation [here](https://python-poetry.org/).
 
 
 
@@ -30,16 +30,17 @@ _Install via `apt-get` or `snap`_
 1. Git clone the afids-validator repository `git clone https://github.com/afids/afids-validator.git`
 2. Set up python environment via `poetry shell`
 3. Install the required libraries via `poetry install --with dev`
-4. Access the postgres CLI via `sudo su - postgres`
-5. Create a database via postgres `createdb fid_db`
-6. Set password for the created database
+4. Install the pre-commit action via `poetry run poe setup`. This will automatically perform quality tasks for each new commit.
+5. Access the postgres CLI via `sudo su - postgres`
+6. Create a database via postgres `createdb fid_db`
+7. Set password for the created database
     ```
     psql fid_db
     \password
     ```
 8. Update configuration in `.env.template` and rename to `.env` file
-10. `python manage.py db upgrade`
-11. `python manage.py runserver`
+9. `python manage.py db upgrade`
+10. `python manage.py runserver`
 
 If there are no errors, you can test it out locally at http://localhost:5000
 

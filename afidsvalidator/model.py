@@ -1,17 +1,16 @@
 """Handle parsing files to internal AFIDs representation."""
 
-import io
 import csv
+import io
 import json
 import math
 import re
 
+from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
+from flask_login import LoginManager, UserMixin
+from flask_sqlalchemy import SQLAlchemy
 from pkg_resources import parse_version
 from sqlalchemy.orm import composite
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin
-from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
-
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]
 EXPECTED_DESCS = [
@@ -137,7 +136,7 @@ class FiducialSet:
             True if the Afids set is valid.
         """
         valid = True
-        for label, name in EXPECTED_MAP.items():
+        for _, name in EXPECTED_MAP.items():
             try:
                 valid = valid and math.isfinite(getattr(self, name[-1]).x)
                 valid = valid and math.isfinite(getattr(self, name[-1]).y)
