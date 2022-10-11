@@ -48,6 +48,23 @@ EXPECTED_DESCS = [
     ["L olfactory sulcal fundus", "LOSF"],
 ]
 EXPECTED_MAP = dict(zip(EXPECTED_LABELS, EXPECTED_DESCS))
+FCSV_FIELDS = (
+    "id",
+    "x",
+    "y",
+    "z",
+    "ow",
+    "ox",
+    "oy",
+    "oz",
+    "vis",
+    "sel",
+    "lock",
+    "label",
+    "desc",
+    "associatedNodeID",
+)
+
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -55,10 +72,13 @@ login_manager = LoginManager()
 
 @login_manager.user_loader
 def load_user(user_id):
+    """Get the user with the given ID."""
     return User.query.get(user_id)
 
 
 class User(UserMixin, db.Model):
+    """AFIDs Validator registered user."""
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=True)
     oauths = db.relationship("OAuth", backref="user", lazy=True)
@@ -70,12 +90,18 @@ class User(UserMixin, db.Model):
         return f"<email={self.email}>"
 
 
+# pylint: disable-next=too-few-public-methods
 class OAuth(OAuthConsumerMixin, db.Model):
+    """Mapping from ORCID ID to internal user ID."""
+
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     provider_user_id = db.Column(db.String(20), nullable=False)
 
 
-class FiducialPosition(object):
+class FiducialPosition:
+    """A fiducial position, in voxels."""
+
+    # pylint: disable=invalid-name
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
@@ -85,7 +111,7 @@ class FiducialPosition(object):
         return self.x, self.y, self.z
 
     def __repr__(self):
-        return "FiducialPosition(x=%r, y=%r, z=%r)" % (self.x, self.y, self.z)
+        return f"FiducialPosition(x={self.x}, y={self.y}, z={self.z})"
 
     def __eq__(self, other):
         return (
@@ -102,9 +128,6 @@ class FiducialPosition(object):
 class FiducialSet:
     """Base class for afids."""
 
-    def __repr__(self):
-        return "<id {}>".format(self.id)
-
     def serialize(self):
         """Produce a dict of each column."""
         serialized = {}
@@ -115,8 +138,17 @@ class FiducialSet:
         return serialized
 
     def add_fiducial(self, desc, points):
-        for d, p in zip(["_x", "_y", "_z"], points):
-            setattr(self, "".join([desc, d]), float(p))
+        """Set a fiducial point's value.
+
+        Parameters
+        ----------
+        desc : str
+            The point's description.
+        points: list[float] or list[str]
+            The x, y, and z values of the point.
+        """
+        for suffix, val in zip(["_x", "_y", "_z"], points):
+            setattr(self, "".join([desc, suffix]), float(val))
         setattr(
             self,
             desc,
@@ -320,6 +352,9 @@ class HumanFiducialSet(FiducialSet, db.Model):
     LOSF_z = db.Column(db.Float(), nullable=False)
     LOSF = composite(FiducialPosition, LOSF_x, LOSF_y, LOSF_z)
 
+    def __repr__(self):
+        return f"<id {self.id}>"
+
 
 class InvalidFileError(Exception):
     """Exception raised when a file to be parsed is invalid.
@@ -404,26 +439,7 @@ def csv_to_afids(in_csv):
             f"Markups fiducial file version {parsed_version} too low"
         )
 
-    # Some fields irrelevant, but know they should be there
-    fields = (
-        "id",
-        "x",
-        "y",
-        "z",
-        "ow",
-        "ox",
-        "oy",
-        "oz",
-        "vis",
-        "sel",
-        "lock",
-        "label",
-        "desc",
-        "associatedNodeID",
-    )
-
-    in_csv = io.StringIO(in_csv)
-    csv_reader = csv.DictReader(in_csv, fields)
+    csv_reader = csv.DictReader(io.StringIO(in_csv), FCSV_FIELDS)
 
     # Read csv file and dump to AFIDs object
     afids = HumanFiducialSet()
@@ -439,7 +455,8 @@ def csv_to_afids(in_csv):
         # Check if label is numerical
         if not row_label.isdigit():
             raise InvalidFileError(
-                f"Row label {row_label} is invalid for fiducial {expected_label}"
+                f"Row label {row_label} is invalid for fiducial "
+                f"{expected_label}"
             )
 
         expected_label += 1

@@ -44,8 +44,8 @@ def orcid_logged_in(blueprint, token):
     else:
         user = User(name=token["name"])
         oauth.user = user
-        db.session.add_all([user, oauth])
-        db.session.commit()
+        db.session.add_all([user, oauth])  # pylint: disable=no-member
+        db.session.commit()  # pylint: disable=no-member
         login_user(user)
 
     return False
