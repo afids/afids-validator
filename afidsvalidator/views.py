@@ -82,6 +82,7 @@ def logout():
 
 
 # Validator
+# pylint: disable=no-member
 @validator.route("/app.html", methods=["GET", "POST"])
 def validate():
     """Present the validator form, or validate an AFIDs set."""
