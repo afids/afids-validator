@@ -33,8 +33,12 @@ poethepoet = "^0.16.2"
 
 [tool.poe.tasks]
 setup = "pre-commit install"
-quality = {shell = "isort afidsvalidator test && black afidsvalidator test -l 79 && flake8 afidsvalidator test && pylint afidsvalidator test" }
-test = { shell = "python -m unittest" }
+isort = "isort afidsvalidator test"
+black = "black afidsvalidator test -l 79"
+flake8 = "flake8 afidsvalidator test"
+pylint = "pylint afidsvalidator test"
+quality = ["isort", "black", "flake8", "pylint"]
+test = "python -m unittest"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
