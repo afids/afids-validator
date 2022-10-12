@@ -65,6 +65,7 @@
                   </div>
               </div>
           </div>
+          {% if scatter_html %}
           <div class="row">
             <div class="col-9">
               <ul class="nav nav-tabs" role="tablist">
@@ -97,14 +98,15 @@
                   <tr>
                     <th scope="col">{{"Fiducial Name"}}</th>
                     <th scope="col">{{"Distance [mm]"}}</th></tr>
-                  {% for i in index %}
-                  <tr><td>{{labels[i]}}</td><td>{{distances[i]}}</td></tr>
+                  {% for label, distance in table_zip %}
+                  <tr><td>{{label}}</td><td>{{distance}}</td></tr>
                   {% endfor %}
                   </table>
                 </div>
               </div>
             </div>
           </div>
+          {% endif %}
           {% endif %}
         </section>
 

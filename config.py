@@ -22,7 +22,6 @@ class Config(object):
 
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     AFIDS_DIR = "afidsvalidator/afids-templates"
-    ALLOWED_EXTENSIONS = ["fcsv", "csv", "json"]
     SQLALCHEMY_TRACK_MODIFICATIONS = (
         os.environ.get("SQLALCHEMY_TRACK_MODIFICATIONS") or False
     )
