@@ -5,6 +5,7 @@ import io
 import json
 import math
 import re
+from enum import Enum
 
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
 from flask_login import LoginManager, UserMixin
@@ -601,3 +602,25 @@ def json_to_afids(in_json):
         afids.add_fiducial(fid_desc, fid_position)
 
     return afids
+
+
+class FiducialFiletype(Enum):
+    """Enum describing supported fiducial filetypes."""
+
+    CSV_LIKE = 1
+    JSON_LIKE = 2
+
+    def recommended_extension(self):
+        """Returns the recommended extension for each filetype."""
+        if self is FiducialFiletype.CSV_LIKE:
+            return ".fcsv"
+        return ".json"
+
+    @classmethod
+    def from_extension(cls, extension):
+        """Maps possible extensions to the proper filetype."""
+        if extension in [".fcsv", ".csv"]:
+            return cls.CSV_LIKE
+        if extension == ".json":
+            return cls.JSON_LIKE
+        raise ValueError("Invalid file extension")

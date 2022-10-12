@@ -1,6 +1,9 @@
 """Route requests with Flask."""
 
+from __future__ import annotations
+
 import os
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -18,6 +21,7 @@ from flask_login import current_user, logout_user
 
 from afidsvalidator.model import (
     EXPECTED_DESCS,
+    FiducialFiletype,
     HumanFiducialSet,
     InvalidFileError,
     csv_to_afids,
@@ -38,18 +42,6 @@ class Average(wtf.Form):
 
     filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
     submit = wtf.SubmitField(label="Submit")
-
-
-# TO BE DEPECRATED
-def allowed_file(filename):
-    """Does filename have the right extension?"""
-    file_ext = filename.rsplit(".", 1)[1]
-
-    return (
-        file_ext,
-        "." in filename
-        and file_ext in current_app.config["ALLOWED_EXTENSIONS"],
-    )
 
 
 # Routes to web pages / application
@@ -81,6 +73,67 @@ def logout():
     return redirect("/")
 
 
+@dataclass
+class PlacementReport:
+    """Dataclass for reporting fiducial placement error."""
+
+    labels: list[str]
+    distances: list[float]
+    scatter_html: str
+    histogram_html: str
+
+    @classmethod
+    def from_afids(cls, user_afids, template_afids):
+        """Calculate report variables from two sets of afids."""
+        distances = []
+        labels = []
+        for desc in EXPECTED_DESCS:
+            distance = np.linalg.norm(
+                np.array(
+                    [getattr(template_afids, desc[-1]).__composite_values__()]
+                )
+                - np.array(
+                    [getattr(user_afids, desc[-1]).__composite_values__()]
+                )
+            )
+            distances.append(f"{distance:.5f}")
+            labels.append(desc[-1])
+        scatter_html = generate_3d_scatter(template_afids, user_afids)
+        histogram_html = generate_histogram(template_afids, user_afids)
+        return cls(labels, distances, scatter_html, histogram_html)
+
+
+def render_validator(form, result="", placement_report=None):
+    """Render the validator page."""
+    form_choices = sorted(
+        [
+            choice.capitalize()
+            for choice in os.listdir(current_app.config["AFIDS_DIR"])
+        ]
+    )
+    if placement_report:
+        placement_dict = {
+            "table_zip": zip(
+                placement_report.labels, placement_report.distances
+            ),
+            "scatter_html": placement_report.scatter_html,
+            "histogram_html": placement_report.histogram_html,
+        }
+    else:
+        placement_dict = {}
+    return render_template(
+        "app.html",
+        form=form,
+        form_choices=form_choices,
+        result=result,
+        current_user=current_user,
+        timestamp=str(
+            datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
+        ),
+        **placement_dict,
+    )
+
+
 # Validator
 # pylint: disable=no-member
 @validator.route("/app.html", methods=["GET", "POST"])
@@ -88,87 +141,42 @@ def validate():
     """Present the validator form, or validate an AFIDs set."""
     form = Average(request.form)
 
-    result = ""
-    distances = []
-    labels = []
-    template_afids = None
-
-    # Set all dropdown choices
-    form_choices = os.listdir(current_app.config["AFIDS_DIR"])
-    form_choices = [choice.capitalize() for choice in form_choices]
-    form_choices.sort()
-
     if not (request.method == "POST" and request.files):
-        return render_template(
-            "app.html",
-            form=form,
-            form_choices=form_choices,
-            result=result,
-            template_afids=template_afids,
-            index=[],
-            labels=labels,
-            distances=distances,
-        )
+        return render_validator(form)
 
     upload = request.files[form.filename.name]
-    upload_ext, file_check = allowed_file(upload.filename)
-
-    if not (upload and file_check):
-        result = "Invalid file: extension not allowed"
-
-        return render_template(
-            "app.html",
-            form=form,
-            form_choices=form_choices,
-            result=result,
-            template_afids=template_afids,
-            index=[],
-            labels=labels,
-            distances=distances,
-        )
 
     try:
-        if upload_ext in current_app.config["ALLOWED_EXTENSIONS"][:2]:
+        filetype = FiducialFiletype.from_extension(
+            Path(upload.filename).suffix
+        )
+        if filetype is FiducialFiletype.CSV_LIKE:
             user_afids = csv_to_afids(upload.read().decode("utf-8"))
-        else:
+        elif filetype is FiducialFiletype.JSON_LIKE:
             user_afids = json_to_afids(upload.read().decode("utf-8"))
+    except ValueError:
+        return render_validator(form, result="Unsupported file extension")
     except InvalidFileError as err:
-        result = f"Invalid file: {err.message}"
-        return render_template(
-            "app.html",
-            form=form,
-            form_choices=form_choices,
-            result=result,
-            template_afids=template_afids,
-            index=[],
-            labels=labels,
-            distances=distances,
-            current_user=current_user,
+        return render_validator(
+            form,
+            result=f"Invalid file: {err.message}",
         )
 
     if user_afids.validate():
         result = "Valid file"
     else:
-        result = "Invalid AFIDs set, please double check your file"
+        return render_validator(
+            form, result="Invalid AFIDs set, please double check your file"
+        )
 
     fid_template = request.form["fid_template"]
 
     if fid_template == "Validate file structure":
-        return render_template(
-            "app.html",
-            form=form,
-            form_choices=form_choices,
-            result=result,
-            template_afids=template_afids,
-            index=[],
-            labels=labels,
-            distances=distances,
-            current_user=current_user,
-        )
+        return render_validator(form, result=result)
 
     result = f"{result}<br>{fid_template} selected"
-    # Need to pull from correct folder when more templates are added
 
+    # Need to pull from correct folder when more templates are added
     with open(
         Path(current_app.config["AFIDS_DIR"])
         / request.form["fid_species"].lower()
@@ -187,31 +195,12 @@ def validate():
     else:
         print("DB option unchecked, user data not saved")
 
-    for desc in EXPECTED_DESCS:
-        distance = np.linalg.norm(
-            np.array(
-                [getattr(template_afids, desc[-1]).__composite_values__()]
-            )
-            - np.array([getattr(user_afids, desc[-1]).__composite_values__()])
-        )
-        distances.append(f"{distance:.5f}")
-        labels.append(desc[-1])
-
-    return render_template(
-        "app.html",
-        form=form,
-        form_choices=form_choices,
+    return render_validator(
+        form,
         result=result,
-        template_afids=template_afids,
-        index=list(range(len(EXPECTED_DESCS))),
-        labels=labels,
-        distances=distances,
-        timestamp=str(
-            datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
+        placement_report=PlacementReport.from_afids(
+            user_afids, template_afids
         ),
-        scatter_html=generate_3d_scatter(template_afids, user_afids),
-        histogram_html=generate_histogram(template_afids, user_afids),
-        current_user=current_user,
     )
 
 
