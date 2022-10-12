@@ -16,7 +16,7 @@ class TestHumanFiducialSet(unittest.TestCase):
 
     def test_valid_afids(self):
         test_afids = model.HumanFiducialSet()
-        for _, descs in model.EXPECTED_MAP.items():
+        for descs in model.EXPECTED_MAP.values():
             test_afids.add_fiducial(descs[-1], ["0", "1", "2"])
         self.assertTrue(test_afids.validate())
 
