@@ -140,7 +140,7 @@ def generate_3d_scatter(ref_afids, user_afids):
             hovertemplate=(
                 "%{text}<br>x: %{x:.4f}<br>y: %{y:.4f}<br>" + "z: %{z:.4f}"
             ),
-            text=["<b>{0}</b>".format(ids[int(i)]) for i in range(len(ids))],
+            text=[f"<b>{ids[int(i)]}</b>" for i in range(len(ids))],
             name="Template AFIDs",
         ),
         go.Scatter3d(
@@ -157,7 +157,7 @@ def generate_3d_scatter(ref_afids, user_afids):
             hovertemplate=(
                 "%{text}<br>x: %{x:.4f}<br>y: %{y:.4f}<br>" + "z: %{z:.4f}"
             ),
-            text=["<b>{0}</b>".format(ids[int(i)]) for i in range(len(ids))],
+            text=[f"<b>{ids[int(i)]}</b>" for i in range(len(ids))],
             name="Uploaded AFIDs",
         ),
         go.Scatter3d(
@@ -168,8 +168,9 @@ def generate_3d_scatter(ref_afids, user_afids):
             mode="lines",
             hovertemplate="%{text}",
             text=[
-                "<b>{0}</b><br>Euclidean Distance: {1:.3f} mm".format(
-                    ids[int(i / 4)], lines_magnitudes[i]
+                (
+                    f"<b>{ids[int(i / 4)]}</b><br>Euclidean Distance: "
+                    f"{lines_magnitudes[i]:.3f} mm"
                 )
                 for i in range(len(lines_x))
             ],

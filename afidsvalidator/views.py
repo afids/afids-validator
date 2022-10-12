@@ -2,6 +2,7 @@
 
 import os
 from datetime import datetime, timezone
+from pathlib import Path
 
 import numpy as np
 import wtforms as wtf
@@ -32,6 +33,7 @@ validator = Blueprint("validator", __name__, template_folder="templates")
 
 
 class Average(wtf.Form):
+    # pylint: disable=too-few-public-methods
     """Form for selecting and submitting a file."""
 
     filename = wtf.FileField(validators=[wtf.validators.InputRequired()])
@@ -80,6 +82,7 @@ def logout():
 
 
 # Validator
+# pylint: disable=no-member
 @validator.route("/app.html", methods=["GET", "POST"])
 def validate():
     """Present the validator form, or validate an AFIDs set."""
@@ -94,11 +97,6 @@ def validate():
     form_choices = os.listdir(current_app.config["AFIDS_DIR"])
     form_choices = [choice.capitalize() for choice in form_choices]
     form_choices.sort()
-
-    # Get time stamp
-    timestamp = str(
-        datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
-    )
 
     if not (request.method == "POST" and request.files):
         return render_template(
@@ -116,7 +114,7 @@ def validate():
     upload_ext, file_check = allowed_file(upload.filename)
 
     if not (upload and file_check):
-        result = f"Invalid file: extension not allowed ({timestamp})"
+        result = "Invalid file: extension not allowed"
 
         return render_template(
             "app.html",
@@ -135,7 +133,7 @@ def validate():
         else:
             user_afids = json_to_afids(upload.read().decode("utf-8"))
     except InvalidFileError as err:
-        result = f"Invalid file: {err.message} ({timestamp})"
+        result = f"Invalid file: {err.message}"
         return render_template(
             "app.html",
             form=form,
@@ -149,14 +147,10 @@ def validate():
         )
 
     if user_afids.validate():
-        result = f"Valid file ({timestamp})"
+        result = "Valid file"
     else:
-        result = (
-            f"Invalid AFIDs set, please double check your file ({timestamp})"
-        )
+        result = "Invalid AFIDs set, please double check your file"
 
-    fid_species = request.form["fid_species"]
-    fid_species = fid_species.lower()
     fid_template = request.form["fid_template"]
 
     if fid_template == "Validate file structure":
@@ -174,9 +168,14 @@ def validate():
 
     result = f"{result}<br>{fid_template} selected"
     # Need to pull from correct folder when more templates are added
-    template_file_path = f"{current_app.config['AFIDS_DIR']}/{fid_species.lower()}/tpl-{fid_template}_afids.fcsv"
 
-    with open(template_file_path, "r") as template_file:
+    with open(
+        Path(current_app.config["AFIDS_DIR"])
+        / request.form["fid_species"].lower()
+        / f"tpl-{fid_template}_afids.fcsv",
+        "r",
+        encoding="utf-8",
+    ) as template_file:
         template_afids = csv_to_afids(template_file.read())
 
     if request.form.get("db_checkbox"):
@@ -189,22 +188,13 @@ def validate():
         print("DB option unchecked, user data not saved")
 
     for desc in EXPECTED_DESCS:
-        distances.append(
-            "{:.5f}".format(
-                np.linalg.norm(
-                    np.array(
-                        [
-                            getattr(
-                                template_afids, desc[-1]
-                            ).__composite_values__()
-                        ]
-                    )
-                    - np.array(
-                        [getattr(user_afids, desc[-1]).__composite_values__()]
-                    )
-                )
+        distance = np.linalg.norm(
+            np.array(
+                [getattr(template_afids, desc[-1]).__composite_values__()]
             )
+            - np.array([getattr(user_afids, desc[-1]).__composite_values__()])
         )
+        distances.append(f"{distance:.5f}")
         labels.append(desc[-1])
 
     return render_template(
@@ -216,7 +206,9 @@ def validate():
         index=list(range(len(EXPECTED_DESCS))),
         labels=labels,
         distances=distances,
-        timestamp=timestamp,
+        timestamp=str(
+            datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z")
+        ),
         scatter_html=generate_3d_scatter(template_afids, user_afids),
         histogram_html=generate_histogram(template_afids, user_afids),
         current_user=current_user,

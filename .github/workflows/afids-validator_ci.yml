@@ -119,16 +119,16 @@ jobs:
         run: poetry install --no-interaction --no-root --with dev
 
       - name: isort
-        run: poetry run isort afidsvalidator -c
+        run: poetry run isort afidsvalidator test -c
 
       - name: black
-        run: poetry run black afidsvalidator --check
+        run: poetry run black afidsvalidator test --check
 
       - name: flake8
-        run: poetry run flake8 afidsvalidator
+        run: poetry run flake8 afidsvalidator test
 
       - name: pylint
-        run: poetry run pylint afidsvalidator
+        run: poetry run pylint afidsvalidator test
 
   assign:
     name: Reviewer assignment

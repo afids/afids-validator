@@ -1,11 +1,16 @@
-from pathlib import Path
+"""Test templates"""
+
 import unittest
+from pathlib import Path
 
 from afidsvalidator import model
 
 
 class TestTemplates(unittest.TestCase):
+    """A test for the provided template validity"""
+
     def test_human_templates(self):
+        """Test that each human template is valid."""
         for template_file in Path(
             "afidsvalidator/afids-templates/human"
         ).iterdir():

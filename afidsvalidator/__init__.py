@@ -7,7 +7,7 @@ from flask import Flask
 from afidsvalidator.model import db, login_manager
 from afidsvalidator.orcid import orcid_blueprint
 from afidsvalidator.views import validator
-from config import *
+from config import DevelopmentConfig, ProductionConfig, TestingConfig
 
 
 class ConfigException(Exception):
@@ -40,6 +40,7 @@ UPLOAD_DIR = "uploads/"
 
 
 def create_app():
+    """Create and initialize an app according to the config."""
     app = Flask(__name__)
 
     app.config.from_object(config_settings)
