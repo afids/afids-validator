@@ -4,6 +4,7 @@ version = "v1.2.3-pre.6"
 description = "Anatomical fiducials (AFIDs) validator for user placed markups"
 authors = ["Jason Kai <kaitj>", "Tristan Kuehn <tkkuehn>", "Olivia Stanley <ostanley>", "AFIDs contributors"]
 license = "GPL-3.0"
+include = ["afidsvalidator/afids-templates/human/*"]
 
 [tool.poetry.dependencies]
 python = ">=3.8, <3.11"
@@ -20,6 +21,7 @@ plotly = "^4.12"
 psycopg2-binary = "^2.8"
 python-dotenv = "^0.17"
 WTForms = "^2.2"
+uwsgi = { version = "^2.0.20", optional = true }
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.8.0"
@@ -30,6 +32,9 @@ pylint-sqlalchemy = "^0.2"
 pylint-flask-sqlalchemy = "^0.2"
 pre-commit = "^2.15"
 poethepoet = "^0.16.2"
+
+[tool.poetry.extras]
+deploy = ["uwsgi"]
 
 [tool.poe.tasks]
 setup = "pre-commit install"

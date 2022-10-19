@@ -4,8 +4,7 @@ import os
 
 from dotenv import load_dotenv
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-load_dotenv(f"{basedir}/.env")
+load_dotenv()
 
 
 class Config(object):
@@ -21,7 +20,6 @@ class Config(object):
     )
 
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
-    AFIDS_DIR = "afidsvalidator/afids-templates"
     SQLALCHEMY_TRACK_MODIFICATIONS = (
         os.environ.get("SQLALCHEMY_TRACK_MODIFICATIONS") or False
     )

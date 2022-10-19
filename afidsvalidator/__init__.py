@@ -3,11 +3,16 @@
 import os
 
 from flask import Flask
+from flask_migrate import Migrate
 
+from afidsvalidator.config import (
+    DevelopmentConfig,
+    ProductionConfig,
+    TestingConfig,
+)
 from afidsvalidator.model import db, login_manager
 from afidsvalidator.orcid import orcid_blueprint
 from afidsvalidator.views import validator
-from config import DevelopmentConfig, ProductionConfig, TestingConfig
 
 
 class ConfigException(Exception):
@@ -58,6 +63,8 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
     login_manager.init_app(app)
+    migrate = Migrate(render_as_batch=True, compare_type=True)
+    migrate.init_app(app, db)
     app.register_blueprint(validator)
     app.register_blueprint(orcid_blueprint)
 
