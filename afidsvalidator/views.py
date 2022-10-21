@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -107,8 +106,10 @@ def render_validator(form, result="", placement_report=None):
     """Render the validator page."""
     form_choices = sorted(
         [
-            choice.capitalize()
-            for choice in os.listdir(current_app.config["AFIDS_DIR"])
+            choice.name.capitalize()
+            for choice in (
+                Path(current_app.root_path) / "afids-templates"
+            ).iterdir()
         ]
     )
     if placement_report:
@@ -178,7 +179,8 @@ def validate():
 
     # Need to pull from correct folder when more templates are added
     with open(
-        Path(current_app.config["AFIDS_DIR"])
+        Path(current_app.root_path)
+        / "afids-templates"
         / request.form["fid_species"].lower()
         / f"tpl-{fid_template}_afids.fcsv",
         "r",
@@ -211,11 +213,13 @@ def get_templates(species):
         ["Validate file structure"]
         + sorted(
             [
-                species_templates[4:].split("_")[0]
-                for species_templates in os.listdir(
-                    f"{current_app.config['AFIDS_DIR']}/{species.lower()}"
-                )
-                if "tpl" in species_templates
+                species_templates.name[4:].split("_")[0]
+                for species_templates in (
+                    Path(current_app.root_path)
+                    / "afids-templates"
+                    / species.lower()
+                ).iterdir()
+                if "tpl" in species_templates.name
             ],
             key=str.lower,
         )

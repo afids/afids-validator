@@ -1,0 +1,26 @@
+services:
+  afidsvalidator:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:example@postgres:5432
+      UWSGI_SOCKET: 0.0.0.0:5000
+      FLASK_ENV: development
+    ports: ["5000:5000"]
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:11
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: example
+    volumes:
+      - "./compose/postgres-db:/var/lib/postgresql/data"
+    ports: ["5432:5432"]
+  nginx:
+    image: nginx:latest
+    hostname: nginx
+    volumes:
+      - "./compose/nginx.conf:/etc/nginx/nginx.conf"
+    ports: ["5001:80"]
+    depends_on:
+      - afidsvalidator
