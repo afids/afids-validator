@@ -65,21 +65,14 @@ jobs:
       - name: Build package with poetry
         run: poetry build
 
-      - name: Write .env file
-        run: echo FLASK_ENV=${{ secrets.PRODUCTION_FLASK_ENV }} >> .env
-
-      - name: Build release
-        run: |
-          mkdir -p releases/afidsvalidator-`date +%s`
-          cp .env releases/afidsvalidator*
-          cp afidsvalidator*.whl releases/afidsvalidator*
-
-      - name: Deploy release to server
-        run: fabric
-
-      - name: Deploy heroku app
-        uses: akhileshns/heroku-deploy@v3.0.4
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: afids-validator
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+        #      - name: Write .env file
+        #        run: echo FLASK_ENV=${{ secrets.PRODUCTION_FLASK_ENV }} >> .env
+        #
+        #      - name: Build release
+        #        run: |
+        #          mkdir -p releases/afidsvalidator-`date +%s`
+        #          cp .env releases/afidsvalidator*
+        #          cp afidsvalidator*.whl releases/afidsvalidator*
+        #
+        #      - name: Deploy release to server
+        #        run: fabric
