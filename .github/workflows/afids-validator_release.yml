@@ -61,10 +61,3 @@ jobs:
           publish: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Deploy heroku app
-        uses: akhileshns/heroku-deploy@v3.0.4
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: afids-validator
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
