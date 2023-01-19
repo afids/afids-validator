@@ -61,9 +61,9 @@ jobs:
           echo DATE="$DATE" >> $GITHUB_ENV
 
       - name: Deploy release
-        run: |
-          echo "$PRIVATE_KEY" > .private_key
-          poetry run python3 fabrictasks.py "$PRODUCTION_URL" releases/afidsvalidator-"$DATE" /opt/afidsvalidator/releases "$WHEEL" /opt/afidsvalidator/venv-afidsvalidator .private_key
         env:
           PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        run: |
+          echo "$PRIVATE_KEY" > .private_key
+          poetry run python3 fabrictasks.py "$PRODUCTION_URL" releases/afidsvalidator-"$DATE" /opt/afidsvalidator/releases "$WHEEL" /opt/afidsvalidator/venv-afidsvalidator .private_key
