@@ -11,7 +11,7 @@ def push_release(
     wheel_name: str,
 ):
     remote_release_new = str(remote_releases_dir / new_release_path.name)
-    connection.run(f"mkdir {remote_release_new}")
+    connection.run(f"mkdir -p {remote_release_new}")
     wheel_path = str(new_release_path / wheel_name)
     connection.put(wheel_path, remote_release_new)
     connection.put(str(new_release_path / ".env"), remote_release_new)
