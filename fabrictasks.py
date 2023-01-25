@@ -15,6 +15,8 @@ def push_release(
     wheel_path = str(new_release_path / wheel_name)
     connection.put(wheel_path, remote_release_new)
     connection.put(str(new_release_path / ".env"), remote_release_new)
+    link_name = str(remote_releases_dir.parent / "current")
+    connection.run(f"ln -s {remote_release_new} {link_name}")
 
 
 def install_wheel(connection: Connection, venv_path: str, wheel_path: str):
