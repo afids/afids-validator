@@ -74,7 +74,7 @@ jobs:
       - name: Test AFIDs validator
         shell: bash
         env:
-          FLASK_ENV: ${{ secrets.APP_SETTINGS }}     # Sets flask environment
+          FLASK_ENV: testing     # Sets flask environment
           DATABASE_URL: postgresql://testuser:testpass@localhost/testdb
         run: |
           poetry run python -m unittest
