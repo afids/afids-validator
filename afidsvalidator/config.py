@@ -1,13 +1,15 @@
 """Configuration classes for flask/heroku."""
 
 import os
+from dataclasses import dataclass
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
-class Config(object):
+@dataclass
+class Config:
     """Configuration class
 
     This class contains all of the global configuration variables needed for
@@ -31,6 +33,7 @@ class Config(object):
     ORCID_OAUTH_CLIENT_SECRET = os.environ.get("ORCID_OAUTH_CLIENT_SECRET")
 
 
+@dataclass
 class ProductionConfig(Config):
     """Config used in production"""
 
@@ -39,6 +42,7 @@ class ProductionConfig(Config):
     TESTING = False
 
 
+@dataclass
 class DevelopmentConfig(Config):
     """Config used in development"""
 
@@ -46,6 +50,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
 
 
+@dataclass
 class TestingConfig(Config):
     """Config used for pytest"""
 
