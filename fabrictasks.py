@@ -21,7 +21,7 @@ def push_release(
 
 def install_wheel(connection: Connection, venv_path: str, wheel_path: str):
     connection.run(
-        f"source {venv_path}/bin/activate && pip install {wheel_path}"
+        f"source {venv_path}/bin/activate && pip install {wheel_path}[deploy]"
     )
 
 
