@@ -35,10 +35,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update setup.py version
+      - name: Update pyproject.toml version
         uses: jacobtomlinson/gha-find-replace@master
         with:
-          include: "setup.py"
+          include: "pyproject.toml"
           find: 'v(?:([0-9]+\.[0-9]+\.[0-9]+.+)|([0-9]+\.[0-9]+\.[0-9]+))'
           replace: '${{ steps.release-drafter.outputs.name }}"'
 
