@@ -24,6 +24,7 @@ numpy = "^1.17"
 plotly = "^4.12"
 psycopg2-binary = "^2.8"
 python-dotenv = "^0.17"
+werkzeug = ">=2.2.3,<3"
 WTForms = "^2.2"
 uwsgi = { version = "^2.0.20", optional = true }
 
