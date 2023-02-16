@@ -132,11 +132,11 @@ def generate_3d_scatter(ref_afids, user_afids):
             z=[getattr(ref_afids, desc[-1]).z for desc in EXPECTED_DESCS],
             showlegend=True,
             mode="markers",
-            marker=dict(
-                size=4,
-                color="rgba(255,191,31,0.9)",
-                line=dict(width=1.5, color="rgba(50,50,50,1.0)"),
-            ),
+            marker={
+                "size": 4,
+                "color": "rgba(255,191,31,0.9)",
+                "line": {"width": 1.5, "color": "rgba(50,50,50,1.0)"},
+            },
             hovertemplate=(
                 "%{text}<br>x: %{x:.4f}<br>y: %{y:.4f}<br>" + "z: %{z:.4f}"
             ),
@@ -149,11 +149,11 @@ def generate_3d_scatter(ref_afids, user_afids):
             z=[getattr(user_afids, desc[-1]).z for desc in EXPECTED_DESCS],
             showlegend=True,
             mode="markers",
-            marker=dict(
-                size=4,
-                color="rgba(0,0,0,0.9)",
-                line=dict(width=1.5, color="rgba(50,50,50,1.0)"),
-            ),
+            marker={
+                "size": 4,
+                "color": "rgba(0,0,0,0.9)",
+                "line": {"width": 1.5, "color": "rgba(50,50,50,1.0)"},
+            },
             hovertemplate=(
                 "%{text}<br>x: %{x:.4f}<br>y: %{y:.4f}<br>" + "z: %{z:.4f}"
             ),
@@ -174,13 +174,13 @@ def generate_3d_scatter(ref_afids, user_afids):
                 )
                 for i in range(len(lines_x))
             ],
-            line=dict(
-                color=lines_magnitudes,
-                colorscale="Bluered",
-                width=8,
-                showscale=True,
-                colorbar=dict(title=dict(text="Euclidean distance")),
-            ),
+            line={
+                "color": lines_magnitudes,
+                "colorscale": "Bluered",
+                "width": 8,
+                "showscale": True,
+                "colorbar": {"title": {"text": "Euclidean distance"}},
+            },
             name="Euclidean Distance",
         ),
     ]
@@ -194,7 +194,7 @@ def generate_3d_scatter(ref_afids, user_afids):
         title_text="Euclidean distances from template",
         autosize=True,
         barmode="stack",
-        coloraxis=dict(colorscale="Bluered"),
+        coloraxis={"colorscale": "Bluered"},
         legend_orientation="h",
     )
 
@@ -251,7 +251,7 @@ def generate_histogram(ref_afids, user_afids):
     fig4.update_layout(
         title_text="Template vs. provided AFIDs",
         autosize=True,
-        coloraxis=dict(colorscale="Bluered"),
+        coloraxis={"colorscale": "Bluered"},
     )
 
     return fig4.to_html(include_plotlyjs="cdn", full_html=False)
