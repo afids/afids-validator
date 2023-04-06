@@ -1,51 +1,52 @@
+:root {
+  --afids-green: #00ff01;
+  --dark: #000;
+  --light: #fff;
+}
+
 html,
 body {
   width: 100%;
   height: 100%;
   margin: 0px;
   padding: 0px;
-  background-color: #000;
-  color: #fff;
+  background-color: var(--dark);
+  color: var(--light);
 }
 
 /* Nav */
 header .nav-link {
   font-family: "Bebas Neue", serif;
   font-size: 32px;
-  color: #fff;
+  color: var(--light);
 }
 
 .nav .nav-link {
-  color: #fff;
+  color: var(--light);
 }
 
 header .nav-link:hover,
 .nav .nav-link:hover {
-  color: #00ff01;
+  color: var(--afids-green);
 }
 
 header hr {
-  color: #00ff01;
+  color: var(--afids-green);
   border-top: 0.2vw solid;
   margin-top: -1%;
 }
 
 /* Footer */
 footer {
-  background-color: #00ff01;
-  color: #000;
+  background-color: var(--afids-green);
+  color: var(--dark);
 }
 
 footer .nav-link {
-  color: #000;
+  color: var(--dark);
   font-size: 18px;
 }
 
 footer .nav-link:hover {
-  color: #fff;
-}
-
-/* Misc */
-#afids-video {
-  text-align: center;
+  color: var(--light);
 }
