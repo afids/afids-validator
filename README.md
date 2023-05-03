@@ -1,6 +1,7 @@
 [![AFIDs](https://github.com/afids/afids-validator/blob/master/afidsvalidator/static/images/banner.png)](./static/images/banner.png)
 
 [![](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fafids_project)](https://twitter.com/afids_project)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7871819.svg)](https://doi.org/10.5281/zenodo.7871819)
 [![AFIDs Validator CI](https://github.com/afids/afids-validator/actions/workflows/afids-validator_ci.yml/badge.svg)](https://github.com/afids/afids-validator/actions/workflows/afids-validator_ci.yml)
 [![AFIDs Validator Release](https://github.com/afids/afids-validator/actions/workflows/afids-validator_release.yml/badge.svg)](https://github.com/afids/afids-validator/actions/workflows/afids-validator_release.yml)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/afids/afids-validator?sort=semver)
