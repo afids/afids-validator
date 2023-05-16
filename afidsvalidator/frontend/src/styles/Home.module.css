@@ -1,8 +1,6 @@
-.main {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6rem;
-  min-height: 100vh;
+.afidsVideo {
+  width: 90%;
+  height: width / (16 / 9);
+  border: var(--light) solid 1px;
+  margin-bottom: 16px;
 }

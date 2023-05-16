@@ -22,6 +22,7 @@ html, body {
   padding: 0;
   background-color: var(--dark);
   color: var(--light);
+  font-size: var(--def-fontsize);
 }
 
 .container {
