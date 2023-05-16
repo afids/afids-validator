@@ -11,6 +11,8 @@
   --nav-fontsize: 24px;
   --def-font: "Roboto", sans-serif;
   --def-fontsize: 20px;
+  --foot-font: "Robot", sans-serif;
+  --foot-fontsize: 18px;
 }
 
 html, body {
@@ -47,4 +49,30 @@ a.nav-link:hover {
   color: var(--afids-green);
   margin-top: 0;
   border-top: 0.2vw solid;
+}
+
+/* Footer */
+footer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--afids-green);
+  color: var(--dark);
+  font-size: var(--foot-fontsize);
+}
+
+footer a {
+  color: var(--dark);
+}
+
+footer a:hover {
+  color: var(--light);
+}
+
+.footIcon {
+  width: var(--def-fontsize);
+  height: var(--def-fontsize);
+  margin: 8px;
 }
