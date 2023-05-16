@@ -6,6 +6,7 @@ import "../styles/globals.css";
 
 export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
+    // @ts-ignore
     import("bootstrap/dist/js/bootstrap");
   }, []);
 
@@ -22,7 +23,7 @@ export default function App({ Component, pageProps }: AppProps) {
         />
         <link rel="icon" href="/afids.png" />
       </Head>
-      <Component {...pageProps} />;
+      <Component {...pageProps} />
     </>
   );
 }

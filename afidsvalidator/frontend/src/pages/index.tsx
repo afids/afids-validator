@@ -11,7 +11,9 @@ export default function Home() {
 
       <main>
         <Row>
-          <Col className="d-flex align-items-center" sm={7}>
+          <Col sm={7}>
+            <h2>Anatomical fiducials</h2>
+            <br />
             <p>
               Anatomical fiducials (AFIDs) is an open framework for evaluating
               correspondence in brain images and teaching neuroanatomy using
@@ -21,7 +23,7 @@ export default function Home() {
               that it conforms to the protocol.
             </p>
           </Col>
-          <Col className="d-flex align-items-center" sm={5}>
+          <Col sm={5}>
             <video
               src="/afids-human_HD.mp4"
               className={homeStyles.afidsVideo}

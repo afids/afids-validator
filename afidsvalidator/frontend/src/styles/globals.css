@@ -7,38 +7,54 @@
   --light: #fff;
 
   /* Fonts */
-  --nav-font: "Bebas Neue", serif;
-  --nav-fontsize: 24px;
+  --nav-font: 'Bebas Neue', sans-serif;
+  --nav-fontsize: 36px;
   --def-font: "Roboto", sans-serif;
   --def-fontsize: 20px;
-  --foot-font: "Robot", sans-serif;
-  --foot-fontsize: 18px;
+  --foot-font: "Roboto", sans-serif;
+  --foot-fontsize: 16px;
 }
 
 html, body {
   max-width: 100vw;
-  height: 100%;
+  height: 100vh;
   margin: 0;
   padding: 0;
   background-color: var(--dark);
   color: var(--light);
+  font-family: var(--def-font);
   font-size: var(--def-fontsize);
 }
 
 .container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   background-color: var(--dark);
   color: var(--light);
   font-size: var(--def-fontsize);
   justify-content: center;
 }
 
+main {
+  flex: 1;
+}
+
+a {
+  color: var(--afids-green);
+}
+
+a:hover {
+  color: var(--light);
+}
+
 /* Navbar */
 a.nav-link {
-  padding: 10px 50px !important;
+  padding: 0 50px !important;
   text-transform: uppercase;
   text-align: center;
   color: var(--light);
-  font: var(--nav-font);
+  font-family: var(--nav-font);
   font-size: var(--nav-fontsize);
 }
 
@@ -56,7 +72,6 @@ a.nav-link:hover {
 footer {
   display: flex;
   flex-direction: column;
-  flex: 1;
   align-items: center;
   justify-content: center;
   background-color: var(--afids-green);
