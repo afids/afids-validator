@@ -1,0 +1,27 @@
+{
+  "name": "afidsvalidator-react",
+  "version": "v1.2.8-pre.3",
+  "private": true,
+  "source": "src/index.ts",
+  "targets": {
+    "default": {
+      "context": "browser",
+      "outputFormat": "global",
+      "distDir": "./dist"
+    }
+  },
+  "dependencies": {
+    "@fortawesome/free-brands-svg-icons": "^6.4.0",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.7.4",
+    "react-dom": "^18.2.0"
+  },
+  "scripts": {
+    "build": "parcel build src/index.ts"
+  },
+  "devDependencies": {
+    "parcel": "^2.8.3",
+    "typescript": "^5.0.4"
+  }
+}
