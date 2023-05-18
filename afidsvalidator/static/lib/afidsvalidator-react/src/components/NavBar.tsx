@@ -23,7 +23,7 @@ const navData: NavProps[] = [
   },
   {
     name: "Validator",
-    url: "/app",
+    url: "/app.html",
     target: "_self",
   },
   {
@@ -34,7 +34,7 @@ const navData: NavProps[] = [
   // TODO: change dependent on if user is logged in or not
   {
     name: "Login",
-    url: "/login",
+    url: "/login.html",
     target: "_self",
   },
 ];
