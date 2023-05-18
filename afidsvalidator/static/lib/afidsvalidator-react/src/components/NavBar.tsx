@@ -9,37 +9,34 @@ interface NavProps {
   target: string;
 }
 
-// Default navigation bar
-const navData: NavProps[] = [
-  {
-    name: "About",
-    url: "/",
-    target: "_self",
-  },
-  {
-    name: "Protocol",
-    url: "https://afids.github.io/afids-protocol/",
-    target: "_blank",
-  },
-  {
-    name: "Validator",
-    url: "/app.html",
-    target: "_self",
-  },
-  {
-    name: "Contact",
-    url: "/contact.html",
-    target: "_self",
-  },
-  // TODO: change dependent on if user is logged in or not
-  {
-    name: "Login",
-    url: "/login.html",
-    target: "_self",
-  },
-];
+const NavBar: React.FC<{ current_user: string }> = ({ current_user }) => {
+  // Default navigation bar
+  const navData: NavProps[] = [
+    {
+      name: "About",
+      url: "/",
+      target: "_self",
+    },
+    {
+      name: "Protocol",
+      url: "https://afids.github.io/afids-protocol/",
+      target: "_blank",
+    },
+    {
+      name: "Validator",
+      url: "/app.html",
+      target: "_self",
+    },
+    {
+      name: "Contact",
+      url: "/contact.html",
+      target: "_self",
+    },
+    current_user
+      ? { name: "Logout", url: "/logout.html", target: "_self" }
+      : { name: "Login", url: "/login.html", target: "_self" },
+  ];
 
-const NavBar: React.FC = () => {
   return (
     <>
       <Row>
@@ -66,7 +63,10 @@ const NavBar: React.FC = () => {
 };
 
 const RenderNavBar = () => {
-  ReactDOM.render(<NavBar />, document.getElementById("react-navbar"));
+  ReactDOM.render(
+    <NavBar current_user={currentUser} />,
+    document.getElementById("react-navbar")
+  );
 };
 
 export default RenderNavBar;
