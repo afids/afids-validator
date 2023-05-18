@@ -1,6 +1,0 @@
-.afidsVideo {
-  width: 90%;
-  height: width / (16 / 9);
-  border: var(--light) solid 1px;
-  margin-bottom: 16px;
-}
