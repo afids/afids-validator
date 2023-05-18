@@ -2,147 +2,149 @@
 {% block title %} | VALIDATOR {% endblock %}
 
 {% block content %}
-    <div class="container">
+  <div class="row">
+    <section class="col-9">
       <div class="row">
-        <section class="col-9">
-          <div class="row">
-              <div class="col-9">
-                  <p>Use the following form to compare user placed fiducials to one of the available templates!</p>
-                  <p>If you choose to "Upload to Database", fiducials from the file will be uploaded and stored. These
-                  placements may be used in the future to identify fiducials users are having difficulty placing.
-                  </p>
-              </div>
+          <div class="col-9">
+              <p>Use the following form to compare user placed fiducials to one of the available templates!</p>
+              <p>If you choose to "Upload to Database", fiducials from the file will be uploaded and stored. These
+              placements may be used in the future to identify fiducials users are having difficulty placing.
+              </p>
           </div>
-
-          <!-- Template submission form -->
-          <form method=POST action="" enctype="multipart/form-data">
-            <!-- Dropdown for template selection -->
-            <fieldset class="form-group">
-              <legend>Select a template to compare against.</legend>
-              <select id="species" class="form-control" name="fid_species" method="GET" action="/">
-                {% for choice in form_choices %}
-                <option value="{{choice}}">{{choice}}</option>
-                {% endfor %}
-              </select>
-              <select id="templates" class="form-control" name="fid_template" method="GET" action="/">
-                <!-- Will autoload on page ready, start with blank option -->
-                <option value=""></option>
-              </select>
-            </fieldset>
-
-            <!-- User template "upload" -->
-            <fieldset class="form-group">
-              <legend>Select the AFIDs file to validate.</legend>
-              {% for field in form %}
-              {{ field }}
-              {% if field.errors %}
-              <ul class="errors">
-                {% for error in field.errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-              </ul>
-              {% endif %}
-              {% endfor %}
-            </fieldset>
-	          <input type="checkbox" id="db_checkbox" name="db_checkbox"/>
-	          <label for="db_checkbox">Upload to Database</label>
-          </form>
-
-          {% if result != "" %}
-          <div class="row">
-              <div class="col-9">
-                  <h2>Results</h2>
-              </div>
-          </div>
-          <div class="row">
-              <div class="col-9">
-                  {% if result[0:5] == "Valid" %}
-                  <div class="alert alert-success">
-                  {% else %}
-                  <div class="alert alert-danger">
-                  {% endif %}
-                      {{ result|safe }}
-                  </div>
-              </div>
-          </div>
-          {% if scatter_html %}
-          <div class="row">
-            <div class="col-9">
-              <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active">
-                  <a class="nav-link active" href="#plots" role="tab" aria-controls="plots" data-bs-toggle="tab"><h3>Plots</h3></a>
-                </li>
-                <li role="presentation">
-                  <a class="nav-link" href="#table" role="tab" aria-controls="table" data-bs-toggle="tab"><h3>Table</h3></a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="plots">
-              <div class="row">
-                <div class="col-9">
-                    {{scatter_html|safe}}
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-9">
-                    {{histogram_html|safe}}
-                </div>
-              </div>
-            </div>
-            <div role="tabpanel" class="tab-pane" id="table">
-              <div class="row">
-                <div class="text col-9">
-                  <table class="table table-dark table-sm">
-                  <tr>
-                    <th scope="col">{{"Fiducial Name"}}</th>
-                    <th scope="col">{{"Distance [mm]"}}</th></tr>
-                  {% for label, distance in table_zip %}
-                  <tr><td>{{label}}</td><td>{{distance}}</td></tr>
-                  {% endfor %}
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-          {% endif %}
-          {% endif %}
-        </section>
-
-        <!-- Analytics -->
-        <!-- <section class="col">
-          <a class="btn btn-light" href="/getall">View DB</a>
-          <a class="btn btn-light" href="/analytics">Analytics</a>
-        </section> -->
       </div>
+
+      <!-- Template submission form -->
+      <form method=POST action="" enctype="multipart/form-data">
+        <!-- Dropdown for template selection -->
+        <fieldset class="form-group">
+          <legend>Select a template to compare against.</legend>
+          <select id="species" class="form-control" name="fid_species" method="GET" action="/">
+            {% for choice in form_choices %}
+            <option value="{{choice}}">{{choice}}</option>
+            {% endfor %}
+          </select>
+          <select id="templates" class="form-control" name="fid_template" method="GET" action="/">
+            <!-- Will autoload on page ready, start with blank option -->
+            <option value=""></option>
+          </select>
+        </fieldset>
+
+        <!-- User template "upload" -->
+        <fieldset class="form-group">
+          <legend>Select the AFIDs file to validate.</legend>
+          {% for field in form %}
+          {{ field }}
+          {% if field.errors %}
+          <ul class="errors">
+            {% for error in field.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          {% endfor %}
+        </fieldset>
+        <input type="checkbox" id="db_checkbox" name="db_checkbox"/>
+        <label for="db_checkbox">Upload to Database</label>
+      </form>
+
+      <!-- Valid/Invalid Notification -->
+      {% if result != "" %}
+      <div class="row">
+          <div class="col-9">
+              <h2>Results</h2>
+          </div>
+      </div>
+      <div class="row">
+          <div class="col-9">
+              {% if result[0:5] == "Valid" %}
+              <div class="alert alert-success">
+              {% else %}
+              <div class="alert alert-danger">
+              {% endif %}
+                  {{ result|safe }}
+              </div>
+          </div>
+      </div>
+
+        <!-- Plotly -->
+        {% if scatter_html %}
+        <div class="row">
+          <div class="col-9">
+            <ul class="nav nav-tabs" role="tablist">
+              <li role="presentation" class="active">
+                <a class="nav-link active" href="#plots" role="tab" aria-controls="plots" data-bs-toggle="tab"><h3>Plots</h3></a>
+              </li>
+              <li role="presentation">
+                <a class="nav-link" href="#table" role="tab" aria-controls="table" data-bs-toggle="tab"><h3>Table</h3></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="tab-content">
+          <div role="tabpanel" class="tab-pane active" id="plots">
+            <div class="row">
+              <div class="col-9">
+                  {{scatter_html|safe}}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-9">
+                  {{histogram_html|safe}}
+              </div>
+            </div>
+          </div>
+          <div role="tabpanel" class="tab-pane" id="table">
+            <div class="row">
+              <div class="text col-9">
+                <table class="table table-dark table-sm">
+                <tr>
+                  <th scope="col">{{"Fiducial Name"}}</th>
+                  <th scope="col">{{"Distance [mm]"}}</th></tr>
+                {% for label, distance in table_zip %}
+                <tr><td>{{label}}</td><td>{{distance}}</td></tr>
+                {% endfor %}
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      {% endif %}
+    </section>
+
+    <!-- Analytics -->
+  <!-- <section class="col">
+      <a class="btn btn-light" href="/getall">View DB</a>
+      <a class="btn btn-light" href="/analytics">Analytics</a>
+    </section> -->
     </div>
+  </div>
 
-    <script>
-      // Grab associated templates to species
-      let species_select = document.getElementById("species");
-      let template_select = document.getElementById("templates");
+  <script>
+    // Grab associated templates to species
+    let species_select = document.getElementById("species");
+    let template_select = document.getElementById("templates");
 
-      let update_dropdown = function() {
-        species = species_select.value;
+    let update_dropdown = function() {
+      species = species_select.value;
 
-        fetch("/validator/" + species).then(function(response) {
-          response.json().then(function(data) {
-            let template_HTML = "";
+      fetch("/validator/" + species).then(function(response) {
+        response.json().then(function(data) {
+          let template_HTML = "";
 
-            for (let template of data) {
-              template_HTML += '<option value="' + template + '">' + template + '</option>';
-            }
+          for (let template of data) {
+            template_HTML += '<option value="' + template + '">' + template + '</option>';
+          }
 
-            template_select.innerHTML = template_HTML;
-          });
+          template_select.innerHTML = template_HTML;
         });
-      }
+      });
+    }
 
-      // Populate dropdown choices on load by species
-      window.onload = update_dropdown
+    // Populate dropdown choices on load by species
+    window.onload = update_dropdown
 
-      // Populate dropdown choices if species is changed
-      species_select.onchange = update_dropdown
-    </script>
-{% endblock %}
+    // Populate dropdown choices if species is changed
+    species_select.onchange = update_dropdown
+  </script>
+{% endblock content %}
