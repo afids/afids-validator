@@ -1,6 +1,6 @@
 import { faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
+import * as React from "react";
 import { Row } from "react-bootstrap";
 import * as ReactDOM from "react-dom";
 

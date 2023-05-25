@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Nav, Navbar, Row } from "react-bootstrap";
 import * as ReactDOM from "react-dom";
 import afidsBanner from "../../public/afids_banner.png";
@@ -63,10 +63,7 @@ const NavBar: React.FC<{ current_user: string }> = ({ current_user }) => {
 };
 
 const RenderNavBar = () => {
-  ReactDOM.render(
-    <NavBar current_user={currentUser} />,
-    document.getElementById("react-navbar")
-  );
+  ReactDOM.render(<NavBar />, document.getElementById("react-navbar"));
 };
 
 export default RenderNavBar;
