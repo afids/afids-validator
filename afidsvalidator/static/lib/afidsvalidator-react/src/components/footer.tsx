@@ -23,7 +23,7 @@ const footerData: footerProps[] = [
   },
 ];
 
-const Footer: React.FC = () => {
+function Footer() {
   const startYear: number = 2018;
   let curYear: number = new Date().getFullYear();
 
@@ -41,10 +41,10 @@ const Footer: React.FC = () => {
       </Row>
     </footer>
   );
-};
+}
 
-const RenderFooter = () => {
+function renderFooter() {
   ReactDOM.render(<Footer />, document.getElementById("react-footer"));
-};
+}
 
-export default RenderFooter;
+export default renderFooter;

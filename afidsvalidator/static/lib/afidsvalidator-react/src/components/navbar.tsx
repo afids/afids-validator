@@ -3,13 +3,17 @@ import { Nav, Navbar, Row } from "react-bootstrap";
 import * as ReactDOM from "react-dom";
 import afidsBanner from "../../public/afids_banner.png";
 
+interface NavBarProps {
+  currentUser: string | null;
+}
+
 interface NavProps {
   name: string;
   url: string;
   target: string;
 }
 
-const NavBar: React.FC<{ current_user: string }> = ({ current_user }) => {
+function NavBar({ currentUser }: NavBarProps) {
   // Default navigation bar
   const navData: NavProps[] = [
     {
@@ -32,7 +36,7 @@ const NavBar: React.FC<{ current_user: string }> = ({ current_user }) => {
       url: "/contact.html",
       target: "_self",
     },
-    current_user
+    currentUser
       ? { name: "Logout", url: "/logout.html", target: "_self" }
       : { name: "Login", url: "/login.html", target: "_self" },
   ];
@@ -60,10 +64,14 @@ const NavBar: React.FC<{ current_user: string }> = ({ current_user }) => {
       <hr className="nav-hr" />
     </>
   );
-};
+}
 
-const RenderNavBar = () => {
-  ReactDOM.render(<NavBar />, document.getElementById("react-navbar"));
-};
+// Need to pass currentUser from backend
+function renderNavbar() {
+  ReactDOM.render(
+    React.createElement(NavBar, { currentUser: null }),
+    document.getElementById("react-navbar")
+  );
+}
 
-export default RenderNavBar;
+export default renderNavbar;

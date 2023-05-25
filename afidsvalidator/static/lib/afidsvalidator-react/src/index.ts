@@ -1,10 +1,10 @@
-import RenderFooter from "./components/Footer";
-import RenderNavBar from "./components/NavBar";
+import renderFooter from "./components/footer";
+import renderNavbar from "./components/navbar";
 
-globalThis.RenderNavBar = RenderNavBar();
-globalThis.RenderFooter = RenderFooter();
+globalThis.renderNavbar = renderNavbar();
+globalThis.renderFooter = renderFooter();
 
 export default {
-  RenderNavBar,
-  RenderFooter,
+  renderNavbar,
+  renderFooter,
 };
