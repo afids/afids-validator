@@ -30,7 +30,6 @@ html, body {
   background-color: var(--dark);
   color: var(--light);
   font-size: var(--def-fontsize);
-  justify-content: center;
 }
 
 main {

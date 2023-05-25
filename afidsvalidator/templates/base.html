@@ -43,11 +43,9 @@
         <div id="react-navbar"></div>
       </header>
       
-      <div>
-        <main>{% block content %}{% endblock content %}</main>
+      <main>{% block content %}{% endblock content %}</main>
 
-        <div id="react-footer"></div>
-      </div>
+      <div id="react-footer"></div>
 
       {% block scripts %}
         <script type="text/javascript" src={{url_for("static", filename="lib/afidsvalidator-react/dist/index.js") }}></script>
