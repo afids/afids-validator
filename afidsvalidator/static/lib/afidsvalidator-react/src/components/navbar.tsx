@@ -4,7 +4,7 @@ import * as ReactDOM from "react-dom";
 import afidsBanner from "../../public/afids_banner.png";
 
 interface NavBarProps {
-  currentUser: string | null;
+  isLoggedIn: boolean;
 }
 
 interface NavProps {
@@ -13,7 +13,7 @@ interface NavProps {
   target: string;
 }
 
-function NavBar({ currentUser }: NavBarProps) {
+function NavBar({ isLoggedIn }: NavBarProps) {
   // Default navigation bar
   const navData: NavProps[] = [
     {
@@ -36,7 +36,7 @@ function NavBar({ currentUser }: NavBarProps) {
       url: "/contact.html",
       target: "_self",
     },
-    currentUser
+    isLoggedIn
       ? { name: "Logout", url: "/logout.html", target: "_self" }
       : { name: "Login", url: "/login.html", target: "_self" },
   ];
@@ -67,9 +67,9 @@ function NavBar({ currentUser }: NavBarProps) {
 }
 
 // Need to pass currentUser from backend
-function renderNavbar() {
+function renderNavbar(isLoggedIn: boolean) {
   ReactDOM.render(
-    React.createElement(NavBar, { currentUser: null }),
+    React.createElement(NavBar, { isLoggedIn: isLoggedIn }),
     document.getElementById("react-navbar")
   );
 }
