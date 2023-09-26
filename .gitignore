@@ -4,7 +4,6 @@ __pycache__/
 .vscode/
 .jekyll-cache/
 _site/
-dist/
 
 # Files
 *.pyc
