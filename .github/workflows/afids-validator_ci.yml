@@ -1,7 +1,7 @@
 name: AFIDs Validator CI Workflow
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, reopened, synchronize, ready_for_review, closed]
 
 jobs:
@@ -74,8 +74,59 @@ jobs:
       - name: pylint
         run: poetry run pylint afidsvalidator test
 
-  assign-reviewer:
+  build-frontend:
     needs: [linting]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: action/checkout@v4
+
+      - name: Cache node installation
+        uses: actions/cache@v3
+        with:
+          path: ~/.local
+          key: ${{ runner.os }}-node-${{ github.event.pull_request.id }}
+
+      - name: Install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install react dependencies
+        run: |
+          npm --prefix afidsvalidator/static/lib/afidsvalidator-react install
+
+      - name: Build react frontend
+        run: |
+          npm run --prefix afidsvalidator/static/lib/afidsvalidator-react build
+
+      - name: Check changes
+        run: |
+          gh_status=$(git status --porcelain)
+          if [ -z "$gh_status" ]; then
+            echo 'modified="false"' >> $GITHUB_ENV
+          else
+            echo 'modified="true"' >> $GITHUB_ENV
+          fi
+
+      - name: Commit changes
+        if: env.modified == 'true'
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git diff-index --quiet HEAD || git commit -m "[BOT] Build react frontend" -a
+
+      - name: Push to repo
+        if: env.modified == 'true'
+        uses: CasperWA/push-protected@v2
+        with:
+          branch: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.BP_PAT_TOKEN }}
+          unprotect_reviews: true
+
+  assign-reviewer:
+    needs: [build-frontend]
     if: github.event.pull_request.assignee == null
     uses: khanlab/actions/.github/workflows/workflow-pr_task-assignReviewer.yml@v0.2.0
 
