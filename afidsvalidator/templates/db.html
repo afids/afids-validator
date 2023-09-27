@@ -1,12 +1,12 @@
-{% extends "base.html" %}
-{% block title %} | DATABASE{% endblock %}
-
-{% block content %}
-    <section class="container">
-      <table>
-        {% for fiducial_set in serialized_fset %}
-          <tr><td> {{fiducial_set}} </td> </tr>
-        {% endfor %}
-      </table>
-    </section>
-{% endblock %}
+{% extends "base.html" %} {% block title %} | DATABASE{% endblock %} {% block
+content %}
+<section>
+  <table>
+    {% for fiducial_set in serialized_fset %}
+    <tr>
+      <td>{{fiducial_set}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</section>
+{% endblock content %}

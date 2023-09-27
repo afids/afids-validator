@@ -42,6 +42,13 @@ jobs:
           find: 'v(?:([0-9]+\.[0-9]+\.[0-9]+.+)|([0-9]+\.[0-9]+\.[0-9]+))'
           replace: '${{ steps.release-drafter.outputs.name }}"'
 
+      - name: Update package.json version
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
+          include: "package.json"
+          find: 'v(?:([0-9]+\.[0-9]+\.[0-9]+.+)|([0-9]+\.[0-9]+\.[0-9]+))'
+          replace: '${{ steps.release-drafter.outputs.name }}"'
+
       - name: Commit updates
         env:
           LATEST_VERSION: ${{ steps.release-drafter.outputs.name }}

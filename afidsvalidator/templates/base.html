@@ -11,7 +11,7 @@
 
     <title>Anatomical Fiducials{% block title %}{% endblock %}</title>
 
-    <!-- favicon - to be added -->
+    <!-- favicon -->
     <link
       rel="shortcut icon"
       href="{{ url_for('static', filename='images/afid.png') }}"
@@ -25,12 +25,6 @@
       crossorigin="anonymous"
     />
 
-    <!-- Used for icons (e.g. git, twitter) -->
-    <link
-      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-      rel="stylesheet"
-      type="text/css"
-    />
     <!-- Google fonts -->
     <link
       href="https://fonts.googleapis.com/css?family=Bebas+Neue|Roboto&display=swap"
@@ -38,76 +32,31 @@
     />
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='css/afids_custom.css') }}"
+      href="{{ url_for('static', filename='lib/afidsvalidator-react/styles/afids_custom.css') }}"
       type="text/css"
     />
   </head>
 
-  <body class="d-flex flex-column h-100">
-    <header class="container">
-      <div class="navbar-brand">
-        <img
-          class="img-fluid"
-          src="{{ url_for('static', filename='images/banner.png') }}"
-          alt="AFIDs Validator Banner"
-        />
-      </div>
-      <nav class="navbar navbar-expand-lg text-uppercase">
-        <div class="container-fluid justify-content-center">
-          <ul class="navbar-nav">
-            <li class="nav-item mx-4">
-              <a class="nav-link" href="/">About</a>
-            </li>
-            <li class="nav-item mx-4">
-              <a
-                class="nav-link"
-                href="https://afids.github.io/afids-protocol/"
-                target="_blank"
-                >Protocol</a
-              >
-            </li>
-            <li class="nav-item mx-4">
-              <a class="nav-link" href="app.html">Validator</a>
-            </li>
-            <li class="nav-item mx-4">
-              <a class="nav-link" href="contact.html">Contact</a>
-            </li>
-            {% if current_user.is_authenticated %}
-            <li class="nav-item mx-4">
-              <a class="nav-link" href="logout.html">Logout</a>
-            </li>
-            {% else %}
-            <li class="nav-item mx-4">
-              <a class="nav-link" href="login.html">Login</a>
-            </li>
-            {% endif %}
-          </ul>
-        </div>
-      </nav>
-      <hr />
-    </header>
+  <body>
+    <div class="container">
+      <header>
+        <div id="react-navbar"></div>
+      </header>
+      
+      <main>{% block content %}{% endblock content %}</main>
 
-    <main>{% block content %}{% endblock %}</main>
+      <div id="react-footer"></div>
 
-    <footer class="footer mt-auto py-1">
-      <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid justify-content-center">
-          <a
-            class="nav-link"
-            href="https://twitter.com/afids_project"
-            target="_blank"
-            ><i class="fa fa-twitter"></i
-          ></a>
-          <a class="nav-link" href="https://github.com/afids" target="_blank"
-            ><i class="fa fa-github"></i
-          ></a>
-        </div>
-      </nav>
-    </footer>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
-      crossorigin="anonymous"
-    ></script>
+      {% block scripts %}
+        <script type="text/javascript" src={{url_for("static", filename="lib/afidsvalidator-react/dist/index.js") }}></script>
+        <script>renderNavbar({{ "true" if current_user.is_authenticated else "false" }})</script>
+        <script>renderFooter()</script>
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+          crossorigin="anonymous"
+        ></script>
+      {% endblock scripts %}
+    </div>
   </body>
 </html>

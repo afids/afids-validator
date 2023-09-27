@@ -196,6 +196,13 @@ jobs:
           find: 'version = "v(?:([0-9]+\.[0-9]+\.[0-9]+.+)|([0-9]+\.[0-9]+\.[0-9]+))"'
           replace: 'version = "${{ env.NEW_RELEASE }}-pre.${{ env.NEW_BUMP }}"'
 
+      - name: Update version in package.json
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
+          include: "package.json"
+          find: '"version": "v(?:([0-9]+\.[0-9]+\.[0-9]+.+)|([0-9]+\.[0-9]+\.[0-9]+))"'
+          replace: '"version": "${{ env.NEW_RELEASE }}-pre.${{ env.NEW_BUMP }}"'
+
       - name: Commit updates
         env:
           LATEST_VERSION: ${{ steps.release-drafter.outputs.name }}-pre.${{ env.NEW_BUMP }}
