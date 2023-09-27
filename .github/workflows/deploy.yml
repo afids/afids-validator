@@ -17,14 +17,13 @@ jobs:
           echo "Date: ${{ github.event.inputs.date }}"
           echo "Comments: ${{ github.event.inputs.comments }}"
 
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v4
         with:
           ref: refs/heads/master
 
       - name: Install poetry
         uses: snok/install-poetry@v1
         with:
-          version: 1.3.2
           virtualenvs-create: true
           virtualenvs-in-project: true
 

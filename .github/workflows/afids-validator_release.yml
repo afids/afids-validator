@@ -3,70 +3,15 @@ name: AFIDs Validator Release
 on:
   workflow_dispatch:
     inputs:
-      author:
-        description: "Author"
-        required: true
-        default: "github-actions[bot] (user publishing release)"
-      date:
-        description: "Date"
-        required: true
-        default: "YYYY-MM-DD"
       comments:
         description: "Comments"
+        required: false
+        type: string
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Print author
-        run: |
-          echo "Author: ${{ github.event.inputs.author }}"
-          echo "Date: ${{ github.event.inputs.date }}"
-          echo "Comments: ${{ github.event.inputs.comments }}"
-
-      - uses: actions/checkout@master
-        with:
-          ref: refs/heads/master
-
-      - name: Draft change log
-        uses: release-drafter/release-drafter@v5
-        id: release-drafter
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update pyproject.toml version
-        uses: jacobtomlinson/gha-find-replace@master
-        with:
-          include: "pyproject.toml"
-          find: 'v(?:([0-9]+\.[0-9]+\.[0-9]+.+)|([0-9]+\.[0-9]+\.[0-9]+))'
-          replace: '${{ steps.release-drafter.outputs.name }}"'
-
-      - name: Update package.json version
-        uses: jacobtomlinson/gha-find-replace@master
-        with:
-          include: "package.json"
-          find: 'v(?:([0-9]+\.[0-9]+\.[0-9]+.+)|([0-9]+\.[0-9]+\.[0-9]+))'
-          replace: '${{ steps.release-drafter.outputs.name }}"'
-
-      - name: Commit updates
-        env:
-          LATEST_VERSION: ${{ steps.release-drafter.outputs.name }}
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git diff-index --quiet HEAD || git commit -m "Bump version to $LATEST_VERSION" -a
-
-      - name: Push changes
-        uses: CasperWA/push-protected@v2
-        with:
-          branch: master
-          token: ${{ secrets.BP_PAT_TOKEN }}
-          unprotect_reviews: true
-
-      - name: Publish change log
-        uses: release-drafter/release-drafter@v5
-        with:
-          publish: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  github-release:
+    uses: khanlab/actions/.github/workflows/workflow-release_task-publishGitHub.yml@v0.2.0
+    with:
+      comments: ${{ inputs.comments }}
+    secrets:
+      BP-PAT: ${{ secrets.BP_PAT_TOKEN }}
