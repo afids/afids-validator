@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Setup python environment
-        uses: khanlab/actions/.github/actions/action-setup_task-installPyProject@v0.2.0
+        uses: khanlab/actions/.github/actions/action-setup_task-installPyProject@v0.2.1
         with:
           python-version: ${{ matrix.python-version }}
           cache-id: ${{ github.event.pull_request.id }}
@@ -57,7 +57,7 @@ jobs:
 
     steps:
       - name: Setup python environment
-        uses: khanlab/actions/.github/actions/action-setup_task-installPyProject@v0.2.0
+        uses: khanlab/actions/.github/actions/action-setup_task-installPyProject@v0.2.1
         with:
           python-version: ${{ matrix.python-version }}
           cache-id: ${{ github.event.pull_request.id }}
@@ -128,10 +128,10 @@ jobs:
   assign-reviewer:
     needs: [build-frontend]
     if: github.event.pull_request.assignee == null
-    uses: khanlab/actions/.github/workflows/workflow-pr_task-assignReviewer.yml@v0.2.0
+    uses: khanlab/actions/.github/workflows/workflow-pr_task-assignReviewer.yml@v0.2.1
 
   update_changelog:
     if: github.event.pull_request.merged == true
-    uses: khanlab/actions/.github/workflows/workflow-version_task-semverGithub.yml@v0.2.0
+    uses: khanlab/actions/.github/workflows/workflow-version_task-semverGithub.yml@v0.2.1
     secrets:
       BP-PAT: ${{ secrets.BP_PAT_TOKEN }}
