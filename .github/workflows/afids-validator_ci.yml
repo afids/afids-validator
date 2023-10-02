@@ -14,44 +14,12 @@ jobs:
         python-version: ["3.8", "3.9", "3.10"]
 
     steps:
-      - name: Checkout pull request branch
-        uses: actions/checkout@master
-        with:
-          ref: ${{ github.sha }}
-
-      - name: Select Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Setup python environment
+        uses: khanlab/actions/.github/actions/action-setup_task-installPyProject@v0.2.0
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Cache environment
-        uses: actions/cache@v3
-        id: cache
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.python-version }}
-          restore-keys: ${{ runner.os }}-pip-${{ matrix.python-version }}
-
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ matrix.python-version }}
-
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: |
-          poetry install --no-interaction --no-root
-
-      - name: Install library
-        run: poetry install --no-interaction
+          cache-id: ${{ github.event.pull_request.id }}
+          install-library: true
 
       - name: Start PostgreSQL services
         shell: bash
@@ -88,33 +56,11 @@ jobs:
         python-version: ["3.8", "3.9", "3.10"]
 
     steps:
-      - name: Checkout pull request branch
-        uses: actions/checkout@master
-        with:
-          ref: ${{ github.sha }}
-
-      - name: Select Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Setup python environment
+        uses: khanlab/actions/.github/actions/action-setup_task-installPyProject@v0.2.0
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.2.0
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ matrix.python-version }}
-
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root --with dev
+          cache-id: ${{ github.event.pull_request.id }}
 
       - name: isort
         run: poetry run isort afidsvalidator test -c
@@ -128,92 +74,64 @@ jobs:
       - name: pylint
         run: poetry run pylint afidsvalidator test
 
-  assign:
-    name: Reviewer assignment
+  build-frontend:
     needs: [linting]
     runs-on: ubuntu-latest
-    if: github.event.pull_request.assignee == null
 
     steps:
-      - name: Assign reviewer
-        uses: kentaro-m/auto-assign-action@v1.2.5
+      - name: Checkout
+        uses: action/checkout@v4
+
+      - name: Cache node installation
+        uses: actions/cache@v3
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          path: ~/.local
+          key: ${{ runner.os }}-node-${{ github.event.pull_request.id }}
 
-  update_changelog:
-    name: Update changelog
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
-
-    steps:
-      - name: Checkout master
-        uses: actions/checkout@master
+      - name: Install node
+        uses: actions/setup-node@v3
         with:
-          ref: refs/heads/master
+          node-version: 20
 
-      - name: Draft and update change log
-        uses: release-drafter/release-drafter@v5
-        id: release-drafter
-        with:
-          commitish: ${{ github.event.pull_request.base.ref }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get previous release version
+      - name: Install react dependencies
         run: |
-          echo "PREV_VER=$(cat pyproject.toml | grep -o -E '(version\s=\s)([[:punct:]])([v][0-9]+\.[0-9]+\.[0-9]+.+)([[:punct:]])' | cut -d ' ' -f 3 | tr -d '"')" >> $GITHUB_ENV
+          npm --prefix afidsvalidator/static/lib/afidsvalidator-react install
 
-      - name: Get previous bump version
-        env:
-          PREV_VER: ${{ env.PREV_VER }}
+      - name: Build react frontend
         run: |
-          if [[ "$PREV_VER" != *"-pre."* ]]; then
-            echo "OLD_BUMP=0" >> $GITHUB_ENV
+          npm run --prefix afidsvalidator/static/lib/afidsvalidator-react build
+
+      - name: Check changes
+        run: |
+          gh_status=$(git status --porcelain)
+          if [ -z "$gh_status" ]; then
+            echo 'modified="false"' >> $GITHUB_ENV
           else
-            echo "OLD_BUMP=$(echo $PREV_VER | cut -d '.' -f 4)" >> $GITHUB_ENV
+            echo 'modified="true"' >> $GITHUB_ENV
           fi
 
-      - name: Bump version
-        env:
-          BUMP_VER: ${{ env.OLD_BUMP }}
-        run: |
-          echo "NEW_BUMP=$(($BUMP_VER + 1))" >> $GITHUB_ENV
-
-      - name: Set new release version
-        env:
-          RD_RELEASE: ${{ steps.release-drafter.outputs.name }}
-        run: |
-          if [ ! -z "$RD_RELEASE" ]; then
-            echo "NEW_RELEASE=$RD_RELEASE" >> $GITHUB_ENV
-          else
-            echo "NEW_RELEASE=0.1.0" >> $GITHUB_ENV
-          fi
-
-      - name: Update version in pyproject.toml
-        uses: jacobtomlinson/gha-find-replace@master
-        with:
-          include: "pyproject.toml"
-          find: 'version = "v(?:([0-9]+\.[0-9]+\.[0-9]+.+)|([0-9]+\.[0-9]+\.[0-9]+))"'
-          replace: 'version = "${{ env.NEW_RELEASE }}-pre.${{ env.NEW_BUMP }}"'
-
-      - name: Update version in package.json
-        uses: jacobtomlinson/gha-find-replace@master
-        with:
-          include: "package.json"
-          find: '"version": "v(?:([0-9]+\.[0-9]+\.[0-9]+.+)|([0-9]+\.[0-9]+\.[0-9]+))"'
-          replace: '"version": "${{ env.NEW_RELEASE }}-pre.${{ env.NEW_BUMP }}"'
-
-      - name: Commit updates
-        env:
-          LATEST_VERSION: ${{ steps.release-drafter.outputs.name }}-pre.${{ env.NEW_BUMP }}
+      - name: Commit changes
+        if: env.modified == 'true'
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git diff-index --quiet HEAD || git commit -m "Bump version to $LATEST_VERSION" -a
+          git diff-index --quiet HEAD || git commit -m "[BOT] Build react frontend" -a
 
-      - name: Push changes
+      - name: Push to repo
+        if: env.modified == 'true'
         uses: CasperWA/push-protected@v2
         with:
-          branch: ${{ github.event.pull_request.base.ref }}
+          branch: ${{ github.event.pull_request.head.ref }}
           token: ${{ secrets.BP_PAT_TOKEN }}
-          unprotect_reviews: True
+          unprotect_reviews: true
+
+  assign-reviewer:
+    needs: [build-frontend]
+    if: github.event.pull_request.assignee == null
+    uses: khanlab/actions/.github/workflows/workflow-pr_task-assignReviewer.yml@v0.2.0
+
+  update_changelog:
+    if: github.event.pull_request.merged == true
+    uses: khanlab/actions/.github/workflows/workflow-version_task-semverGithub.yml@v0.2.0
+    secrets:
+      BP-PAT: ${{ secrets.BP_PAT_TOKEN }}
