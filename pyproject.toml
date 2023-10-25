@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "afidsvalidator"
-version = "1.3.0-pre-5"
+version = "1.3.0-pre.5"
 description = "Anatomical fiducials (AFIDs) validator for user placed markups"
 authors = ["Jason Kai <kaitj>", "Tristan Kuehn <tkkuehn>", "Olivia Stanley <ostanley>", "AFIDs contributors"]
 license = "GPL-3.0"
