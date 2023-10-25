@@ -15,10 +15,10 @@ jobs:
 
     steps:
       - name: Setup python environment
-        uses: khanlab/actions/.github/actions/action-setup_task-installPyProject@v0.2.1
+        uses: khanlab/actions/.github/actions/action-setup_task-installPyProject@v0.3.1
         with:
           python-version: ${{ matrix.python-version }}
-          install-library: true
+          install-library: "true"
 
       - name: Start PostgreSQL services
         shell: bash
@@ -56,7 +56,7 @@ jobs:
 
     steps:
       - name: Setup python environment
-        uses: khanlab/actions/.github/actions/action-setup_task-installPyProject@v0.2.1
+        uses: khanlab/actions/.github/actions/action-setup_task-installPyProject@v0.3.1
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -126,10 +126,10 @@ jobs:
   assign-reviewer:
     needs: [build-frontend]
     if: github.event.pull_request.assignee == null
-    uses: khanlab/actions/.github/workflows/workflow-pr_task-assignReviewer.yml@v0.2.1
+    uses: khanlab/actions/.github/workflows/workflow-pr_task-assignReviewer.yml@v0.3.1
 
   update_changelog:
     if: github.event.pull_request.merged == true
-    uses: khanlab/actions/.github/workflows/workflow-version_task-semverGithub.yml@v0.2.1
+    uses: khanlab/actions/.github/workflows/workflow-version_task-semverGithub.yml@v0.3.1
     secrets:
-      BP-PAT: ${{ secrets.BP_PAT_TOKEN }}
+      BP_PAT: ${{ secrets.BP_PAT_TOKEN }}
