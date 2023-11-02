@@ -28,15 +28,15 @@ class ConfigException(Exception):
 
 
 # Grab environment
-FLASK_ENV = os.environ.get("FLASK_ENV", None)
 CONFIG_MAP = {
     "development": DevelopmentConfig(),
     "testing": TestingConfig(),
     "production": ProductionConfig(),
 }
+FLASK_ENV = os.environ.get("FLASK_ENV", None)
 if FLASK_ENV is None:
     raise ConfigException("Environment is not defined")
-elif FLASK_ENV.lower() in CONFIG_MAP.keys():
+if FLASK_ENV.lower() in CONFIG_MAP:
     config_settings = CONFIG_MAP[FLASK_ENV.lower()]
 else:
     raise ConfigException("Defined environment is invalid")
