@@ -10,7 +10,7 @@ on:
 
 jobs:
   github-release:
-    uses: khanlab/actions/.github/workflows/workflow-release_task-publishGithub.yml@v0.3.1
+    uses: khanlab/actions/.github/workflows/workflow-release_task-publishGithub.yml@v0.3.2
     with:
       comments: ${{ inputs.comments }}
     secrets:
