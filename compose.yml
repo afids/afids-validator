@@ -1,10 +1,9 @@
 services:
   afidsvalidator:
     build: .
+    env_file: .env
     environment:
-      DATABASE_URL: postgresql+psycopg2://postgres:example@postgres:5432
       UWSGI_SOCKET: 0.0.0.0:5000
-      FLASK_ENV: development
     ports: ["5000:5000"]
     depends_on:
       - postgres
