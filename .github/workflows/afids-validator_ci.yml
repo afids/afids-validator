@@ -60,17 +60,14 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: ruff
+        run: poetry run ruff afidsvalidator test
+
       - name: isort
         run: poetry run isort afidsvalidator test -c
 
       - name: black
         run: poetry run black afidsvalidator test --check
-
-      - name: flake8
-        run: poetry run flake8 afidsvalidator test
-
-      - name: pylint
-        run: poetry run pylint afidsvalidator test
 
   build-frontend:
     needs: [linting]
