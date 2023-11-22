@@ -17,9 +17,8 @@ jobs:
           echo "Date: ${{ github.event.inputs.date }}"
           echo "Comments: ${{ github.event.inputs.comments }}"
 
-      - uses: actions/checkout@v4
-        with:
-          ref: refs/heads/master
+      - name: Checkout reference branch
+        uses: actions/checkout@v4
 
       - name: Install poetry
         uses: snok/install-poetry@v1
