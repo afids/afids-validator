@@ -1,4 +1,4 @@
-[![AFIDs](https://github.com/afids/afids-validator/blob/master/afidsvalidator/static/images/banner.png)](./static/images/banner.png)
+[![AFIDs](https://github.com/afids/afids-validator/blob/master/afidsvalidator/static/lib/afidsvalidator-react/public/afids_banner.png?raw=true)](./static/lib/afidsvalidator-react/public/afids_banner.png)
 
 [![](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fafids_project)](https://twitter.com/afids_project)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7871819.svg)](https://doi.org/10.5281/zenodo.7871819)
@@ -13,6 +13,7 @@ Anatomical fiducials (AFIDs) is an open framework for evaluating correspondence 
 # [afids-validator (https://validator.afids.io)](https://validator.afids.io)
 
 ## Development
+
 `poetry` (v1.2.0) is used to manage dependencies. To install, run the following command:
 
 ```
@@ -21,13 +22,14 @@ curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0
 
 For detailed setup instructions, see the documentation [here](https://python-poetry.org/).
 
-
-
 ### Required Packages
+
 _Install via `apt-get` or `snap`_
-* postgresql
+
+- postgresql
 
 ### Setup for local testing
+
 1. Git clone the afids-validator repository `git clone https://github.com/afids/afids-validator.git`
 2. Set up python environment via `poetry shell`
 3. Install the required libraries via `poetry install --with dev`
@@ -35,10 +37,10 @@ _Install via `apt-get` or `snap`_
 5. Access the postgres CLI via `sudo su - postgres`
 6. Create a database via postgres `createdb fid_db`
 7. Set password for the created database
-    ```
-    psql fid_db
-    \password
-    ```
+   ```
+   psql fid_db
+   \password
+   ```
 8. Update configuration in `.env.template` and rename to `.env` file
 9. `python manage.py db upgrade`
 10. `python manage.py runserver`
