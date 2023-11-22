@@ -14,45 +14,50 @@ Anatomical fiducials (AFIDs) is an open framework for evaluating correspondence 
 
 ## Development
 
-`poetry` (v1.2.0) is used to manage dependencies. To install, run the following command:
+`poetry` is used to manage dependencies. To install, run the following command:
 
 ```
-curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0
+curl -sSL https://install.python-poetry.org | python3 -
 ```
 
 For detailed setup instructions, see the documentation [here](https://python-poetry.org/).
 
-### Required Packages
-
-_Install via `apt-get` or `snap`_
-
-- postgresql
-
-### Setup for local testing
+Once installed, you can set up your development environment by:
 
 1. Git clone the afids-validator repository `git clone https://github.com/afids/afids-validator.git`
-2. Set up python environment via `poetry shell`
-3. Install the required libraries via `poetry install --with dev`
-4. Install the pre-commit action via `poetry run poe setup`. This will automatically perform quality tasks for each new commit.
-5. Access the postgres CLI via `sudo su - postgres`
-6. Create a database via postgres `createdb fid_db`
-7. Set password for the created database
-   ```
-   psql fid_db
-   \password
-   ```
-8. Update configuration in `.env.template` and rename to `.env` file
-9. `python manage.py db upgrade`
-10. `python manage.py runserver`
+1. Set up python environment via `poetry shell`
+1. Install the required libraries via `poetry install --with dev`
+1. Install the pre-commit action via `poetry run poe setup`. This will automatically perform quality tasks for each new commit.
+1. Update configuration in `.env.template` and rename to `.env` file
 
-If there are no errors, you can test it out locally at http://localhost:5000
+This will allow you to make changes and perform the necessary formatting and linting tasks. To test changes, the easiest way is via `docker compose`. To use this, you will need to install [Docker](https://docs.docker.com/get-docker/).
+
+Once installed, you can run `docker compose up --build` in the terminal.
+
+If there are no errors, you can test it out locally at http://localhost:5001
+
+After you are done testing, you can hit `CTRL/CMD+C` on the terminal to exit out of the instance and run `docker compose down` to remove unused containers.
+
+#### Testing afids upload
+
+If `docker compose` successfully starts the required services, you will first want to enter the afids-validator container interactively to migrate the database, enabling testing of database uploads.
+
+```bash
+# Enter the container interactively
+docker exec -it afids-validator-afidsvalidator-1 bash
+
+# Migrate the database
+flask db upgrade -d /usr/local/lib/python3.9/dist-packages/migrations/
+```
+
+_Note: You may need to change the container name (i.e. `afids-validator-afidsvalidator-1`) accordingly._
 
 #### Testing login
 
 To test the login with ORCID iD:
 
 1. Create an account (with a mailinator.com email address) on sandbox.orcid.org
-2. Follow [these instructions](https://info.orcid.org/documentation/integration-guide/registering-a-public-api-client/#easy-faq-2606) to get a client ID and client secret. Set the `Redirect URIs` to your local testing address (eg. `127.0.0.1:5000`, `localhost:5000`)
+2. Follow [these instructions](https://info.orcid.org/documentation/integration-guide/registering-a-public-api-client/#easy-faq-2606) to get a client ID and client secret. Set the `Redirect URIs` to your local testing address (eg. `127.0.0.1:5001`, `localhost:5001`)
 3. Update your local `.env` file with your new credentials.
 4. Locally change the URLs in `afidsvalidator/orcid.py` to start with api.sandbox.orcid.org
 5. Run the application and test your login.

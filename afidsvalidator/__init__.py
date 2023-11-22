@@ -28,43 +28,35 @@ class ConfigException(Exception):
 
 
 # Grab environment
-if os.environ.get("FLASK_ENV") is None:
+CONFIG_MAP = {
+    "development": DevelopmentConfig(),
+    "testing": TestingConfig(),
+    "production": ProductionConfig(),
+}
+FLASK_ENV = os.environ.get("FLASK_ENV", None)
+if FLASK_ENV is None:
     raise ConfigException("Environment is not defined")
-
-if os.environ.get("FLASK_ENV").lower() == "development":
-    config_settings = DevelopmentConfig()
-elif os.environ.get("FLASK_ENV").lower() == "testing":
-    config_settings = TestingConfig()
-elif os.environ.get("FLASK_ENV").lower() == "production":
-    config_settings = ProductionConfig()
+if FLASK_ENV.lower() in CONFIG_MAP:
+    config_settings = CONFIG_MAP[FLASK_ENV.lower()]
 else:
     raise ConfigException("Defined environment is invalid")
-
-# Relative path of directory for uploaded files
-UPLOAD_DIR = "uploads/"
 
 
 def create_app():
     """Create and initialize an app according to the config."""
     app = Flask(__name__)
-
     app.config.from_object(config_settings)
 
-    app.config["UPLOAD_FOLDER"] = UPLOAD_DIR
-    app.secret_key = "MySecretKey"
+    if not os.path.isdir(app.config["UPLOAD_DIR"]):
+        os.mkdir(app.config["UPLOAD_DIR"])
 
-    if not os.path.isdir(UPLOAD_DIR):
-        os.mkdir(UPLOAD_DIR)
-
-    heroku_uri = os.environ["DATABASE_URL"]
-    if heroku_uri.startswith("postgres://"):
-        heroku_uri = heroku_uri.replace("postgres://", "postgresql://", 1)
-    app.config["SQLALCHEMY_DATABASE_URI"] = heroku_uri
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    # Initialize databases and login manager
     db.init_app(app)
     login_manager.init_app(app)
     migrate = Migrate(render_as_batch=True, compare_type=True)
     migrate.init_app(app, db)
+
+    # Register blueprints
     app.register_blueprint(validator)
     app.register_blueprint(orcid_blueprint)
 
@@ -72,4 +64,4 @@ def create_app():
 
 
 if __name__ == "__main__":
-    create_app().run(debug=True)
+    create_app().run()
