@@ -4,6 +4,19 @@ import plotly.graph_objects as go
 
 from afidsvalidator.model import EXPECTED_DESCS
 
+# Landmark abbreviations grouped by neuroanatomical region.
+# Each abbreviation matches the attribute name on the Afids object (desc[-1]).
+LANDMARK_REGIONS = {
+    "Commissural": ["AC", "PC"],
+    "Brainstem": ["ICS", "PMJ", "SIPF", "RSLMS", "LSLMS", "RILMS", "LILMS"],
+    "Cerebellar": ["CUL"],
+    "Diencephalic": ["PG", "IMS", "RMB", "LMB"],
+    "Ventricular": ["RLVAC", "LLVAC", "RLVPC", "LLVPC"],
+    "Callosal": ["GENU", "SPLE"],
+    "Temporal": ["RALTH", "LALTH", "RSAMTH", "LSAMTH", "RIAMTH", "LIAMTH"],
+    "Basal/Frontal": ["RIGO", "LIGO", "RVOH", "LVOH", "ROSF", "LOSF"],
+}
+
 
 def gen_connecting_lines(ref_afids, user_afids):
     """Assemble points from each fcsv into pairs.
@@ -255,6 +268,85 @@ def generate_histogram(ref_afids, user_afids):
     )
 
     return fig4.to_html(include_plotlyjs="cdn", full_html=False)
+
+
+def generate_radar_chart(ref_afids, user_afids):
+    """Generate an HTML snippet containing a radar chart of regional errors.
+
+    Parameters
+    ----------
+    ref_afids : Afids
+        Reference AFIDs object.
+    user_afids : Afids
+        User-provided AFIDs object.
+
+    Returns
+    -------
+    str
+        HTML snippet containing a radar chart of mean Euclidean error
+        per neuroanatomical region.
+    """
+    region_names = list(LANDMARK_REGIONS.keys())
+    region_means = []
+
+    for landmarks in LANDMARK_REGIONS.values():
+        distances = []
+        for lm in landmarks:
+            ref_pos = getattr(ref_afids, lm)
+            user_pos = getattr(user_afids, lm)
+            dist = (
+                (ref_pos.x - user_pos.x) ** 2
+                + (ref_pos.y - user_pos.y) ** 2
+                + (ref_pos.z - user_pos.z) ** 2
+            ) ** 0.5
+            distances.append(dist)
+        region_means.append(sum(distances) / len(distances))
+
+    # Close the polygon loop
+    theta = region_names + [region_names[0]]
+    r = region_means + [region_means[0]]
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatterpolar(
+            r=r,
+            theta=theta,
+            fill="toself",
+            fillcolor="rgba(0, 255, 1, 0.15)",
+            line={"color": "rgba(0, 255, 1, 0.9)", "width": 2},
+            hovertemplate=(
+                "<b>%{theta}</b><br>Mean error: %{r:.2f} mm<extra></extra>"
+            ),
+            name="Mean error (mm)",
+        )
+    )
+
+    fig.update_layout(
+        title={
+            "text": "Error Profile by Neuroanatomical Region",
+            "font": {"color": "white", "size": 16},
+        },
+        polar={
+            "bgcolor": "rgba(0,0,0,0)",
+            "radialaxis": {
+                "visible": True,
+                "tickfont": {"color": "white", "size": 10},
+                "ticksuffix": " mm",
+                "gridcolor": "rgba(255,255,255,0.2)",
+                "linecolor": "rgba(255,255,255,0.2)",
+            },
+            "angularaxis": {
+                "tickfont": {"color": "white", "size": 12},
+                "gridcolor": "rgba(255,255,255,0.15)",
+                "linecolor": "rgba(255,255,255,0.2)",
+            },
+        },
+        paper_bgcolor="rgba(0,0,0,0)",
+        showlegend=False,
+        margin={"t": 60, "b": 40, "l": 60, "r": 60},
+    )
+
+    return fig.to_html(include_plotlyjs="cdn", full_html=False)
 
 
 def do_binning(in_data, nbins=6):
