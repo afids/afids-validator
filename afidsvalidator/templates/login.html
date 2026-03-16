@@ -1,19 +1,52 @@
 {% extends "base.html" %}
-{% block title %} | LOGIN{% endblock %}
+{% block title %} | Login{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="text-center">
-            <a class="btn btn-light" role="button" href="{{ url_for("orcid.login") }}">
-                <div class="row">
-                    <div class="col-4 mx-auto my-auto">
-                        <img src={{ url_for("static", filename="lib/afidsvalidator-react/public/ORCIDiD_iconvector.svg") }} class="img-fluid" alt="ORCID iD Icon">
-                    </div>
-                    <div class="col-8 mx-auto my-auto">
-                        Login with ORCID
-                    </div>
-                </div>
-            </a>
-        </div>
+<div class="login-wrap fade-in">
+  <div style="text-align:center;">
+    <span class="section-label">Authentication</span>
+    <h2 style="font-family:var(--nav-font);font-size:2.2rem;margin:.3rem 0 .5rem;color:var(--light);">
+      Sign In
+    </h2>
+    <p style="color:var(--muted);font-size:.9rem;max-width:340px;line-height:1.6;">
+      Log in with your ORCID iD to contribute your fiducial placements
+      to the community dataset.
+    </p>
+  </div>
+
+  {% if orcid_configured %}
+  <a href="{{ url_for('orcid.login') }}" class="btn-orcid">
+    <img
+      src="{{ url_for('static', filename='lib/afidsvalidator-react/public/ORCIDiD_iconvector.svg') }}"
+      alt="ORCID iD"
+    />
+    Login with ORCID
+  </a>
+  <p style="color:var(--muted);font-size:.78rem;font-family:var(--mono-font);text-align:center;max-width:320px;">
+    Don't have an ORCID? <a href="https://orcid.org/register" target="_blank">Create a free account →</a>
+  </p>
+  {% else %}
+  <div style="
+    background: var(--dark-card);
+    border: 1px solid var(--dark-border);
+    border-left: 3px solid var(--warning);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    padding: 1rem 1.4rem;
+    max-width: 380px;
+    text-align: left;
+  ">
+    <div style="font-family:var(--mono-font);font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--warning);margin-bottom:.4rem;">
+      Local / Dev Mode
     </div>
+    <p style="color:#bbb;font-size:.88rem;line-height:1.6;margin:0;">
+      ORCID login requires valid OAuth credentials configured via
+      <code style="color:var(--green);background:var(--dark-raised);padding:.1em .3em;border-radius:3px;">ORCID_OAUTH_CLIENT_ID</code>
+      and
+      <code style="color:var(--green);background:var(--dark-raised);padding:.1em .3em;border-radius:3px;">ORCID_OAUTH_CLIENT_SECRET</code>
+      in your <code style="color:var(--green);background:var(--dark-raised);padding:.1em .3em;border-radius:3px;">.env</code> file.
+      The validator works fully without login — only database contributions require authentication.
+    </p>
+  </div>
+  {% endif %}
+</div>
 {% endblock content %}
