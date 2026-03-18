@@ -11,6 +11,7 @@ from afidsvalidator.config import (
     TestingConfig,
 )
 from afidsvalidator.model import db, login_manager
+from afidsvalidator.learn import learn
 from afidsvalidator.orcid import orcid_blueprint
 from afidsvalidator.views import validator
 
@@ -59,6 +60,7 @@ def create_app():
     # Register blueprints
     app.register_blueprint(validator)
     app.register_blueprint(orcid_blueprint)
+    app.register_blueprint(learn)
 
     return app
 

@@ -32,6 +32,11 @@ function NavBar({ isLoggedIn }: NavBarProps) {
       target: "_self",
     },
     {
+      name: "AI Tutor",
+      url: "/learn",
+      target: "_self",
+    },
+    {
       name: "Contact",
       url: "/contact.html",
       target: "_self",
