@@ -1,0 +1,1439 @@
+{% extends "base.html" %}
+{% block title %} — Guided Learning{% endblock %}
+
+{% block content %}
+
+{# ── Landmark data injected from Flask ─────────────────────────────────────── #}
+<script id="landmark-data" type="application/json">
+{{ landmarks | tojson }}
+</script>
+
+{# ── Page header ──────────────────────────────────────────────────────────── #}
+<div class="learn-page-header">
+  <h2 class="learn-title">Guided Learning Mode</h2>
+  <p class="learn-subtitle">
+    <span class="mono">{{ template_name }}</span> &nbsp;·&nbsp;
+    32 Anatomical Landmarks &nbsp;·&nbsp;
+    AI-Powered Tutoring
+  </p>
+</div>
+
+{# ── Main split layout ────────────────────────────────────────────────────── #}
+<div class="learn-layout">
+
+  {# ── LEFT: MRI Viewer ────────────────────────────────────────────────────── #}
+  <div class="viewer-panel">
+
+    <div class="panel-label">
+      MRI VIEWER
+      <span class="panel-label-sub" id="landmark-indicator">Landmark 1 / 32</span>
+    </div>
+
+    {# NiiVue canvas #}
+    <div class="canvas-wrap">
+      <canvas id="gl"></canvas>
+
+      {# Loading overlay — hidden once NiiVue is ready #}
+      <div id="loading-overlay">
+        <div class="loading-inner">
+          <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+          <p class="loading-title">Loading MNI152NLin2009cAsym T1w</p>
+          <p class="loading-sub">Fetching from TemplateFlow — first load may take a moment</p>
+        </div>
+      </div>
+    </div>
+
+    {# Live coordinate readout #}
+    <div class="coord-bar">
+      <span class="coord-label">RAS mm</span>
+      <span id="live-coords" class="mono">— — —</span>
+      <span class="coord-hint">click or scroll to navigate</span>
+    </div>
+
+    {# Viewer action buttons #}
+    <div class="viewer-actions">
+      <button id="btn-place" class="btn-learn btn-place" disabled>
+        &#9679;&nbsp; Place Fiducial Here
+      </button>
+      <button id="btn-show-ref" class="btn-learn btn-ref" disabled>
+        &#9671;&nbsp; Show Reference
+      </button>
+      <button id="btn-next" class="btn-learn btn-next" disabled>
+        Next Landmark &rarr;
+      </button>
+    </div>
+
+    {# Viewer toolbar — zoom + resolution + help #}
+    <div class="viewer-toolbar">
+      <div class="zoom-controls">
+        <span class="toolbar-label">ZOOM</span>
+        <button id="btn-zoom-out"   class="btn-tool" title="Zoom out">&#8722;</button>
+        <span id="zoom-display" class="mono toolbar-val">1.0&times;</span>
+        <button id="btn-zoom-in"    class="btn-tool" title="Zoom in">&#43;</button>
+        <button id="btn-zoom-reset" class="btn-tool" title="Reset zoom to 1×">&#8635;</button>
+        <button id="btn-goto-lm" class="btn-tool btn-goto" title="Jump crosshair to this landmark's region">&#9678; Go to landmark</button>
+      </div>
+      <div class="res-toggle">
+        <span class="toolbar-label">RES</span>
+        <button id="btn-hires" class="btn-tool btn-hires" title="Toggle 1 mm high-resolution">2mm</button>
+        <span id="res-loading" class="toolbar-val hidden mono" style="color:#ffaa00">loading…</span>
+      </div>
+      <button id="btn-help" class="btn-tool btn-help" title="Viewer controls guide">?</button>
+    </div>
+
+    {# Help overlay — sits over the canvas #}
+    <div id="help-overlay" class="help-overlay hidden" style="position:fixed;inset:0;z-index:100">
+      <div class="help-box">
+        <div class="help-title">VIEWER CONTROLS <button id="btn-help-close" class="btn-tool" style="float:right">&times;</button></div>
+        <table class="help-table">
+          <tr><td>🖱 Click</td><td>Move crosshair / set position</td></tr>
+          <tr><td>🖱 Scroll</td><td>Zoom in / out at cursor</td></tr>
+          <tr><td>🖱 Drag (2D)</td><td>Pan the slice</td></tr>
+          <tr><td>🖱 Drag (3D)</td><td>Rotate 3D view</td></tr>
+          <tr><td>+ / −</td><td>Zoom buttons (5 steps)</td></tr>
+          <tr><td>↺ Reset</td><td>Reset zoom to default</td></tr>
+          <tr><td>⊙ Go to landmark</td><td>Jump crosshair to this landmark's approximate location</td></tr>
+          <tr><td>2mm / 1mm</td><td>Toggle resolution (1mm downloads ~9 MB once)</td></tr>
+          <tr><td>📍 Place Fiducial</td><td>Record current crosshair as your fiducial placement</td></tr>
+          <tr><td>◇ Show Reference</td><td>Jump to expert reference position</td></tr>
+        </table>
+        <p class="help-tip">💡 Tip — use <strong>Go to landmark</strong> to jump near the target, then scroll-zoom in for precision.</p>
+      </div>
+    </div>
+
+  </div>{# end viewer-panel #}
+
+  {# ── RIGHT: AI Tutor ─────────────────────────────────────────────────────── #}
+  <div class="chat-panel">
+
+    <div class="panel-label">
+      AI TUTOR
+      <span class="model-tag" id="model-tag">LLM</span>
+    </div>
+
+    {# Current landmark display #}
+    <div class="landmark-header" id="landmark-header">
+      <span class="lm-index" id="lm-index">01</span>
+      <div>
+        <div class="lm-abbrev" id="lm-abbrev">AC</div>
+        <div class="lm-name" id="lm-name">Anterior Commissure</div>
+      </div>
+    </div>
+
+    {# Result badge (distance + quality after placement) #}
+    <div id="result-badge" class="result-badge hidden"></div>
+
+    {# Chat message thread #}
+    <div id="chat-messages" class="chat-messages"></div>
+
+    {# User input #}
+    <div class="chat-input-row">
+      <input
+        id="user-input"
+        class="chat-input"
+        type="text"
+        placeholder="Ask a question about this landmark…"
+        disabled
+        autocomplete="off"
+      />
+      <button id="btn-send" class="btn-learn btn-send" disabled>&rarr;</button>
+    </div>
+
+  </div>{# end chat-panel #}
+
+</div>{# end learn-layout #}
+
+{# ── Progress bar ─────────────────────────────────────────────────────────── #}
+{# ── Celebration overlay ──────────────────────────────────────────────────── #}
+<div id="celebrate-overlay" class="celebrate-overlay hidden" role="dialog">
+  <div class="celebrate-content">
+    <div class="celebrate-star">✦</div>
+    <div class="celebrate-label">Excellent placement!</div>
+    <div class="celebrate-sub">Moving to next landmark…</div>
+  </div>
+</div>
+
+<div class="progress-section">
+  <div class="progress-header">
+    <span class="progress-title">SESSION PROGRESS</span>
+    <span id="progress-text" class="mono">0 / 32</span>
+    <button id="btn-export" class="btn-tool btn-export" title="Download session report">
+      ↓ Export Report
+    </button>
+  </div>
+  <div class="progress-dots" id="progress-dots">
+    {% for lm in landmarks %}
+    <div class="pdot pdot-pending"
+         id="dot-{{ lm.abbrev }}"
+         data-abbrev="{{ lm.abbrev }}"
+         title="{{ lm.abbrev }}: {{ lm.full_name }}">
+      <span>{{ lm.abbrev }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{# ═══════════════════════════════════════════════════════════════════════════ #}
+{# STYLES (scoped to this page)                                               #}
+{# ═══════════════════════════════════════════════════════════════════════════ #}
+<style>
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+.learn-page-header {
+  padding: 1.2rem 0 0.8rem;
+  border-bottom: 1px solid #1e1e1e;
+  margin-bottom: 1rem;
+}
+.learn-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  color: #00ff01;
+  letter-spacing: 2px;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(0,255,1,0.4);
+}
+.learn-subtitle {
+  color: #888;
+  font-size: 0.8rem;
+  margin: 0.25rem 0 0;
+  font-family: 'Space Mono', monospace;
+}
+
+.learn-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 0.8rem;
+  align-items: start;
+}
+
+/* ── Panel shared ────────────────────────────────────────────────────────── */
+.panel-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 3px;
+  color: #555;
+  padding: 0.4rem 0 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-bottom: 1px solid #1a1a1a;
+  margin-bottom: 0.6rem;
+}
+.panel-label-sub {
+  color: #00ff01;
+  font-size: 0.75rem;
+  margin-left: auto;
+}
+
+/* ── MRI Viewer panel ────────────────────────────────────────────────────── */
+.viewer-panel {
+  background: #0c0c0c;
+  border: 1px solid #1e1e1e;
+  border-radius: 6px;
+  padding: 0.7rem;
+}
+
+.canvas-wrap {
+  position: relative;
+  width: 100%;
+  /* Taller ratio gives more brain real-estate in multiplanar view */
+  aspect-ratio: 1 / 1;
+  background: #000;
+  border-radius: 4px;
+  overflow: hidden;
+}
+#gl {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Loading overlay */
+#loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: opacity 0.4s;
+}
+#loading-overlay.hidden { display: none; }
+.loading-inner { text-align: center; }
+.loading-title {
+  color: #00ff01;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  margin: 0.8rem 0 0.2rem;
+}
+.loading-sub {
+  color: #555;
+  font-size: 0.7rem;
+  font-family: 'Space Mono', monospace;
+  margin: 0;
+}
+
+/* Spinner */
+.lds-ring { display:inline-block; position:relative; width:48px; height:48px; }
+.lds-ring div {
+  box-sizing:border-box; display:block; position:absolute;
+  width:38px; height:38px; margin:5px;
+  border:4px solid #00ff01; border-radius:50%;
+  animation: lds-ring 1.2s cubic-bezier(0.5,0,0.5,1) infinite;
+  border-color:#00ff01 transparent transparent transparent;
+}
+.lds-ring div:nth-child(1){animation-delay:-0.45s}
+.lds-ring div:nth-child(2){animation-delay:-0.3s}
+.lds-ring div:nth-child(3){animation-delay:-0.15s}
+@keyframes lds-ring{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+
+/* Coord bar */
+.coord-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.5rem;
+  margin-top: 0.5rem;
+  background: #111;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+.coord-label {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 2px;
+  color: #444;
+  font-size: 0.7rem;
+}
+#live-coords {
+  color: #00ff01;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.78rem;
+  flex: 1;
+}
+.coord-hint { color: #333; font-size: 0.65rem; margin-left: auto; }
+
+/* Viewer buttons */
+.viewer-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+.btn-learn {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1.5px;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 4px;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  transition: opacity 0.15s, box-shadow 0.15s;
+}
+.btn-learn:disabled { opacity: 0.25; cursor: not-allowed; }
+.btn-place {
+  background: #00ff01;
+  color: #000;
+  flex: 1;
+}
+.btn-place.placed {
+  color: #ff4444;
+  border-color: #ff4444;
+  box-shadow: 0 0 8px rgba(255,60,60,0.35);
+}
+.btn-place:not(:disabled):hover {
+  box-shadow: 0 0 10px rgba(0,255,1,0.5);
+}
+.btn-ref {
+  background: #1e1e1e;
+  color: #888;
+  border: 1px solid #333;
+}
+.btn-ref:not(:disabled):hover { color: #ccc; border-color: #555; }
+.btn-ref.active-ref {
+  color: #ffaa00;
+  border-color: #ffaa00;
+  box-shadow: 0 0 8px rgba(255,170,0,0.3);
+}
+.btn-next {
+  background: #1a2a1a;
+  color: #00ff01;
+  border: 1px solid #00ff01;
+  margin-left: auto;
+}
+.btn-next:not(:disabled):hover {
+  background: #00ff01;
+  color: #000;
+  box-shadow: 0 0 12px rgba(0,255,1,0.4);
+}
+
+/* ── Viewer toolbar ──────────────────────────────────────────────────────── */
+.viewer-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.4rem;
+  padding: 0.35rem 0.5rem;
+  background: #0e0e0e;
+  border-radius: 4px;
+  border: 1px solid #1a1a1a;
+  flex-wrap: wrap;
+}
+.zoom-controls, .res-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toolbar-label {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 2px;
+  color: #444;
+  font-size: 0.68rem;
+}
+.toolbar-val {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  color: #888;
+  min-width: 3ch;
+  text-align: center;
+}
+.btn-tool {
+  background: #181818;
+  border: 1px solid #2a2a2a;
+  color: #888;
+  border-radius: 3px;
+  width: 24px;
+  height: 24px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  padding: 0;
+  line-height: 1;
+}
+.btn-tool:hover { color: #00ff01; border-color: #00ff01; }
+.btn-hires, .btn-goto, .btn-help {
+  width: auto;
+  padding: 0 0.5rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+}
+.btn-hires.active {
+  color: #ffaa00;
+  border-color: #ffaa00;
+  box-shadow: 0 0 6px rgba(255,170,0,0.25);
+}
+.btn-goto { color: #00ff01; border-color: #1a3a1a; }
+.btn-goto:hover { background: #0a200a; }
+.btn-help {
+  margin-left: auto;
+  color: #555;
+  font-weight: bold;
+}
+.hidden { display: none !important; }
+
+/* Help overlay */
+.help-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+.help-box {
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  max-width: 420px;
+  width: 90%;
+}
+.help-title {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 2px;
+  color: #00ff01;
+  font-size: 0.9rem;
+  margin-bottom: 0.7rem;
+}
+.help-table { width: 100%; border-collapse: collapse; margin-bottom: 0.7rem; }
+.help-table tr { border-bottom: 1px solid #1a1a1a; }
+.help-table td {
+  padding: 0.3rem 0.4rem;
+  font-size: 0.75rem;
+  font-family: 'Inter', sans-serif;
+  color: #aaa;
+}
+.help-table td:first-child {
+  color: #00ff01;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  width: 40%;
+}
+.help-tip {
+  font-size: 0.72rem;
+  color: #666;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  border-top: 1px solid #1a1a1a;
+  padding-top: 0.5rem;
+}
+
+/* ── Chat panel ──────────────────────────────────────────────────────────── */
+.chat-panel {
+  background: #0c0c0c;
+  border: 1px solid #1e1e1e;
+  border-radius: 6px;
+  padding: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  /* Match viewer height so they align */
+  position: sticky;
+  top: 0.5rem;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.model-tag {
+  margin-left: auto;
+  font-size: 0.6rem;
+  font-family: 'Space Mono', monospace;
+  color: #333;
+  border: 1px solid #222;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+}
+
+/* Landmark header */
+.landmark-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 0.6rem;
+  background: #111;
+  border-radius: 4px;
+  margin-bottom: 0.6rem;
+  border-left: 3px solid #00ff01;
+}
+.lm-index {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  color: #1e1e1e;
+  line-height: 1;
+  min-width: 2ch;
+}
+.lm-abbrev {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.2rem;
+  color: #00ff01;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.lm-name {
+  font-size: 0.7rem;
+  color: #888;
+  font-family: 'Inter', sans-serif;
+  margin-top: 0.15rem;
+}
+
+/* Result badge */
+.result-badge {
+  padding: 0.4rem 0.7rem;
+  border-radius: 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.result-badge.hidden { display: none; }
+.result-badge.excellent { background:#0a200a; border:1px solid #00ff01; color:#00ff01; }
+.result-badge.good      { background:#1a1a0a; border:1px solid #aacc00; color:#aacc00; }
+.result-badge.fair      { background:#1a1000; border:1px solid #ffaa00; color:#ffaa00; }
+.result-badge.needs_work{ background:#200a0a; border:1px solid #ff4040; color:#ff4040; }
+
+/* Chat messages */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+  /* thin scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #222 transparent;
+}
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
+
+.chat-msg {
+  padding: 0.5rem 0.7rem;
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; } }
+
+.chat-msg.assistant {
+  background: #111;
+  border-left: 2px solid #00ff01;
+  color: #d0d0d0;
+}
+.chat-msg.user {
+  background: #141414;
+  border-left: 2px solid #444;
+  color: #888;
+  font-style: italic;
+}
+.chat-msg.system-note {
+  background: transparent;
+  border: 1px dashed #222;
+  color: #444;
+  font-size: 0.72rem;
+  font-family: 'Space Mono', monospace;
+  text-align: center;
+}
+
+/* Streaming cursor */
+.streaming::after {
+  content: '▋';
+  color: #00ff01;
+  animation: blink 0.7s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* Chat input */
+.chat-input-row {
+  display: flex;
+  gap: 0.4rem;
+}
+.chat-input {
+  flex: 1;
+  background: #111;
+  border: 1px solid #222;
+  color: #f0f0f0;
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.chat-input:focus { border-color: #00ff01; }
+.chat-input:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-send {
+  background: #00ff01;
+  color: #000;
+  width: 36px;
+  flex-shrink: 0;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-send:not(:disabled):hover { box-shadow: 0 0 8px rgba(0,255,1,0.4); }
+
+/* ── Progress section ────────────────────────────────────────────────────── */
+.progress-section {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  background: #0c0c0c;
+  border: 1px solid #1e1e1e;
+  border-radius: 6px;
+}
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.progress-title {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 2px;
+  color: #444;
+  font-size: 0.75rem;
+}
+.progress-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.pdot {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.55rem;
+  padding: 0.2rem 0.35rem;
+  border-radius: 3px;
+  cursor: default;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+  line-height: 1;
+  white-space: nowrap;
+}
+.pdot-pending  { background: #111; color: #333; border-color: #1e1e1e; }
+.pdot-active   { background: #0a200a; color: #00ff01; border-color: #00ff01;
+                 box-shadow: 0 0 6px rgba(0,255,1,0.3); }
+.pdot-done     { background: #0a200a; color: #008800; border-color: #008800; }
+.pdot-skip     { background: #111; color: #444; border-color: #222; }
+
+/* ── Export button ───────────────────────────────────────────────────────── */
+.btn-export {
+  font-family: var(--mono-font, monospace);
+  font-size: 0.7rem;
+  color: #555;
+  border-color: #222;
+  padding: 0.25rem 0.6rem;
+  letter-spacing: 0.05em;
+}
+.btn-export:hover { color: #00ff01; border-color: #00ff01; }
+
+/* ── Celebration overlay ─────────────────────────────────────────────────── */
+.celebrate-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.82);
+  cursor: pointer;
+}
+.celebrate-overlay.hidden { display: none; }
+.celebrate-content {
+  text-align: center;
+  animation: celebratePop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.celebrate-star {
+  font-size: 4.5rem;
+  color: #00ff01;
+  filter: drop-shadow(0 0 24px #00ff01);
+  animation: celebratePulse 1s ease-in-out infinite alternate;
+  line-height: 1;
+}
+.celebrate-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.8rem;
+  letter-spacing: 4px;
+  color: #00ff01;
+  text-shadow: 0 0 20px #00ff01;
+  margin: 0.4rem 0 0.2rem;
+}
+.celebrate-sub {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #555;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+@keyframes celebratePop {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+@keyframes celebratePulse {
+  from { filter: drop-shadow(0 0 12px #00ff01); transform: scale(1); }
+  to   { filter: drop-shadow(0 0 32px #00ff01); transform: scale(1.08); }
+}
+</style>
+
+{# ═══════════════════════════════════════════════════════════════════════════ #}
+{# JAVASCRIPT                                                                  #}
+{# ═══════════════════════════════════════════════════════════════════════════ #}
+
+{# NiiVue — load from CDN #}
+<script src="https://cdn.jsdelivr.net/npm/@niivue/niivue/dist/niivue.umd.js"></script>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ── State ───────────────────────────────────────────────────────────────── */
+  const LANDMARKS = JSON.parse(
+    document.getElementById("landmark-data").textContent
+  );
+  const TOTAL = LANDMARKS.length;
+
+  let state = {
+    idx: 0,             // current landmark index
+    refs: {},           // { abbrev: [x,y,z] } loaded from /learn/references
+    crosshairMm: [0, 0, 0], // live NiiVue crosshair position (RAS mm)
+    placed: false,      // has user placed a marker this round?
+    userCoords: null,   // the RAS coords when Place was clicked
+    history: [],        // LLM conversation history for current landmark
+    completed: [],      // indices that are done
+    nv: null,
+    streaming: false,
+    refVisible: false,
+    placements: [],     // [{idx, abbrev, full_name, user_coords, ref_coords, distance_mm, quality, ts}]
+    sessionLog: [],     // [{lmIdx, lmAbbrev, lmName, role, text, ts}]
+    sessionStart: Date.now(),
+  };
+
+  /* ── DOM refs ────────────────────────────────────────────────────────────── */
+  const $ = id => document.getElementById(id);
+  const elLoading   = $("loading-overlay");
+  const elCoords    = $("live-coords");
+  const elIndicator = $("landmark-indicator");
+  const elIndex     = $("lm-index");
+  const elAbbrev    = $("lm-abbrev");
+  const elName      = $("lm-name");
+  const elBadge     = $("result-badge");
+  const elChat      = $("chat-messages");
+  const elInput     = $("user-input");
+  const elProgressTxt = $("progress-text");
+
+  const btnPlace  = $("btn-place");
+  const btnRef    = $("btn-show-ref");
+  const btnNext   = $("btn-next");
+  const btnSend   = $("btn-send");
+
+  /* ── Helpers ─────────────────────────────────────────────────────────────── */
+  function currentLm() { return LANDMARKS[state.idx]; }
+
+  function updateLandmarkUI() {
+    const lm = currentLm();
+    const n  = state.idx + 1;
+    elIndicator.textContent = `Landmark ${n} / ${TOTAL}`;
+    elIndex.textContent     = String(n).padStart(2, "0");
+    elAbbrev.textContent    = lm.abbrev;
+    elName.textContent      = lm.full_name;
+
+    // Progress dots
+    document.querySelectorAll(".pdot").forEach(d => {
+      const a = d.dataset.abbrev;
+      const i = LANDMARKS.findIndex(l => l.abbrev === a);
+      d.className = "pdot " + (
+        state.completed.includes(i) ? "pdot-done"    :
+        i === state.idx             ? "pdot-active"  :
+        "pdot-pending"
+      );
+    });
+    elProgressTxt.textContent = `${state.completed.length} / ${TOTAL}`;
+  }
+
+  /* ── Chat rendering ──────────────────────────────────────────────────────── */
+  function addMessage(role, text) {
+    const el = document.createElement("div");
+    el.className = `chat-msg ${role}`;
+    el.textContent = text;
+    elChat.appendChild(el);
+    elChat.scrollTop = elChat.scrollHeight;
+    // Accumulate session log (skip empty streaming placeholders)
+    if (text) {
+      const lm = state.idx < TOTAL ? LANDMARKS[state.idx] : LANDMARKS[TOTAL - 1];
+      state.sessionLog.push({
+        lmIdx: state.idx,
+        lmAbbrev: lm.abbrev,
+        lmName: lm.full_name,
+        role, text,
+        ts: Date.now(),
+      });
+    }
+    return el;
+  }
+
+  function clearChat() {
+    elChat.innerHTML = "";
+  }
+
+  /* ── Streaming fetch ─────────────────────────────────────────────────────── */
+  let _streamAbort = null;  // AbortController for the active stream
+
+  async function streamPost(endpoint, body) {
+    // Cancel any in-progress stream (e.g. intro interrupted by placement)
+    if (_streamAbort) {
+      _streamAbort.abort();
+      _streamAbort = null;
+      state.streaming = false;
+    }
+    state.streaming = true;
+    elInput.disabled = true;
+    btnSend.disabled = true;
+
+    _streamAbort = new AbortController();
+    const msgEl = addMessage("assistant", "");
+    msgEl.classList.add("streaming");
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: _streamAbort.signal,
+      });
+
+      if (!res.ok) {
+        msgEl.textContent = `[Tutor unavailable — check LLM_API_KEY in .env]`;
+        msgEl.classList.remove("streaming");
+        return;
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        accumulated += chunk;
+        msgEl.textContent = accumulated;
+        // Push assistant turn into history
+        elChat.scrollTop = elChat.scrollHeight;
+      }
+
+      msgEl.classList.remove("streaming");
+
+      // Append to conversation history
+      const lastUser = state.history[state.history.length - 1];
+      if (lastUser && lastUser.role === "user") {
+        state.history.push({ role: "assistant", content: accumulated });
+      }
+
+      // Log the completed assistant message to session log
+      if (accumulated) {
+        const lm = state.idx < TOTAL ? LANDMARKS[state.idx] : LANDMARKS[TOTAL - 1];
+        state.sessionLog.push({
+          lmIdx: state.idx, lmAbbrev: lm.abbrev, lmName: lm.full_name,
+          role: "assistant", text: accumulated, ts: Date.now(),
+        });
+      }
+
+    } catch (err) {
+      if (err.name === "AbortError") {
+        // Stream was intentionally cancelled (e.g. user placed fiducial mid-intro)
+        msgEl.remove();
+      } else {
+        msgEl.textContent = `[Connection error: ${err.message}]`;
+        msgEl.classList.remove("streaming");
+      }
+    } finally {
+      _streamAbort = null;
+      state.streaming = false;
+      elInput.disabled = false;
+      btnSend.disabled = false;
+      elInput.focus();
+    }
+  }
+
+  /* ── Landmark intro ──────────────────────────────────────────────────────── */
+  async function startLandmark(idx) {
+    state.idx        = idx;
+    state.placed     = false;
+    state.userCoords = null;
+    state.history    = [];
+    state.refVisible = false;
+
+    clearChat();
+    hideBadge();
+    updateLandmarkUI();
+
+    btnPlace.disabled  = false;
+    btnRef.disabled    = false;   // allow peeking reference before placing
+    btnNext.disabled   = false;   // allow skipping at any time
+    btnRef.classList.remove("active-ref");
+    btnPlace.classList.remove("placed");  // reset red state from prior landmark
+
+    // Reset crosshair to green
+    if (state.nv) {
+      state.nv.opts.crosshairColor = [0, 1, 0.004, 1];
+      state.nv.drawScene();
+    }
+
+    const lm = currentLm();
+    addMessage("system-note", `▸ Landmark ${idx + 1} / ${TOTAL}: ${lm.abbrev}`);
+
+    // Prepend user message to history before streaming
+    const userMsg = {
+      role: "user",
+      content:
+        `Please introduce landmark ${lm.abbrev} (${lm.full_name}). ` +
+        `Tell me what it is anatomically and how to find it on the ` +
+        `MNI152NLin2009cAsym T1w MRI in the viewer. I will then click to place my fiducial.`,
+    };
+    state.history.push(userMsg);
+
+    // Enable chat input now — don't make user wait for the full intro stream
+    elInput.disabled = false;
+    btnSend.disabled = false;
+
+    await streamPost("/learn/intro", { landmark: lm.abbrev });
+  }
+
+  /* ── Viewer state snapshot ───────────────────────────────────────────────── */
+  function getViewerState() {
+    const vol = state.nv?.volumes?.[0];
+    return {
+      zoom:         get2DZoom().toFixed(1),
+      resolution:   hiRes ? "1mm" : "2mm",
+      contrast_min: vol?.cal_min != null ? Math.round(vol.cal_min).toString() : null,
+      contrast_max: vol?.cal_max != null ? Math.round(vol.cal_max).toString() : null,
+    };
+  }
+
+  /* ── Celebration on excellent placement ──────────────────────────────────── */
+  function celebrate() {
+    return new Promise(resolve => {
+      const el = document.getElementById("celebrate-overlay");
+      el.classList.remove("hidden");
+      const dismiss = () => { el.classList.add("hidden"); resolve(); };
+      el.addEventListener("click", dismiss, { once: true });
+      setTimeout(dismiss, 2400);
+    });
+  }
+
+  /* ── Place marker ────────────────────────────────────────────────────────── */
+  // autoAdvance=true  → celebrates on excellent and calls doAdvance()
+  // autoAdvance=false → used by nextLandmark() which will call doAdvance() itself
+  async function placeMarker(autoAdvance = true) {
+    // No streaming guard here — placement always wins and aborts the intro if needed.
+    // streamPost() handles cancelling any in-progress request.
+    const lm     = currentLm();
+    const coords  = [...state.crosshairMm];
+    state.userCoords = coords;
+    state.placed  = true;
+
+    // Turn crosshair red and button to "placed" state immediately
+    btnPlace.classList.add("placed");
+    if (state.nv) {
+      state.nv.opts.crosshairColor = [1, 0.18, 0.18, 1];
+      state.nv.drawScene();
+    }
+
+    // Show placed coords in chat
+    addMessage(
+      "user",
+      `Placed fiducial for ${lm.full_name} at ` +
+      `(${coords.map(v => v.toFixed(1)).join(", ")}) mm`
+    );
+
+    // Compute error against reference
+    let checkResult;
+    try {
+      const res = await fetch("/learn/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ landmark: lm.abbrev, coords }),
+      });
+      checkResult = await res.json();
+    } catch {
+      addMessage("system-note", "[Could not reach validation endpoint]");
+      return;
+    }
+
+    const { distance_mm, directions, quality, ref_coords } = checkResult;
+
+    // Record placement
+    state.placements.push({
+      idx: state.idx, abbrev: lm.abbrev, full_name: lm.full_name,
+      user_coords: coords, ref_coords: ref_coords ?? null,
+      distance_mm, quality, ts: Date.now(),
+    });
+
+    // Show result badge
+    showBadge(distance_mm, quality);
+
+    // Push user turn to history (full context for the LLM)
+    state.history.push({
+      role: "user",
+      content:
+        `I placed my fiducial for ${lm.abbrev} (${lm.full_name}) at ` +
+        `(${coords.map(v => v.toFixed(1)).join(", ")}) mm RAS. ` +
+        `Distance: ${distance_mm.toFixed(1)} mm. Please give feedback.`,
+    });
+
+    // Stream feedback with full context
+    await streamPost("/learn/feedback", {
+      landmark:     lm.abbrev,
+      distance_mm,
+      quality,
+      directions,
+      user_coords:  coords,
+      ref_coords:   ref_coords ?? null,
+      viewer_state: getViewerState(),
+      history:      state.history.slice(0, -1),
+    });
+
+    btnRef.disabled  = false;
+    btnNext.disabled = false;
+
+    // Reset fiducial button and crosshair back to green after feedback
+    btnPlace.classList.remove("placed");
+    if (state.nv) {
+      state.nv.opts.crosshairColor = [0, 1, 0.004, 1];
+      state.nv.drawScene();
+    }
+
+    // Celebrate + auto-advance on excellent placement
+    if (quality === "excellent" && autoAdvance) {
+      await celebrate();
+      doAdvance();
+    }
+  }
+
+  /* ── Show / hide reference ───────────────────────────────────────────────── */
+  function toggleReference() {
+    if (!state.refs) return;
+    const lm  = currentLm();
+    const ref = state.refs[lm.abbrev];
+    if (!ref) return;
+
+    if (!state.refVisible) {
+      // Navigate crosshair to reference position
+      const frac = state.nv.mm2frac(ref);
+      if (frac) {
+        state.nv.scene.crosshairPos = frac;
+        state.nv.drawScene();
+      }
+      elCoords.textContent =
+        `ref: ${ref.map(v => v.toFixed(1)).join(", ")}`;
+      btnRef.textContent   = "⬤ Hide Reference";
+      btnRef.classList.add("active-ref");
+      state.refVisible = true;
+    } else {
+      // Navigate back to user's placed position (if available)
+      if (state.userCoords) {
+        const frac = state.nv.mm2frac(state.userCoords);
+        if (frac) {
+          state.nv.scene.crosshairPos = frac;
+          state.nv.drawScene();
+        }
+      }
+      btnRef.textContent = "◇ Show Reference";
+      btnRef.classList.remove("active-ref");
+      state.refVisible = false;
+    }
+  }
+
+  /* ── Badge ───────────────────────────────────────────────────────────────── */
+  const QUALITY_LABELS = {
+    excellent:  "✦ Excellent",
+    good:       "✔ Good",
+    fair:       "△ Fair",
+    needs_work: "✖ Needs work",
+  };
+
+  function showBadge(dist, quality) {
+    elBadge.className = `result-badge ${quality}`;
+    elBadge.textContent =
+      `${QUALITY_LABELS[quality] || quality}  —  ${dist.toFixed(2)} mm`;
+  }
+
+  function hideBadge() {
+    elBadge.className = "result-badge hidden";
+    elBadge.textContent = "";
+  }
+
+  /* ── Advance to next landmark (pure navigation, no placement) ────────────── */
+  function doAdvance() {
+    if (!state.completed.includes(state.idx)) {
+      state.completed.push(state.idx);
+    }
+    if (state.idx + 1 < TOTAL) {
+      startLandmark(state.idx + 1);
+    } else {
+      // All done!
+      clearChat();
+      updateLandmarkUI();
+      addMessage(
+        "system-note",
+        "Session complete! You have placed all 32 AFIDs landmarks."
+      );
+      addMessage(
+        "assistant",
+        "Congratulations on completing the full AFIDs landmark set! " +
+        "To consolidate your learning, try placing all 32 landmarks in " +
+        "3D Slicer and upload your FCSV to the Validator page for a " +
+        "detailed quality report. You can also export this session transcript below."
+      );
+      btnPlace.disabled = true;
+      btnRef.disabled   = true;
+      btnNext.disabled  = true;
+    }
+  }
+
+  /* ── Next landmark — saves current position if not yet placed ─────────────── */
+  async function nextLandmark() {
+    if (!state.placed) {
+      // Capture current crosshair as placement, stream feedback, then advance
+      await placeMarker(false);
+    }
+    doAdvance();
+  }
+
+  /* ── User Q&A ────────────────────────────────────────────────────────────── */
+  async function sendQuestion() {
+    const q = elInput.value.trim();
+    if (!q || state.streaming) return;
+    elInput.value = "";
+
+    addMessage("user", q);
+    state.history.push({ role: "user", content: q });
+
+    await streamPost("/learn/chat", {
+      question: q,
+      history: state.history.slice(0, -1),
+    });
+  }
+
+  /* ── NiiVue init ─────────────────────────────────────────────────────────── */
+  async function initNiivue() {
+    // UMD bundle exposes window.niivue (lowercase) as the namespace
+    const NV = niivue.Niivue;
+
+    const nv = new NV({
+      show3Dcrosshair:   true,
+      backColor:         [0.03, 0.03, 0.03, 1],
+      crosshairColor:    [0.0, 1.0, 0.004, 1],
+      crosshairWidth:    1,
+      textHeight:        0.04,
+      onLocationChange:  (data) => {
+        if (!data || !data.mm) return;
+        state.crosshairMm = data.mm.slice(0, 3);  // mm is [x,y,z,intensity] — drop 4th
+        if (!state.refVisible) {
+          elCoords.textContent =
+            data.mm.map(v => v.toFixed(1)).join("  ·  ");
+        }
+      },
+    });
+    state.nv = nv;
+
+    // attachTo takes the canvas element ID string and must be awaited
+    await nv.attachTo("gl");
+
+    try {
+      await nv.loadVolumes([
+        {
+          url:      "/learn/nifti",
+          name:     "tpl-MNI152NLin2009cAsym_res-02_T1w.nii.gz",
+          colormap: "gray",
+          opacity:  1.0,
+        },
+      ]);
+
+      nv.setSliceType(nv.sliceTypeMultiplanar);
+
+      // Load references
+      try {
+        const res  = await fetch("/learn/references");
+        const json = await res.json();
+        json.landmarks.forEach(({ abbrev, coords }) => {
+          state.refs[abbrev] = coords;
+        });
+      } catch {
+        addMessage("system-note", "[Could not load reference coordinates]");
+      }
+
+      // Hide loading overlay
+      elLoading.classList.add("hidden");
+
+      // Start first landmark
+      await startLandmark(0);
+
+    } catch (err) {
+      elLoading.innerHTML =
+        `<div class="loading-inner">` +
+        `<p class="loading-title" style="color:#ff4040">Failed to load MRI</p>` +
+        `<p class="loading-sub">${err.message}</p>` +
+        `</div>`;
+    }
+  }
+
+  /* ── Zoom — directly drive nv.scene.pan2Dxyzmm[3] (the 2D zoom scalar) ── */
+  // pan2Dxyzmm = [panX, panY, panZ, zoom]
+  // zoom > 1 = zoomed in, zoom < 1 = zoomed out, default = 1.0
+  const elZoomDisplay = $("zoom-display");
+
+  function set2DZoom(z) {
+    if (!state.nv) return;
+    const clamped = Math.max(0.3, Math.min(10.0, z));
+    state.nv.scene.pan2Dxyzmm[3] = clamped;
+    state.nv.drawScene();
+    elZoomDisplay.textContent = clamped.toFixed(1) + "×";
+  }
+
+  function get2DZoom() {
+    return state.nv ? (state.nv.scene.pan2Dxyzmm[3] || 1.0) : 1.0;
+  }
+
+  $("btn-zoom-in").addEventListener("click",    () => set2DZoom(get2DZoom() * 1.4));
+  $("btn-zoom-out").addEventListener("click",   () => set2DZoom(get2DZoom() / 1.4));
+  $("btn-zoom-reset").addEventListener("click", () => {
+    set2DZoom(1.0);
+    // Also reset pan offset
+    if (state.nv) {
+      state.nv.scene.pan2Dxyzmm[0] = 0;
+      state.nv.scene.pan2Dxyzmm[1] = 0;
+      state.nv.scene.pan2Dxyzmm[2] = 0;
+      state.nv.drawScene();
+    }
+  });
+
+  /* ── Go to landmark — jump crosshair to reference position ───────────────── */
+  $("btn-goto-lm").addEventListener("click", () => {
+    const lm  = currentLm();
+    const ref = state.refs[lm.abbrev];
+    if (!ref || !state.nv) return;
+    try {
+      const frac = state.nv.mm2frac(ref);
+      if (frac) {
+        state.nv.scene.crosshairPos = frac;
+        state.nv.drawScene();
+        elCoords.textContent = ref.map(v => v.toFixed(1)).join("  ·  ");
+      }
+    } catch (_) { /* mm2frac not available before volume load */ }
+  });
+
+  /* ── High-res toggle ─────────────────────────────────────────────────────── */
+  const NIFTI_LO  = "/learn/nifti";               // 2 mm — served from cache
+  const NIFTI_HI  = "/learn/nifti?res=01";        // 1 mm — served from cache
+  let hiRes = false;
+  const btnHires    = $("btn-hires");
+  const elResLoading = $("res-loading");
+
+  btnHires.addEventListener("click", async () => {
+    if (!state.nv || state.streaming) return;
+    hiRes = !hiRes;
+    btnHires.textContent  = hiRes ? "1mm" : "2mm";
+    btnHires.classList.toggle("active", hiRes);
+    elResLoading.classList.remove("hidden");
+    btnHires.disabled = true;
+
+    const savedIdx   = state.idx;
+    const savedCoords = [...state.crosshairMm];
+
+    await state.nv.loadVolumes([
+      {
+        url:      hiRes ? NIFTI_HI : NIFTI_LO,
+        name:     hiRes
+          ? "tpl-MNI152NLin2009cAsym_res-01_T1w.nii.gz"
+          : "tpl-MNI152NLin2009cAsym_res-02_T1w.nii.gz",
+        colormap: "gray",
+        opacity:  1.0,
+      },
+    ]);
+
+    state.nv.setSliceType(state.nv.sliceTypeMultiplanar);
+    elResLoading.classList.add("hidden");
+    btnHires.disabled = false;
+  });
+
+  /* ── Help overlay ────────────────────────────────────────────────────────── */
+  const helpOverlay = $("help-overlay");
+  $("btn-help").addEventListener("click", () => helpOverlay.classList.toggle("hidden"));
+  $("btn-help-close").addEventListener("click", () => helpOverlay.classList.add("hidden"));
+
+  /* ── Export session report ───────────────────────────────────────────────── */
+  function exportReport() {
+    const QUALITY_COLOR = {
+      excellent: "#00ff01", good: "#66cc66", fair: "#ffaa00", needs_work: "#ff4444",
+    };
+    const fmt = ts => new Date(ts).toLocaleTimeString();
+    const sessionDate = new Date(state.sessionStart).toLocaleString();
+
+    // Placement summary rows
+    const placementRows = state.placements.map(p => {
+      const uc = p.user_coords ? p.user_coords.map(v => v.toFixed(1)).join(", ") : "—";
+      const rc = p.ref_coords  ? p.ref_coords.map(v => v.toFixed(1)).join(", ") : "—";
+      const col = QUALITY_COLOR[p.quality] || "#888";
+      return `<tr>
+        <td>${p.idx + 1}</td>
+        <td><strong>${p.abbrev}</strong> — ${p.full_name}</td>
+        <td class="mono">${uc}</td>
+        <td class="mono">${rc}</td>
+        <td style="color:${col};font-weight:700">${p.distance_mm.toFixed(2)} mm</td>
+        <td style="color:${col}">${p.quality.replace("_", " ")}</td>
+      </tr>`;
+    }).join("\n");
+
+    // Organise log by landmark
+    const byLandmark = {};
+    state.sessionLog.forEach(entry => {
+      const key = `${entry.lmIdx}_${entry.lmAbbrev}`;
+      if (!byLandmark[key]) byLandmark[key] = { abbrev: entry.lmAbbrev, name: entry.lmName, msgs: [] };
+      byLandmark[key].msgs.push(entry);
+    });
+    const transcriptHTML = Object.values(byLandmark).map(lm => {
+      const msgs = lm.msgs.map(m => {
+        const roleLabel = m.role === "user" ? "You" : m.role === "assistant" ? "AI Tutor" : "System";
+        const bg = m.role === "user" ? "#0a1a0a" : m.role === "assistant" ? "#0a0a1a" : "#111";
+        return `<div style="background:${bg};border-radius:4px;padding:0.5rem 0.8rem;margin:0.3rem 0;border-left:3px solid ${m.role==="assistant"?"#00ff01":m.role==="user"?"#445544":"#222"}">
+          <div style="font-size:0.7rem;color:#555;margin-bottom:0.25rem">${roleLabel} · ${fmt(m.ts)}</div>
+          <div style="color:#ddd;white-space:pre-wrap">${m.text.replace(/</g,"&lt;")}</div>
+        </div>`;
+      }).join("");
+      return `<div style="margin-bottom:1.5rem">
+        <h3 style="color:#00ff01;font-family:monospace;font-size:0.9rem;border-bottom:1px solid #222;padding-bottom:0.3rem;margin-bottom:0.5rem">
+          ${lm.abbrev} — ${lm.name}
+        </h3>${msgs}</div>`;
+    }).join("");
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AFIDs Learning Session Report</title>
+<style>
+  body { background:#0a0a0a; color:#ddd; font-family:monospace; padding:2rem; max-width:900px; margin:0 auto; }
+  h1 { color:#00ff01; font-size:1.6rem; letter-spacing:3px; text-transform:uppercase; border-bottom:1px solid #222; padding-bottom:0.5rem; }
+  h2 { color:#00ff01; font-size:1rem; letter-spacing:2px; text-transform:uppercase; margin-top:2rem; border-bottom:1px solid #1a1a1a; padding-bottom:0.3rem; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin-top:0.5rem; }
+  th, td { border:1px solid #1e1e1e; padding:0.4rem 0.7rem; text-align:left; }
+  th { background:#111; color:#666; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; }
+  .mono { font-family:monospace; }
+  .meta { color:#555; font-size:0.8rem; margin-bottom:1.5rem; line-height:1.8; }
+</style>
+</head>
+<body>
+<h1>AFIDs Learning Session Report</h1>
+<div class="meta">
+  Date: ${sessionDate}<br>
+  Template: MNI152NLin2009cAsym T1w<br>
+  Landmarks placed: ${state.placements.length} / 32
+</div>
+
+<h2>Placement Summary</h2>
+<table>
+  <tr><th>#</th><th>Landmark</th><th>Placed (mm RAS)</th><th>Reference (mm RAS)</th><th>Distance</th><th>Quality</th></tr>
+  ${placementRows || "<tr><td colspan='6' style='color:#444'>No placements recorded</td></tr>"}
+</table>
+
+<h2>Session Transcript</h2>
+${transcriptHTML || "<p style='color:#444'>No messages recorded.</p>"}
+</body>
+</html>`;
+
+    const blob = new Blob([html], { type: "text/html" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `afids-session-${new Date().toISOString().slice(0,10)}.html`;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  $("btn-export").addEventListener("click", exportReport);
+
+  /* ── Event listeners ─────────────────────────────────────────────────────── */
+  btnPlace.addEventListener("click", placeMarker);
+  btnRef.addEventListener("click",   toggleReference);
+  btnNext.addEventListener("click",  nextLandmark);
+  btnSend.addEventListener("click",  sendQuestion);
+
+  elInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendQuestion();
+  });
+
+  /* ── Boot ────────────────────────────────────────────────────────────────── */
+  document.addEventListener("DOMContentLoaded", initNiivue);
+
+})();
+</script>
+
+{% endblock %}
