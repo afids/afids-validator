@@ -75,7 +75,10 @@ def _load_references() -> dict[str, list[float]]:
                 x = float(parts[1])
                 y = float(parts[2])
                 z = float(parts[3])
-                abbrev = parts[12]  # 'desc' column holds the abbreviation
+                # Label column (index 11) is the 1-based landmark number;
+                # use it to look up the abbreviation from the protocol order.
+                label = int(parts[11])
+                abbrev = LANDMARK_ORDER[label - 1]
                 refs[abbrev] = [x, y, z]
             except (ValueError, IndexError):
                 continue

@@ -75,8 +75,13 @@
       </div>
       <div class="res-toggle">
         <span class="toolbar-label">RES</span>
-        <button id="btn-hires" class="btn-tool btn-hires" title="Toggle 1 mm high-resolution">2mm</button>
+        <button id="btn-hires" class="btn-tool btn-hires active" title="Toggle 1 mm high-resolution">1mm</button>
         <span id="res-loading" class="toolbar-val hidden mono" style="color:#ffaa00">loading…</span>
+      </div>
+      <div class="res-toggle">
+        <span class="toolbar-label">VIEW</span>
+        <button id="btn-convention" class="btn-tool btn-hires active" title="Toggle radiological (R on left) vs neurological (R on right) convention">RAD</button>
+        <button id="btn-sag-flip" class="btn-tool btn-hires active" title="Flip sagittal view (anterior left/right)">SAG&#8597;</button>
       </div>
       <button id="btn-help" class="btn-tool btn-help" title="Viewer controls guide">?</button>
     </div>
@@ -1207,14 +1212,17 @@
     try {
       await nv.loadVolumes([
         {
-          url:      "/learn/nifti",
-          name:     "tpl-MNI152NLin2009cAsym_res-02_T1w.nii.gz",
+          url:      "/learn/nifti?res=01",
+          name:     "tpl-MNI152NLin2009cAsym_res-01_T1w.nii.gz",
           colormap: "gray",
           opacity:  1.0,
         },
       ]);
 
       nv.setSliceType(nv.sliceTypeMultiplanar);
+      nv.setRadiologicalConvention(true);
+      nv.opts.sagittalNoseLeft = true;
+      nv.drawScene();
 
       // Load references
       try {
@@ -1290,7 +1298,7 @@
   /* ── High-res toggle ─────────────────────────────────────────────────────── */
   const NIFTI_LO  = "/learn/nifti";               // 2 mm — served from cache
   const NIFTI_HI  = "/learn/nifti?res=01";        // 1 mm — served from cache
-  let hiRes = false;
+  let hiRes = true;
   const btnHires    = $("btn-hires");
   const elResLoading = $("res-loading");
 
@@ -1319,6 +1327,33 @@
     state.nv.setSliceType(state.nv.sliceTypeMultiplanar);
     elResLoading.classList.add("hidden");
     btnHires.disabled = false;
+  });
+
+  /* ── Radiological / neurological convention toggle ───────────────────────── */
+  // Neurological: R on right (default for this protocol — RAS coords)
+  // Radiological: R on left  (standard radiology reading convention)
+  let radiological = true;
+  const btnConvention = $("btn-convention");
+
+  btnConvention.addEventListener("click", () => {
+    if (!state.nv) return;
+    radiological = !radiological;
+    state.nv.setRadiologicalConvention(radiological);
+    btnConvention.textContent = radiological ? "RAD" : "NEU";  // radiological starts true
+    btnConvention.classList.toggle("active", radiological);
+    state.nv.drawScene();
+  });
+
+  /* ── Sagittal flip ────────────────────────────────────────────────────────── */
+  let sagFlipped = true;
+  const btnSagFlip = $("btn-sag-flip");
+
+  btnSagFlip.addEventListener("click", () => {
+    if (!state.nv) return;
+    sagFlipped = !sagFlipped;
+    state.nv.opts.sagittalNoseLeft = sagFlipped;
+    btnSagFlip.classList.toggle("active", sagFlipped);
+    state.nv.drawScene();
   });
 
   /* ── Help overlay ────────────────────────────────────────────────────────── */
