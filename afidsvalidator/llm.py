@@ -1,15 +1,25 @@
 """Model-agnostic LLM interface for the AFIDs guided learning mode.
 
 Configure via environment variables:
-  LLM_API_KEY   — API key (required)
-  LLM_BASE_URL  — Base URL of any OpenAI-compatible endpoint
-                  Defaults to https://api.openai.com/v1
+  LLM_API_KEY   — API key. If unset, defaults to local Ollama (free, no key needed).
+  LLM_BASE_URL  — Base URL of any OpenAI-compatible endpoint.
+                  If LLM_API_KEY is unset, defaults to http://localhost:11434/v1 (Ollama).
                   Examples:
-                    Anthropic : https://api.anthropic.com/v1
-                    Ollama    : http://localhost:11434/v1
-                    Together  : https://api.together.xyz/v1
-  LLM_MODEL     — Model name. Defaults to gpt-4o
-                  Examples: claude-sonnet-4-6, llama3, mistral
+                    OpenAI    : https://api.openai.com/v1  (needs LLM_API_KEY)
+                    Anthropic : https://api.anthropic.com/v1  (needs LLM_API_KEY)
+                    Groq      : https://api.groq.com/openai/v1  (needs LLM_API_KEY)
+                    Together  : https://api.together.xyz/v1  (needs LLM_API_KEY)
+                    Ollama    : http://localhost:11434/v1  (no key required — free)
+  LLM_MODEL     — Model name.
+                  Defaults to llama3.2 when using Ollama, or gpt-4o otherwise.
+                  Examples (Ollama):  llama3.2, llama3.1, mistral, phi4, gemma3
+                  Examples (Groq):    llama-3.3-70b-versatile, mixtral-8x7b-32768
+                  Examples (OpenAI):  gpt-4o, gpt-4o-mini
+
+Zero-config quick start (local, free):
+  1. Install Ollama: https://ollama.com
+  2. Run: ollama pull llama3.2
+  3. Start the app — no env vars needed.
 """
 
 from __future__ import annotations
@@ -104,8 +114,22 @@ AFIDs PROTOCOL — ALL 32 LANDMARK DEFINITIONS
 
 
 # ── Client factory ────────────────────────────────────────────────────────────
+_OLLAMA_DEFAULT_URL = "http://localhost:11434/v1"
+_OPENAI_DEFAULT_URL = "https://api.openai.com/v1"
+
+
+def _using_local_ollama() -> bool:
+    """True when no API key is configured (local Ollama mode)."""
+    return not os.environ.get("LLM_API_KEY")
+
+
 def _get_client():
-    """Return an OpenAI-compatible client built from env vars."""
+    """Return an OpenAI-compatible client built from env vars.
+
+    When LLM_API_KEY is unset, connects to a local Ollama instance
+    (http://localhost:11434/v1) which requires no API key and runs
+    open-source models such as llama3.2, mistral, phi4, etc. for free.
+    """
     try:
         from openai import OpenAI
     except ImportError as exc:
@@ -114,16 +138,24 @@ def _get_client():
             "Install it with:  poetry add openai"
         ) from exc
 
+    if _using_local_ollama():
+        # Ollama ignores the key; a non-empty placeholder keeps the SDK happy.
+        return OpenAI(
+            api_key="ollama",
+            base_url=os.environ.get("LLM_BASE_URL", _OLLAMA_DEFAULT_URL),
+        )
+
     return OpenAI(
-        api_key=os.environ.get("LLM_API_KEY", ""),
-        base_url=os.environ.get(
-            "LLM_BASE_URL", "https://api.openai.com/v1"
-        ),
+        api_key=os.environ["LLM_API_KEY"],
+        base_url=os.environ.get("LLM_BASE_URL", _OPENAI_DEFAULT_URL),
     )
 
 
 def _get_model() -> str:
-    return os.environ.get("LLM_MODEL", "gpt-4o")
+    if "LLM_MODEL" in os.environ:
+        return os.environ["LLM_MODEL"]
+    # Default to a small open model when running against local Ollama.
+    return "llama3.2" if _using_local_ollama() else "gpt-4o"
 
 
 # ── Message builders ──────────────────────────────────────────────────────────
