@@ -67,10 +67,10 @@
     <div class="viewer-toolbar">
       <div class="zoom-controls">
         <span class="toolbar-label">ZOOM</span>
-        <button id="btn-zoom-out"   class="btn-tool" title="Zoom out">&#8722;</button>
-        <span id="zoom-display" class="mono toolbar-val">1.0&times;</span>
-        <button id="btn-zoom-in"    class="btn-tool" title="Zoom in">&#43;</button>
-        <button id="btn-zoom-reset" class="btn-tool" title="Reset zoom to 1×">&#8635;</button>
+        <button id="btn-zoom-out"   class="btn-tool" title="Zoom out" aria-label="Zoom out">&#8722;</button>
+        <span id="zoom-display" class="mono toolbar-val" aria-live="off">1.0&times;</span>
+        <button id="btn-zoom-in"    class="btn-tool" title="Zoom in" aria-label="Zoom in">&#43;</button>
+        <button id="btn-zoom-reset" class="btn-tool" title="Reset zoom to 1×" aria-label="Reset zoom">&#8635;</button>
         <button id="btn-goto-lm" class="btn-tool btn-goto" title="Jump crosshair to this landmark's region">&#9678; Go to landmark</button>
       </div>
       <div class="res-toggle">
@@ -83,13 +83,13 @@
         <button id="btn-convention" class="btn-tool btn-hires active" title="Toggle radiological (R on left) vs neurological (R on right) convention">RAD</button>
         <button id="btn-sag-flip" class="btn-tool btn-hires active" title="Flip sagittal view (anterior left/right)">SAG&#8597;</button>
       </div>
-      <button id="btn-help" class="btn-tool btn-help" title="Viewer controls guide">?</button>
+      <button id="btn-help" class="btn-tool btn-help" title="Viewer controls guide" aria-label="Viewer controls guide">?</button>
     </div>
 
     {# Help overlay — sits over the canvas #}
     <div id="help-overlay" class="help-overlay hidden" style="position:fixed;inset:0;z-index:100">
       <div class="help-box">
-        <div class="help-title">VIEWER CONTROLS <button id="btn-help-close" class="btn-tool" style="float:right">&times;</button></div>
+        <div class="help-title">VIEWER CONTROLS <button id="btn-help-close" class="btn-tool" style="float:right" aria-label="Close help">&times;</button></div>
         <table class="help-table">
           <tr><td>🖱 Click</td><td>Move crosshair / set position</td></tr>
           <tr><td>🖱 Scroll</td><td>Zoom in / out at cursor</td></tr>
@@ -113,7 +113,10 @@
 
     <div class="panel-label">
       AI TUTOR
-      <span class="model-tag" id="model-tag">LLM</span>
+      <span class="model-tag" id="model-tag" title="Active tutor model">LLM</span>
+      <button id="btn-settings" class="btn-tool btn-settings"
+              title="Tutor settings — use your own API key"
+              aria-label="Tutor settings">&#9881;</button>
     </div>
 
     {# Current landmark display #}
@@ -129,24 +132,79 @@
     <div id="result-badge" class="result-badge hidden"></div>
 
     {# Chat message thread #}
-    <div id="chat-messages" class="chat-messages"></div>
+    <div id="chat-messages" class="chat-messages"
+         role="log" aria-live="polite" aria-atomic="false"
+         aria-label="Tutor conversation"></div>
 
     {# User input #}
     <div class="chat-input-row">
+      <label for="user-input" class="sr-only">Ask a question about the current landmark</label>
       <input
         id="user-input"
         class="chat-input"
         type="text"
         placeholder="Ask a question about this landmark…"
+        aria-label="Ask a question about the current landmark"
         disabled
         autocomplete="off"
       />
-      <button id="btn-send" class="btn-learn btn-send" disabled>&rarr;</button>
+      <button id="btn-send" class="btn-learn btn-send" disabled
+              aria-label="Send question">&rarr;</button>
     </div>
 
   </div>{# end chat-panel #}
 
 </div>{# end learn-layout #}
+
+{# ── Tutor settings (bring-your-own-key) overlay ──────────────────────────── #}
+<div id="settings-overlay" class="settings-overlay hidden" role="dialog"
+     aria-modal="true" aria-labelledby="settings-title">
+  <div class="settings-box">
+    <div class="settings-title" id="settings-title">
+      TUTOR SETTINGS
+      <button id="btn-settings-close" class="btn-tool" aria-label="Close settings">&times;</button>
+    </div>
+    <p class="settings-intro">
+      Bring your own language-model key for the tutor. Your key is stored
+      <strong>only in this browser</strong> and sent directly with your
+      requests — it is never saved on our server. Leave everything blank to use
+      the shared tutor.
+    </p>
+
+    <label class="settings-field">
+      <span>Provider</span>
+      <select id="set-provider">
+        <option value="openai">OpenAI</option>
+        <option value="anthropic">Anthropic (Claude)</option>
+        <option value="groq">Groq (free tier)</option>
+        <option value="together">Together AI</option>
+        <option value="ollama">Local Ollama</option>
+        <option value="custom">Custom / other</option>
+      </select>
+    </label>
+    <label class="settings-field">
+      <span>Base URL</span>
+      <input id="set-base-url" type="text" autocomplete="off" spellcheck="false"
+             placeholder="https://api.openai.com/v1">
+    </label>
+    <label class="settings-field">
+      <span>Model</span>
+      <input id="set-model" type="text" autocomplete="off" spellcheck="false"
+             placeholder="gpt-4o">
+    </label>
+    <label class="settings-field">
+      <span>API key</span>
+      <input id="set-api-key" type="password" autocomplete="off" spellcheck="false"
+             placeholder="sk-…">
+    </label>
+
+    <div class="settings-actions">
+      <button id="btn-settings-clear" class="btn-learn btn-ref">Clear</button>
+      <button id="btn-settings-save" class="btn-learn btn-place">Save</button>
+    </div>
+    <div id="settings-status" class="settings-status" role="status" aria-live="polite"></div>
+  </div>
+</div>
 
 {# ── Progress bar ─────────────────────────────────────────────────────────── #}
 {# ── Celebration overlay ──────────────────────────────────────────────────── #}
@@ -742,6 +800,79 @@
   from { filter: drop-shadow(0 0 12px #00ff01); transform: scale(1); }
   to   { filter: drop-shadow(0 0 32px #00ff01); transform: scale(1.08); }
 }
+
+/* ── Accessibility: contrast, focus, screen-reader helpers ───────────────── */
+/* Screen-reader-only text (visually hidden, still announced) */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* Bump low-contrast informational text toward WCAG AA on the dark theme */
+.coord-hint     { color: #8a8a8a; }
+.coord-label    { color: #8a8a8a; }
+.loading-sub    { color: #8a8a8a; }
+.toolbar-label  { color: #8a8a8a; }
+.progress-title { color: #8a8a8a; }
+.panel-label    { color: #8a8a8a; }
+.help-tip       { color: #9a9a9a; }
+.help-table td  { color: #c0c0c0; }
+.lm-name        { color: #9a9a9a; }
+.model-tag      { color: #9a9a9a; border-color: #444; }
+.pdot-pending   { color: #777; }
+
+/* Visible keyboard focus (WCAG 2.4.7) */
+.btn-learn:focus-visible, .btn-tool:focus-visible, .chat-input:focus-visible,
+.pdot:focus-visible, .settings-field select:focus-visible,
+.settings-field input:focus-visible, select:focus-visible {
+  outline: 2px solid #00ff01;
+  outline-offset: 2px;
+}
+
+/* ── Tutor settings overlay ──────────────────────────────────────────────── */
+.settings-overlay {
+  position: fixed; inset: 0; z-index: 320;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.82);
+}
+.settings-overlay.hidden { display: none; }
+.settings-box {
+  background: #0e0e0e; border: 1px solid #2a2a2a; border-radius: 6px;
+  padding: 1.1rem 1.2rem; max-width: 420px; width: 92%;
+}
+.settings-title {
+  font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px;
+  color: #00ff01; font-size: 1rem;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 0.6rem;
+}
+.settings-intro {
+  font-size: 0.72rem; color: #9a9a9a; line-height: 1.55;
+  margin: 0 0 0.9rem; font-family: 'Inter', sans-serif;
+}
+.settings-intro strong { color: #c8c8c8; }
+.settings-field {
+  display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 0.6rem;
+  font-family: 'Space Mono', monospace; font-size: 0.66rem;
+  color: #9a9a9a; letter-spacing: 0.05em;
+}
+.settings-field span { text-transform: uppercase; }
+.settings-field select, .settings-field input {
+  background: #141414; border: 1px solid #2a2a2a; color: #f0f0f0;
+  border-radius: 4px; padding: 0.4rem 0.55rem;
+  font-family: 'Space Mono', monospace; font-size: 0.78rem; outline: none;
+}
+.settings-field select:focus, .settings-field input:focus { border-color: #00ff01; }
+.settings-actions {
+  display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.4rem;
+}
+.settings-actions .btn-learn { flex: 0 0 auto; }
+.settings-status {
+  font-size: 0.68rem; color: #00ff01;
+  font-family: 'Space Mono', monospace; margin-top: 0.6rem; min-height: 1em;
+}
+.btn-settings { margin-left: 0.4rem; }
 </style>
 
 {# ═══════════════════════════════════════════════════════════════════════════ #}
@@ -844,6 +975,49 @@
     elChat.innerHTML = "";
   }
 
+  /* ── LLM settings (bring-your-own-key) ───────────────────────────────────── */
+  const LS_KEY = "afids_llm_config";
+  const PROVIDERS = {
+    openai:    { base_url: "https://api.openai.com/v1",      model: "gpt-4o" },
+    anthropic: { base_url: "https://api.anthropic.com/v1",   model: "claude-sonnet-5" },
+    groq:      { base_url: "https://api.groq.com/openai/v1", model: "llama-3.3-70b-versatile" },
+    together:  { base_url: "https://api.together.xyz/v1",    model: "meta-llama/Llama-3.3-70B-Instruct-Turbo" },
+    ollama:    { base_url: "http://localhost:11434/v1",      model: "llama3.2" },
+    custom:    { base_url: "", model: "" },
+  };
+
+  // Returns only the fields the server understands: {api_key, base_url, model}.
+  function getLlmConfig() {
+    try {
+      const cfg = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+      const out = {};
+      ["api_key", "base_url", "model"].forEach(k => {
+        if (typeof cfg[k] === "string" && cfg[k].trim()) out[k] = cfg[k].trim();
+      });
+      return out;
+    } catch { return {}; }
+  }
+
+  async function updateModelTag() {
+    const tag = $("model-tag");
+    try {
+      const res = await fetch("/learn/llm-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ llm: getLlmConfig() }),
+      });
+      const s = await res.json();
+      tag.textContent = s.model || "LLM";
+      if (s.using_own_key) {
+        tag.title = `Using your own key · ${s.model}`;
+      } else if (s.shared_default_available) {
+        tag.title = `Shared tutor · ${s.model} · add your own key in Settings (⚙)`;
+      } else {
+        tag.title = `${s.model} · add an API key in Settings (⚙) to enable the tutor`;
+      }
+    } catch { tag.textContent = "LLM"; }
+  }
+
   /* ── Streaming fetch ─────────────────────────────────────────────────────── */
   let _streamAbort = null;  // AbortController for the active stream
 
@@ -866,7 +1040,7 @@
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...body, llm: getLlmConfig() }),
         signal: _streamAbort.signal,
       });
 
@@ -1029,17 +1203,17 @@
       return;
     }
 
-    const { distance_mm, directions, quality, ref_coords } = checkResult;
+    const { distance_mm, directions, quality, ref_coords, rater } = checkResult;
 
     // Record placement
     state.placements.push({
       idx: state.idx, abbrev: lm.abbrev, full_name: lm.full_name,
       user_coords: coords, ref_coords: ref_coords ?? null,
-      distance_mm, quality, ts: Date.now(),
+      distance_mm, quality, rater: rater ?? null, ts: Date.now(),
     });
 
     // Show result badge
-    showBadge(distance_mm, quality);
+    showBadge(distance_mm, quality, rater);
 
     // Push user turn to history (full context for the LLM)
     state.history.push({
@@ -1121,10 +1295,13 @@
     needs_work: "✖ Needs work",
   };
 
-  function showBadge(dist, quality) {
+  function showBadge(dist, quality, rater) {
     elBadge.className = `result-badge ${quality}`;
-    elBadge.textContent =
-      `${QUALITY_LABELS[quality] || quality}  —  ${dist.toFixed(2)} mm`;
+    let txt = `${QUALITY_LABELS[quality] || quality}  —  ${dist.toFixed(2)} mm`;
+    if (rater) {
+      txt += `   ·   ${rater.percentile}th pct vs trained raters (${rater.label})`;
+    }
+    elBadge.textContent = txt;
   }
 
   function hideBadge() {
@@ -1381,6 +1558,7 @@
         <td class="mono">${rc}</td>
         <td style="color:${col};font-weight:700">${p.distance_mm.toFixed(2)} mm</td>
         <td style="color:${col}">${p.quality.replace("_", " ")}</td>
+        <td>${p.rater ? `${p.rater.percentile}th pct — ${p.rater.label}` : "—"}</td>
       </tr>`;
     }).join("\n");
 
@@ -1432,8 +1610,8 @@
 
 <h2>Placement Summary</h2>
 <table>
-  <tr><th>#</th><th>Landmark</th><th>Placed (mm RAS)</th><th>Reference (mm RAS)</th><th>Distance</th><th>Quality</th></tr>
-  ${placementRows || "<tr><td colspan='6' style='color:#444'>No placements recorded</td></tr>"}
+  <tr><th>#</th><th>Landmark</th><th>Placed (mm RAS)</th><th>Reference (mm RAS)</th><th>Distance</th><th>Quality</th><th>vs trained raters</th></tr>
+  ${placementRows || "<tr><td colspan='7' style='color:#444'>No placements recorded</td></tr>"}
 </table>
 
 <h2>Session Transcript</h2>
@@ -1455,6 +1633,62 @@ ${transcriptHTML || "<p style='color:#444'>No messages recorded.</p>"}
 
   $("btn-export").addEventListener("click", exportReport);
 
+  /* ── Settings modal (bring-your-own-key) ─────────────────────────────────── */
+  const settingsOverlay = $("settings-overlay");
+  const setProvider = $("set-provider");
+  const setBaseUrl  = $("set-base-url");
+  const setModel    = $("set-model");
+  const setApiKey   = $("set-api-key");
+  const setStatus   = $("settings-status");
+
+  function loadSettingsForm() {
+    let cfg = {};
+    try { cfg = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); } catch { cfg = {}; }
+    setProvider.value = cfg.provider || "openai";
+    setBaseUrl.value  = cfg.base_url || "";
+    setModel.value    = cfg.model || "";
+    setApiKey.value   = cfg.api_key || "";
+    setStatus.textContent = "";
+  }
+
+  function openSettings() {
+    loadSettingsForm();
+    settingsOverlay.classList.remove("hidden");
+    setApiKey.focus();
+  }
+  function closeSettings() { settingsOverlay.classList.add("hidden"); }
+
+  setProvider.addEventListener("change", () => {
+    const p = PROVIDERS[setProvider.value];
+    if (p) { setBaseUrl.value = p.base_url; setModel.value = p.model; }
+  });
+
+  $("btn-settings").addEventListener("click", openSettings);
+  $("btn-settings-close").addEventListener("click", closeSettings);
+  settingsOverlay.addEventListener("click", (e) => {
+    if (e.target === settingsOverlay) closeSettings();
+  });
+
+  $("btn-settings-save").addEventListener("click", () => {
+    const cfg = {
+      provider: setProvider.value,
+      base_url: setBaseUrl.value.trim(),
+      model:    setModel.value.trim(),
+      api_key:  setApiKey.value.trim(),
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(cfg));
+    setStatus.textContent = cfg.api_key ? "Saved — using your own key." : "Saved.";
+    updateModelTag();
+    setTimeout(closeSettings, 800);
+  });
+
+  $("btn-settings-clear").addEventListener("click", () => {
+    localStorage.removeItem(LS_KEY);
+    loadSettingsForm();
+    setStatus.textContent = "Cleared — using the shared tutor.";
+    updateModelTag();
+  });
+
   /* ── Event listeners ─────────────────────────────────────────────────────── */
   btnPlace.addEventListener("click", placeMarker);
   btnRef.addEventListener("click",   toggleReference);
@@ -1465,7 +1699,14 @@ ${transcriptHTML || "<p style='color:#444'>No messages recorded.</p>"}
     if (e.key === "Enter") sendQuestion();
   });
 
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !settingsOverlay.classList.contains("hidden")) {
+      closeSettings();
+    }
+  });
+
   /* ── Boot ────────────────────────────────────────────────────────────────── */
+  updateModelTag();
   document.addEventListener("DOMContentLoaded", initNiivue);
 
 })();

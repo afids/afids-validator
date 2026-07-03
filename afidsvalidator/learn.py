@@ -11,6 +11,7 @@ POST /learn/check           JSON — compute error for a placed coordinate
 POST /learn/intro           Stream — LLM introduction for a landmark
 POST /learn/feedback        Stream — LLM feedback after placement
 POST /learn/chat            Stream — LLM answer to a free-text question
+POST /learn/llm-status      JSON — active model + whether a key is in use
 """
 
 from __future__ import annotations
@@ -30,13 +31,17 @@ from flask import (
     stream_with_context,
 )
 
+from afidsvalidator import reliability
 from afidsvalidator.landmark_info import LANDMARK_INFO
 from afidsvalidator.llm import (
     build_feedback_messages,
     build_intro_messages,
     build_question_messages,
+    resolve_model_label,
+    server_has_default_key,
     stream_chat,
 )
+from afidsvalidator.rag import retrieve
 
 learn = Blueprint("learn", __name__, template_folder="templates")
 
@@ -86,15 +91,71 @@ def _load_references() -> dict[str, list[float]]:
 
 
 
-def _stream_llm(messages: list[dict]) -> Response:
-    """Return a streaming plain-text Flask response from the LLM."""
+def _extract_llm_config(data: dict) -> dict | None:
+    """Pull an optional per-request LLM override from the request body.
+
+    The visitor's browser may send ``{"llm": {api_key, base_url, model}}`` —
+    a key held only client-side (localStorage) and forwarded per request. We
+    never log or persist it. Returns None when no usable override is present.
+    """
+    cfg = data.get("llm")
+    if not isinstance(cfg, dict):
+        return None
+    override = {
+        k: cfg.get(k)
+        for k in ("api_key", "base_url", "model")
+        if isinstance(cfg.get(k), str) and cfg.get(k).strip()
+    }
+    return override or None
+
+
+def _offline_fallback(chunks: list[str], abbrev: str = "") -> str:
+    """Reference text shown when no language model is reachable.
+
+    Guarantees the learner still gets useful anatomy — the tool never
+    dead-ends — while nudging them to add their own key for interactive
+    tutoring.
+    """
+    note = (
+        "The interactive AI tutor needs a language-model key. Add your own "
+        "in Settings (⚙) to enable conversational tutoring. In the "
+        "meantime, here is the reference material for this landmark:\n\n"
+    )
+    body = "\n\n".join(c for c in chunks if c).strip()
+    if not body and abbrev in LANDMARK_INFO:
+        info = LANDMARK_INFO[abbrev]
+        body = (
+            f"{abbrev} — {info['full_name']}\n"
+            f"{info['description']}\n"
+            f"Key features on MRI: {info['key_features']}\n"
+            f"Common mistakes: {info['common_mistakes']}"
+        )
+    return note + (body or "Reference material is unavailable right now.")
+
+
+def _stream_llm(
+    messages: list[dict],
+    llm_config: dict | None = None,
+    fallback: str | None = None,
+) -> Response:
+    """Return a streaming plain-text Flask response from the LLM.
+
+    If the model cannot be reached before producing any output and a
+    *fallback* is provided, the fallback text is streamed instead so the
+    learner is never left with a dead tutor.
+    """
 
     def generate():
+        produced = False
         try:
-            for chunk in stream_chat(messages):
+            for chunk in stream_chat(messages, llm_config=llm_config):
+                produced = True
                 yield chunk
         except Exception as exc:  # noqa: BLE001
-            yield f"\n\n[Tutor unavailable — {exc}]"
+            if not produced and fallback:
+                yield fallback
+            else:
+                yield f"\n\n[Tutor interrupted — {exc}]"
 
     return Response(
         stream_with_context(generate()),
@@ -261,6 +322,10 @@ def check_placement():
             "ref_coords": ref,
             "directions": directions,
             "quality": quality,
+            # Where this placement sits within the trained-rater distribution
+            # for THIS landmark (from the AFIDs multi-rater dataset). None when
+            # the landmark is absent from the reliability prior.
+            "rater": reliability.band(abbrev, distance),
         }
     )
 
@@ -273,8 +338,19 @@ def stream_intro():
     """
     data = request.get_json(force=True)
     abbrev: str = data.get("landmark", "")
-    messages = build_intro_messages(abbrev)
-    return _stream_llm(messages)
+    info = LANDMARK_INFO.get(abbrev, {})
+    query = f"{abbrev} {info.get('full_name', '')} MRI anatomy placement protocol"
+    chunks = retrieve(query, landmark_hint=abbrev, top_k=3)
+    messages = build_intro_messages(
+        abbrev,
+        context_chunks=chunks,
+        rater_context=reliability.intro_line(abbrev),
+    )
+    return _stream_llm(
+        messages,
+        llm_config=_extract_llm_config(data),
+        fallback=_offline_fallback(chunks, abbrev),
+    )
 
 
 @learn.route("/learn/feedback", methods=["POST"])
@@ -293,17 +369,33 @@ def stream_feedback():
     teaches anatomy rather than coordinate navigation.
     """
     data = request.get_json(force=True)
+    abbrev: str = data.get("landmark", "")
+    directions: list[str] = data.get("directions", [])
+    info = LANDMARK_INFO.get(abbrev, {})
+    query = (
+        f"{abbrev} {info.get('full_name', '')} placement error "
+        + " ".join(directions)
+    )
+    chunks = retrieve(query, landmark_hint=abbrev, top_k=3)
     messages = build_feedback_messages(
         history=data.get("history", []),
-        abbrev=data.get("landmark", ""),
+        abbrev=abbrev,
         distance_mm=float(data.get("distance_mm", 0)),
         quality=data.get("quality", ""),
         user_coords=data.get("user_coords"),
         ref_coords=data.get("ref_coords"),
-        directions=data.get("directions", []),
+        directions=directions,
         viewer_state=data.get("viewer_state"),
+        context_chunks=chunks,
+        rater_context=reliability.feedback_line(
+            abbrev, float(data.get("distance_mm", 0))
+        ),
     )
-    return _stream_llm(messages)
+    return _stream_llm(
+        messages,
+        llm_config=_extract_llm_config(data),
+        fallback=_offline_fallback(chunks, abbrev),
+    )
 
 
 @learn.route("/learn/chat", methods=["POST"])
@@ -318,8 +410,36 @@ def stream_chat_route():
     }
     """
     data = request.get_json(force=True)
+    question: str = data.get("question", "")
+    chunks = retrieve(question, top_k=4)
     messages = build_question_messages(
         history=data.get("history", []),
-        question=data.get("question", ""),
+        question=question,
+        context_chunks=chunks,
     )
-    return _stream_llm(messages)
+    return _stream_llm(
+        messages,
+        llm_config=_extract_llm_config(data),
+        fallback=_offline_fallback(chunks),
+    )
+
+
+@learn.route("/learn/llm-status", methods=["POST"])
+def llm_status():
+    """Report the model that will answer, given an optional client override.
+
+    Request JSON: { "llm": {api_key, base_url, model} }  (all optional)
+    Response JSON: { model, using_own_key, shared_default_available }
+
+    Lets the UI show the active model and whether the visitor is running on
+    their own key or the shared default tutor. No key is stored or logged.
+    """
+    data = request.get_json(force=True, silent=True) or {}
+    override = _extract_llm_config(data) or {}
+    return jsonify(
+        {
+            "model": resolve_model_label(override),
+            "using_own_key": bool(override.get("api_key")),
+            "shared_default_available": server_has_default_key(),
+        }
+    )
