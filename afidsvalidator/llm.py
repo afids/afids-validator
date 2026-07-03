@@ -314,7 +314,9 @@ def build_feedback_messages(
             viewer_parts.append(f"resolution: {viewer_state['resolution']}")
         if viewer_state.get("zoom"):
             viewer_parts.append(f"zoom: {viewer_state['zoom']}×")
-        if viewer_state.get("contrast_min") and viewer_state.get("contrast_max"):
+        if viewer_state.get("contrast_min") and viewer_state.get(
+            "contrast_max"
+        ):
             viewer_parts.append(
                 f"contrast window: {viewer_state['contrast_min']}–"
                 f"{viewer_state['contrast_max']}"

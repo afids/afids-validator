@@ -11,8 +11,8 @@ from afidsvalidator.config import (
     ProductionConfig,
     TestingConfig,
 )
-from afidsvalidator.model import db, login_manager
 from afidsvalidator.learn import learn
+from afidsvalidator.model import db, login_manager
 from afidsvalidator.orcid import orcid_blueprint
 from afidsvalidator.rag import KnowledgeChunk  # noqa: F401 — registers model
 from afidsvalidator.views import validator
@@ -92,7 +92,9 @@ def create_app():
 
         if filepath:
             if not source:
-                raise click.UsageError("--source is required when using --file")
+                raise click.UsageError(
+                    "--source is required when using --file"
+                )
             click.echo(f"Ingesting {filepath} as source={source!r} …")
             count = ingest_text_file(filepath, source)
         else:

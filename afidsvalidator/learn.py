@@ -16,7 +16,6 @@ POST /learn/llm-status      JSON — active model + whether a key is in use
 
 from __future__ import annotations
 
-import json
 import math
 import urllib.request
 from pathlib import Path
@@ -88,7 +87,6 @@ def _load_references() -> dict[str, list[float]]:
             except (ValueError, IndexError):
                 continue
     return refs
-
 
 
 def _extract_llm_config(data: dict) -> dict | None:
@@ -339,7 +337,9 @@ def stream_intro():
     data = request.get_json(force=True)
     abbrev: str = data.get("landmark", "")
     info = LANDMARK_INFO.get(abbrev, {})
-    query = f"{abbrev} {info.get('full_name', '')} MRI anatomy placement protocol"
+    query = (
+        f"{abbrev} {info.get('full_name', '')} MRI anatomy placement protocol"
+    )
     chunks = retrieve(query, landmark_hint=abbrev, top_k=3)
     messages = build_intro_messages(
         abbrev,
