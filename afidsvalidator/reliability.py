@@ -25,8 +25,14 @@ from pathlib import Path
 _JSON = Path(__file__).parent / "rater_reliability.json"
 
 # Percentile anchors stored per landmark, plus the implicit (0 mm → 0th pct).
-_ANCHORS = [(0.0, 0.0), ("p10", 10), ("p25", 25), ("p50", 50),
-            ("p75", 75), ("p90", 90)]
+_ANCHORS = [
+    (0.0, 0.0),
+    ("p10", 10),
+    ("p25", 25),
+    ("p50", 50),
+    ("p75", 75),
+    ("p90", 90),
+]
 
 
 @lru_cache(maxsize=1)
