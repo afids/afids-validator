@@ -175,52 +175,33 @@ def world_to_vox(aff, xyz):
 # FIGURE 3 — the 32 landmarks on real MNI anatomy
 # ══════════════════════════════════════════════════════════════════════════════
 def fig3_landmarks():
-    data, aff, ext = load_brain()
+    import warnings
+
+    from nilearn import plotting
+
     mni = parse_fcsv(HUMAN_DIR / f"{MNI_KEY}_afids.fcsv")
-
-    def mip(axis):
-        m = data.max(axis=axis)
-        return (m / m.max()) ** 0.7  # brighten silhouette
-
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4.8))
-    fig.subplots_adjust(wspace=0.16)
-    panels = [
-        ("Sagittal", mip(0), "y", "z", ("Posterior — Anterior", "Inferior — Superior"),
-         lambda c: (c[1], c[2])),
-        ("Coronal", mip(1), "x", "z", ("Left — Right", "Inferior — Superior"),
-         lambda c: (c[0], c[2])),
-        ("Axial", mip(2), "x", "y", ("Left — Right", "Posterior — Anterior"),
-         lambda c: (c[0], c[1])),
-    ]
-    for ax, (title, m, ha, va, (xl, yl), proj) in zip(axes, panels):
-        ax.imshow(m.T, extent=[*ext[ha], *ext[va]], origin="lower", cmap="gray",
-                  aspect="equal", vmin=0, vmax=1)
-        for a, c in mni.items():
-            px, py = proj(c)
-            ax.scatter(px, py, s=46, c=REGION_COLORS[ABBR2REG[a]],
-                       edgecolors="white", linewidths=0.8, zorder=3)
-        for a in ("AC", "PC"):
-            px, py = proj(mni[a])
-            ax.annotate(a, (px, py), textcoords="offset points", xytext=(6, 5),
-                        color="white", fontsize=7.5, fontweight="bold", zorder=4)
-        ax.set_title(title, fontsize=11, color=INK)
-        ax.set_xlabel(xl, fontsize=7.5, color="#666666")
-        ax.set_ylabel(yl, fontsize=7.5, color="#666666")
-        ax.set_xticks([]); ax.set_yticks([])
-        for s in ax.spines.values():
-            s.set_color("#dddddd")
+    fig = plt.figure(figsize=(13, 4.7))
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        disp = plotting.plot_glass_brain(
+            None, display_mode="lyrz", figure=fig, alpha=0.28, black_bg=False)
+        for region, abbrevs in REGION_MAP.items():
+            coords = np.array([mni[a] for a in abbrevs if a in mni])
+            disp.add_markers(
+                coords, marker_color=REGION_COLORS[region], marker_size=32,
+                marker=".", alpha=0.95)
 
     handles = [
         plt.Line2D([0], [0], marker="o", linestyle="", markersize=8,
                    markerfacecolor=REGION_COLORS[r], markeredgecolor="white",
-                   markeredgewidth=0.8, label=r)
+                   markeredgewidth=0.7, label=r)
         for r in REGION_ORDER
     ]
     fig.legend(handles=handles, loc="lower center", ncol=8, fontsize=8.5,
-               frameon=False, bbox_to_anchor=(0.5, -0.04), columnspacing=1.4,
+               frameon=False, bbox_to_anchor=(0.5, -0.02), columnspacing=1.4,
                handletextpad=0.3)
-    fig.suptitle("The 32 AFIDs landmarks on the MNI152NLin2009cAsym T1w template",
-                 fontsize=12.5, fontweight="bold", y=1.03)
+    fig.suptitle("The 32 AFIDs landmarks on the MNI152NLin2009cAsym template",
+                 fontsize=12.5, fontweight="bold", y=1.0)
     _save(fig, "fig3_landmarks")
 
 
@@ -473,147 +454,45 @@ def fig2_cycle():
 # FIGURE 1 — annotated interface mockup over a real MNI slice
 # ══════════════════════════════════════════════════════════════════════════════
 def fig1_interface():
-    data, aff, ext = load_brain()
-    mni = parse_fcsv(HUMAN_DIR / f"{MNI_KEY}_afids.fcsv")
-    GREEN, BG, CARD = "#00ff01", "#0b0b0b", "#0f0f0f"
+    """Annotated hero built from a live-app screenshot.
 
-    fig = plt.figure(figsize=(12.5, 6.8))
-    fig.patch.set_facecolor("white")
+    ``paper_figures/ss_learn_hero.png`` is captured by capture_screenshots.sh
+    against a running instance; this only composites callouts onto it, so it is
+    skipped when the asset is absent.
+    """
+    import matplotlib.image as mpimg
 
-    # header band
-    fig.text(0.065, 0.955, "Guided Learning Mode", fontsize=14, fontweight="bold",
-             color=INK)
-    fig.text(0.065, 0.922,
-             "Anatomy-first AI tutoring inside a browser MRI viewer — no install, "
-             "bring-your-own-key, works on any device.",
-             fontsize=8.8, color="#666666")
-
-    # ── viewer panel ──────────────────────────────────────────────────────────
-    axv = fig.add_axes([0.065, 0.115, 0.53, 0.75])
-    axv.set_facecolor(BG)
-    ac = mni["AC"]
-    k = int(round(world_to_vox(aff, ac)[2]))
-    sl = (data[:, :, k] ** 0.85)
-    axv.imshow(sl.T, extent=[*ext["x"], *ext["y"]], origin="lower",
-               cmap="gray", aspect="equal", vmin=0, vmax=1)
-    ref = (ac[0], ac[1])
-    placed = (ac[0] + 2.2, ac[1] - 1.4)
-    axv.axhline(placed[1], color=GREEN, lw=0.7, alpha=0.65)
-    axv.axvline(placed[0], color=GREEN, lw=0.7, alpha=0.65)
-    axv.scatter(*ref, s=150, marker="D", facecolors="none", edgecolors="#ffcc00",
-                linewidths=1.8, zorder=5)
-    axv.scatter(*placed, s=110, marker="o", facecolors="none", edgecolors="#ff4040",
-                linewidths=2.0, zorder=5)
-    axv.annotate("expert reference", ref, textcoords="offset points", xytext=(9, 9),
-                 color="#ffcc00", fontsize=8, fontweight="bold")
-    axv.annotate("your placement", placed, textcoords="offset points", xytext=(7, -15),
-                 color="#ff6060", fontsize=8, fontweight="bold")
-    axv.set_xlim(-70, 70)
-    axv.set_ylim(-104, 74)
-    axv.set_xticks([]); axv.set_yticks([])
-    for s in axv.spines.values():
-        s.set_color("#2a3a2a"); s.set_linewidth(1.5)
-    axv.set_title("MRI VIEWER   ·   Landmark 1 / 32", color=GREEN, fontsize=9.5,
-                  fontweight="bold", loc="left", fontfamily="monospace", pad=6)
-
-    # action buttons + toolbar
-    axtb = fig.add_axes([0.065, 0.03, 0.53, 0.075])
-    axtb.axis("off"); axtb.set_xlim(0, 10); axtb.set_ylim(0, 2)
-    actions = [("● Place fiducial", GREEN, "#00ff01"),
-               ("◆ Show reference", "#ffaa00", "#332600"),
-               ("Next →", GREEN, "#0a200a")]
-    ax_x = 0
-    for lab, fg, _ in actions:
-        w = 2.35 if "Place" in lab else 2.35 if "reference" in lab else 1.6
-        axtb.add_patch(FancyBboxPatch((ax_x, 1.05), w, 0.8,
-                       boxstyle="round,pad=0.02,rounding_size=0.12",
-                       linewidth=1.2, edgecolor=fg, facecolor="#111111"))
-        axtb.text(ax_x + w / 2, 1.45, lab, ha="center", va="center", fontsize=7,
-                  color=fg, fontfamily="monospace", fontweight="bold")
-        ax_x += w + 0.25
-    tools = ["RAS −1.2·3.4·0.8", "ZOOM 2.4×", "RES 1mm", "RAD", "◉ Go to landmark"]
-    tx = [0, 2.55, 3.75, 4.8, 5.65]
-    tw = [2.4, 1.1, 0.95, 0.85, 2.0]
-    for lab, x, w in zip(tools, tx, tw):
-        axtb.add_patch(FancyBboxPatch((x, 0.05), w, 0.72,
-                       boxstyle="round,pad=0.02,rounding_size=0.1",
-                       linewidth=1, edgecolor="#2a2a2a", facecolor="#141414"))
-        axtb.text(x + w / 2, 0.41, lab, ha="center", va="center", fontsize=6.2,
-                  color=GREEN if "Go to" in lab else "#a8a8a8", fontfamily="monospace")
-
-    # ── chat panel ────────────────────────────────────────────────────────────
-    axc = fig.add_axes([0.63, 0.03, 0.325, 0.845])
-    axc.set_facecolor(CARD)
-    axc.set_xlim(0, 10); axc.set_ylim(0, 10)
-    axc.set_xticks([]); axc.set_yticks([])
-    for s in axc.spines.values():
-        s.set_color("#1e1e1e")
-    axc.text(0.3, 9.78, "AI TUTOR", color="#8a8a8a", fontsize=9.5, fontweight="bold",
-             fontfamily="monospace", va="top")
-    axc.text(9.7, 9.8, "gpt-4o  ⚙", color="#9a9a9a", fontsize=7.2,
-             fontfamily="monospace", va="top", ha="right")
-    # landmark header card
-    axc.add_patch(FancyBboxPatch((0.3, 8.75), 9.4, 0.7,
-                  boxstyle="round,pad=0.03", linewidth=0, facecolor="#151515"))
-    axc.add_patch(plt.Rectangle((0.3, 8.75), 0.07, 0.7, color=GREEN))
-    axc.text(0.62, 9.1, "01  AC", color=GREEN, fontsize=9, fontweight="bold",
-             va="center", fontfamily="monospace")
-    axc.text(2.35, 9.1, "Anterior Commissure", color="#bbbbbb", fontsize=7.8,
-             va="center")
-
-    def bubble(role, ytop, h, text):
-        face = "#141414" if role == "assistant" else "#171717"
-        edge = GREEN if role == "assistant" else "#4a4a4a"
-        tag = "AI tutor" if role == "assistant" else "You"
-        axc.text(0.32, ytop + 0.16, tag, color=edge if role == "assistant" else "#777777",
-                 fontsize=5.8, fontfamily="monospace", va="bottom")
-        axc.add_patch(FancyBboxPatch((0.3, ytop - h), 9.4, h,
-                      boxstyle="round,pad=0.03", linewidth=0, facecolor=face))
-        axc.add_patch(plt.Rectangle((0.3, ytop - h), 0.07, h, color=edge))
-        axc.text(0.6, ytop - 0.12, text,
-                 color="#d3d3d3" if role == "assistant" else "#9a9a9a",
-                 fontsize=6.7, va="top", linespacing=1.34,
-                 style="italic" if role == "user" else "normal")
-
-    bubble("assistant", 8.35, 1.5,
-           "The anterior commissure is a compact white-matter bundle\n"
-           "crossing the midline at the base of the septum pellucidum.\n"
-           "On this axial slice, find the small bright band just anterior\n"
-           "to the columns of the fornix.")
-    # quality badge
-    axc.add_patch(FancyBboxPatch((0.3, 5.95), 4.7, 0.55, boxstyle="round,pad=0.02",
-                  linewidth=1.2, edgecolor="#ffaa00", facecolor="#1a1000"))
-    axc.text(0.55, 6.22, "△  Fair  —  2.6 mm", color="#ffaa00", fontsize=7.6,
-             va="center", fontfamily="monospace", fontweight="bold")
-    bubble("assistant", 5.65, 1.72,
-           "Not quite — 2.6 mm off. Your placement sits on the fornix\n"
-           "columns, just posterior to the AC. The AC is the brighter\n"
-           "bundle immediately anterior. You're at 2 mm resolution —\n"
-           "switch to 1 mm (RES) and zoom in to resolve the border.")
-    bubble("user", 3.5, 0.62, "why is it hard to see on T1?")
-    bubble("assistant", 2.65, 1.35,
-           "On T1 the AC has similar intensity to surrounding white\n"
-           "matter. Use the coronal plane at the midline, where it\n"
-           "appears as a distinct oval crossing between the hemispheres.")
-
-    # input row
-    axc.add_patch(FancyBboxPatch((0.3, 0.2), 8.2, 0.56, boxstyle="round,pad=0.02",
-                  linewidth=1, edgecolor="#242424", facecolor="#151515"))
-    axc.text(0.55, 0.48, "Ask a question about this landmark…", color="#6a6a6a",
-             fontsize=6.7, va="center")
-    axc.add_patch(FancyBboxPatch((8.7, 0.2), 1.0, 0.56, boxstyle="round,pad=0.02",
-                  linewidth=0, facecolor=GREEN))
-    axc.plot(9.2, 0.48, marker=">", markersize=9, color="#000000")
-
-    # progress tracker (above the chat card, no overlap)
-    axp = fig.add_axes([0.63, 0.915, 0.325, 0.03])
-    axp.axis("off"); axp.set_xlim(0, 32); axp.set_ylim(0, 1)
-    for i in range(32):
-        axp.add_patch(plt.Rectangle((i + 0.12, 0.0), 0.76, 1.0,
-                      color=GREEN if i == 0 else "#2b2b2b"))
-    axp.text(0, 1.5, "SESSION PROGRESS   1 / 32", color="#8a8a8a", fontsize=7,
-             fontfamily="monospace", va="bottom")
-
+    src = OUT / "ss_learn_hero.png"
+    if not src.exists():
+        print("  (skip fig1 \u2014 run capture_screenshots.sh first)")
+        return
+    im = mpimg.imread(str(src))
+    g = im[..., :3].mean(-1) if im.ndim == 3 else im
+    rows = np.where(g.max(1) > 0.08)[0]
+    cols = np.where(g.max(0) > 0.08)[0]
+    crop = im[rows.min():rows.max(), cols.min():cols.max()]
+    H, W = crop.shape[:2]
+    green = "#00ff01"
+    fig = plt.figure(figsize=(12, 12 * H / W + 1.1))
+    ax = fig.add_axes([0, 0.11, 1, 0.89])
+    ax.imshow(crop)
+    ax.axis("off")
+    for fx, fy, n in [(0.33, 0.40, "1"), (0.725, 0.115, "2"), (0.80, 0.46, "3"),
+                      (0.945, 0.05, "4"), (0.30, 0.945, "5")]:
+        ax.add_patch(Circle((fx * W, fy * H), 34, facecolor=green,
+                            edgecolor="black", lw=2, zorder=5))
+        ax.text(fx * W, fy * H, n, ha="center", va="center", fontsize=15,
+                fontweight="bold", color="black", zorder=6)
+    legend = ("\u2460  Multiplanar MRI viewer (NiiVue)      "
+              "\u2461  Rater-calibrated result: error + percentile vs raters\n"
+              "\u2462  Difficulty-aware, anatomy-first AI tutor      "
+              "\u2463  Bring-your-own-key + active model      "
+              "\u2464  32-landmark progress + export")
+    fig.text(0.5, 0.05, legend, ha="center", va="center", fontsize=10.5,
+             color="#222222", linespacing=1.9)
+    fig.text(0.5, 0.005, "The AFIDs Validator guided-learning interface "
+             "(live session)", ha="center", fontsize=13, fontweight="bold",
+             color="#111111")
     _save(fig, "fig1_interface")
 
 
@@ -696,8 +575,114 @@ def _save(fig, name):
     print(f"  wrote {name}.png / .pdf")
 
 
+def fig0_graphical_abstract():
+    """Graphical abstract: the tool, the rater data, and the calibration idea."""
+    import json
+    import matplotlib.image as mpimg
+
+    ink = "#141414"
+    rel = json.loads(
+        (Path("afidsvalidator") / "rater_reliability.json").read_text()
+    )["landmarks"]
+    fig = plt.figure(figsize=(13.5, 6.6))
+    fig.patch.set_facecolor("white")
+    fig.text(0.5, 0.95, "Teaching brains to see brains", ha="center",
+             fontsize=20, fontweight="bold", color=ink)
+    fig.text(0.5, 0.905, "An open, AI-guided platform for learning anatomical "
+             "landmark placement, calibrated to a decade of expert rater data",
+             ha="center", fontsize=10.5, color="#555")
+
+    src = OUT / "ss_learn_hero.png"
+    if src.exists():
+        im = mpimg.imread(str(src))
+        g = im[..., :3].mean(-1)
+        rows = np.where(g.max(1) > 0.08)[0]
+        cols = np.where(g.max(0) > 0.08)[0]
+        y0 = rows.min()
+        crop = im[y0:y0 + int(0.60 * (rows.max() - y0)), cols.min():cols.max()]
+        axL = fig.add_axes([0.035, 0.10, 0.46, 0.74])
+        axL.imshow(crop)
+        axL.axis("off")
+        axL.add_patch(plt.Rectangle((0, 0), crop.shape[1] - 1,
+                      crop.shape[0] - 1, fill=False, ec="#00ff01", lw=2.5))
+    fig.text(0.265, 0.055, "Browser MRI viewer + streaming AI tutor  \u00b7  no "
+             "install  \u00b7  bring-your-own-key", ha="center", fontsize=9,
+             color="#555", style="italic")
+
+    def card(x, y, w, h):
+        fig.patches.append(FancyBboxPatch((x, y), w, h,
+            boxstyle="round,pad=0.006,rounding_size=0.012",
+            transform=fig.transFigure, facecolor="#f5f6f8",
+            edgecolor="#e2e2e6", lw=1, zorder=0))
+
+    card(0.53, 0.60, 0.44, 0.235)
+    fig.text(0.55, 0.795, "ANATOMY-FIRST TUTORING", fontsize=10.5,
+             fontweight="bold", color="#2a78d6")
+    for i, t in enumerate(["Teaches recognition, never coordinate lookup",
+                           "Plain-language glosses for every anatomical term",
+                           "Feedback adapts to the viewer (zoom / resolution)"]):
+        fig.text(0.556, 0.745 - i * 0.043, "\u2022  " + t, fontsize=9.3,
+                 color="#333")
+
+    card(0.53, 0.335, 0.44, 0.235)
+    fig.text(0.55, 0.53, "GROUNDED IN 492 EXPERT PLACEMENTS  \u00b7  132 SUBJECTS",
+             fontsize=10, fontweight="bold", color="#882255")
+    ax2 = fig.add_axes([0.556, 0.355, 0.40, 0.135])
+    ax2.set_zorder(5)
+    ax2.patch.set_alpha(0)
+    rows2 = sorted([a for a in ABBR if a in rel], key=lambda a: rel[a]["p50"])
+    ax2.bar(np.arange(len(rows2)), [rel[a]["p50"] for a in rows2],
+            color=[REGION_COLORS[ABBR2REG[a]] for a in rows2], width=0.82)
+    ax2.set_ylim(0, 1.6)
+    ax2.set_xticks([0, len(rows2) - 1])
+    ax2.set_xticklabels([rows2[0], rows2[-1]], fontsize=8)
+    ax2.set_yticks([0.5, 1.0, 1.5])
+    ax2.tick_params(labelsize=7)
+    ax2.set_ylabel("median AFLE (mm)", fontsize=8)
+    for s in ("top", "right"):
+        ax2.spines[s].set_visible(False)
+
+    card(0.53, 0.07, 0.44, 0.235)
+    fig.text(0.55, 0.265,
+             '"YOU vs. THE EXPERTS"  \u2014  THE SAME ERROR, JUDGED IN CONTEXT',
+             fontsize=9.6, fontweight="bold", color=ink)
+    ax3 = fig.add_axes([0.60, 0.095, 0.33, 0.135])
+    ax3.set_zorder(5)
+    ax3.patch.set_alpha(0)
+    ax3.set_xlim(0, 3.2)
+    ax3.set_ylim(-0.6, 1.6)
+    for i, a in enumerate(("LIGO", "AC")):
+        s = rel[a]
+        y = 1 if i == 0 else 0
+        ax3.plot([s["p10"], s["p90"]], [y, y], color="#bbb", lw=6,
+                 solid_capstyle="round", alpha=0.6)
+        ax3.plot(s["p50"], y, "o", color="#666", ms=6)
+        ax3.text(-0.05, y, a, ha="right", va="center", fontsize=8.5,
+                 fontweight="bold")
+    ax3.axvline(1.2, color="#111", ls="--", lw=1)
+    ax3.plot(1.2, 1, "o", color="#0ca30c", ms=11, mec="white")
+    ax3.plot(1.2, 0, "o", color="#d03b3b", ms=11, mec="white")
+    ax3.text(1.6, 1, "expert (42nd pct)", fontsize=8, color="#0ca30c",
+             va="center", fontweight="bold")
+    ax3.text(1.6, 0, "off-target (92nd pct)", fontsize=8, color="#d03b3b",
+             va="center", fontweight="bold")
+    ax3.text(1.2, 1.5, "a 1.2 mm placement", ha="center", fontsize=7.8,
+             color="#333")
+    ax3.axis("off")
+
+    fig.text(0.5, 0.02, "Quality assurance and active learning as two sides "
+             "of the same coin.", ha="center", fontsize=11, fontweight="bold",
+             color=ink, style="italic")
+    for ext in ("png", "pdf"):
+        fig.savefig(OUT / f"fig0_graphical_abstract.{ext}",
+                    facecolor="white", bbox_inches=None)
+    plt.close(fig)
+    print("  wrote fig0_graphical_abstract.png / .pdf")
+
+
 if __name__ == "__main__":
     print("Generating figures →", OUT.resolve())
+    fig0_graphical_abstract()
     fig1_interface()
     fig2_cycle()
     fig3_landmarks()
