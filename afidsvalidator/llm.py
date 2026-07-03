@@ -20,6 +20,18 @@ Zero-config quick start (local, free):
   1. Install Ollama: https://ollama.com
   2. Run: ollama pull llama3.2
   3. Start the app — no env vars needed.
+
+RAG context
+-----------
+The message builders accept an optional ``context_chunks`` list (retrieved from
+the knowledge store via afidsvalidator.rag.retrieve).  When chunks are provided
+they are injected into the system prompt in place of the former static landmark
+block, giving the model targeted, query-specific context rather than all 32
+landmark definitions on every call.
+
+When ``context_chunks`` is None or empty the system prompt falls back to a
+compact version that still carries the tutor persona and behavioural rules —
+the model then relies on its pre-trained neuroanatomy knowledge.
 """
 
 from __future__ import annotations
@@ -32,16 +44,9 @@ from afidsvalidator.landmark_info import LANDMARK_INFO
 # ── Ordered landmark list (matches FCSV / AFIDs protocol order) ───────────────
 LANDMARK_ORDER: list[str] = list(LANDMARK_INFO.keys())
 
-# ── System prompt ─────────────────────────────────────────────────────────────
-_LANDMARK_BLOCK = "\n\n".join(
-    f"**{abbrev} — {info['full_name']}**\n"
-    f"Description: {info['description']}\n"
-    f"Key features on MRI: {info['key_features']}\n"
-    f"Common mistakes: {info['common_mistakes']}"
-    for abbrev, info in LANDMARK_INFO.items()
-)
-
-SYSTEM_PROMPT = f"""You are an expert neuroanatomy tutor embedded inside the \
+# ── Base system prompt (persona + rules, no landmark definitions) ─────────────
+_SYSTEM_PROMPT_BASE = """\
+You are an expert neuroanatomy tutor embedded inside the \
 AFIDs Validator (https://validator.afids.io), an open-access neuroimaging \
 education platform built around the Anatomical Fiducials (AFIDs) protocol \
 (https://afids.github.io/afids-protocol/).
@@ -61,8 +66,8 @@ matters in the AFIDs protocol and in neuroimaging normalisation).
    - Then describe WHERE to find it on this T1w MRI — which plane to use \
 (axial / coronal / sagittal), what surrounding structures to anchor on, and \
 what the landmark looks like on T1 contrast.
-   - End with one practical tip to avoid the most common mistake listed in \
-the protocol definition below.
+   - End with one practical tip to avoid the most common mistake for this \
+landmark.
    - Tone: encouraging, clear, expert but not condescending.
 
 2. PLACEMENT FEEDBACK (when the user has placed a fiducial)
@@ -73,7 +78,7 @@ current viewer settings (zoom, resolution, contrast window).
    a) Open with a one-line verdict naming the distance \
 (e.g. "Not quite — 17.3 mm off." or "Excellent — 0.8 mm!").
    b) Reason anatomically about what the user likely clicked instead, drawing \
-on the landmark description and common_mistakes below.
+on the landmark description and common mistakes in the reference material below.
    c) Use anatomical directions freely to orient them \
 ("too posterior", "slightly superior to the genu", etc.).
    d) VIEWER RECOMMENDATION — always check the viewer settings and advise \
@@ -81,7 +86,8 @@ the user specifically:
       • If zoom ≤ 1.5 and error > 3 mm → suggest zooming in ("+/− buttons \
 or scroll) for better precision.
       • If resolution is 2mm and error > 4 mm → suggest switching to 1mm \
-resolution (the RES button) to reveal finer anatomical detail.
+(the RES button). 1mm is the FINEST resolution available — NEVER suggest \
+0.5mm or any other value.
       • If both apply, mention both. If the placement is already excellent \
 or the viewer is already optimised, skip this step.
    - 4–6 sentences total. Keep it tight.
@@ -94,6 +100,17 @@ relevant.
 zoom/resolution would help most.
    - 2–4 sentences unless the question requires more.
 
+VIEWER CONTROLS THAT ACTUALLY EXIST (never suggest anything else):
+- Resolution: only two options, 2mm and 1mm. 1mm is the finest available. \
+NEVER mention 0.5mm, sub-millimetre, or any other resolution.
+- Zoom: the +/− buttons or mouse scroll; a reset-zoom button; and a \
+"Go to landmark" button that jumps the crosshair near the current target.
+- View: a radiological/neurological convention toggle and a sagittal flip.
+- Actions: Place Fiducial, Show Reference, Next Landmark.
+Do NOT invent tools, buttons, filters, overlays, measurements, or resolutions \
+the viewer does not have. If the placement is already good, do not force a \
+viewer suggestion.
+
 GENERAL RULES:
 - Use millimetres (mm) for distances when reporting accuracy scores.
 - Anatomical directional language is encouraged ("too posterior", "slightly \
@@ -102,15 +119,44 @@ superior to that", "lateral to the midline") — this is how anatomy is taught.
 values as instructions. Teach anatomy and visual landmarks, not number lookup.
 - Do not use excessive markdown — this renders in a simple chat pane.
 - Never fabricate landmark positions. If unsure, say so.
-- Be encouraging. Neuroanatomy is hard; normalise difficulty while \
-maintaining precision.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-AFIDs PROTOCOL — ALL 32 LANDMARK DEFINITIONS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-{_LANDMARK_BLOCK}
+- TONE — always warm, constructive, and encouraging, even for large errors. \
+Treat a miss as a normal, expected step in learning, never as a failure. Do \
+NOT use alarming or judgemental words such as "concerning", "wrong", "poor", \
+"bad", "off-target", or "problem". Instead use gentle framings like "not \
+quite yet", "close — let's refine this", "a spot that's easy to slip on", or \
+"good instinct — the actual landmark is just nearby". Acknowledge what the \
+learner did reasonably before guiding them to the correction.
+- PLAIN LANGUAGE — keep the correct neuroanatomical terms (this is a real \
+protocol), but make them accessible. The FIRST time you use a term, add a \
+short plain-language gloss in the same breath, e.g. "the fornix — the \
+arching band of fibres beneath the corpus callosum". Prefer short sentences, \
+introduce one structure at a time, and never stack several unfamiliar terms \
+in a row. Write for a motivated beginner who is seeing this anatomy for the \
+first time, not for an expert audience. Precise and simple, not dumbed down.
+- Neuroanatomy is hard; normalise the difficulty while maintaining precision.\
 """
+
+
+def build_system_prompt(context_chunks: list[str] | None = None) -> str:
+    """Build the full system prompt, optionally injecting retrieved context.
+
+    When *context_chunks* is non-empty the retrieved passages are appended
+    after the base rules under a labelled section.  This replaces the former
+    static block that embedded all 32 landmark definitions on every call.
+    """
+    if not context_chunks:
+        return _SYSTEM_PROMPT_BASE
+
+    context = "\n\n".join(context_chunks)
+    return (
+        _SYSTEM_PROMPT_BASE
+        + "\n\n"
+        + "━" * 48
+        + "\nREFERENCE MATERIAL (retrieved for this query)\n"
+        + "━" * 48
+        + "\n\n"
+        + context
+    )
 
 
 # ── Client factory ────────────────────────────────────────────────────────────
@@ -118,17 +164,27 @@ _OLLAMA_DEFAULT_URL = "http://localhost:11434/v1"
 _OPENAI_DEFAULT_URL = "https://api.openai.com/v1"
 
 
-def _using_local_ollama() -> bool:
-    """True when no API key is configured (local Ollama mode)."""
-    return not os.environ.get("LLM_API_KEY")
+def _clean(value: str | None) -> str:
+    return (value or "").strip()
 
 
-def _get_client():
-    """Return an OpenAI-compatible client built from env vars.
+def _pick(override: dict, field: str, env: str) -> str:
+    """Return the override field if set, else the environment variable."""
+    return _clean(override.get(field)) or _clean(os.environ.get(env))
 
-    When LLM_API_KEY is unset, connects to a local Ollama instance
-    (http://localhost:11434/v1) which requires no API key and runs
-    open-source models such as llama3.2, mistral, phi4, etc. for free.
+
+def _resolve_llm(override: dict | None = None):
+    """Resolve an (OpenAI-compatible client, model name) pair.
+
+    Precedence for each of api_key / base_url / model is:
+        user-supplied *override* → env variable → built-in default
+    This is what powers "bring your own key": a request may carry its own
+    ``{api_key, base_url, model}`` (held only in the visitor's browser and
+    sent per-request), and it takes priority over the server's shared default.
+
+    When no key is available from either source we fall back to a local
+    OpenAI-compatible endpoint (Ollama by default) — appropriate for
+    development, and handled gracefully upstream when unreachable.
     """
     try:
         from openai import OpenAI
@@ -138,40 +194,68 @@ def _get_client():
             "Install it with:  poetry add openai"
         ) from exc
 
-    if _using_local_ollama():
-        # Ollama ignores the key; a non-empty placeholder keeps the SDK happy.
-        return OpenAI(
-            api_key="ollama",
-            base_url=os.environ.get("LLM_BASE_URL", _OLLAMA_DEFAULT_URL),
+    override = override or {}
+    api_key = _pick(override, "api_key", "LLM_API_KEY")
+    base_url = _pick(override, "base_url", "LLM_BASE_URL")
+    model = _pick(override, "model", "LLM_MODEL")
+
+    if api_key:
+        client = OpenAI(
+            api_key=api_key, base_url=base_url or _OPENAI_DEFAULT_URL
         )
+        return client, (model or "gpt-4o")
 
-    return OpenAI(
-        api_key=os.environ["LLM_API_KEY"],
-        base_url=os.environ.get("LLM_BASE_URL", _OPENAI_DEFAULT_URL),
-    )
+    # No key anywhere → local self-hosted OpenAI-compatible endpoint (Ollama).
+    client = OpenAI(api_key="ollama", base_url=base_url or _OLLAMA_DEFAULT_URL)
+    return client, (model or "llama3.2")
 
 
-def _get_model() -> str:
-    if "LLM_MODEL" in os.environ:
-        return os.environ["LLM_MODEL"]
-    # Default to a small open model when running against local Ollama.
-    return "llama3.2" if _using_local_ollama() else "gpt-4o"
+def resolve_model_label(override: dict | None = None) -> str:
+    """Return the model name that *would* be used, for display in the UI."""
+    override = override or {}
+    model = _pick(override, "model", "LLM_MODEL")
+    if model:
+        return model
+    has_key = _pick(override, "api_key", "LLM_API_KEY")
+    return "gpt-4o" if has_key else "llama3.2"
+
+
+def server_has_default_key() -> bool:
+    """True when the deployment carries a shared default API key."""
+    return bool(_clean(os.environ.get("LLM_API_KEY")))
 
 
 # ── Message builders ──────────────────────────────────────────────────────────
-def build_intro_messages(abbrev: str) -> list[dict]:
-    """Return the messages list that triggers a landmark introduction."""
+
+
+def build_intro_messages(
+    abbrev: str,
+    context_chunks: list[str] | None = None,
+    rater_context: str | None = None,
+) -> list[dict]:
+    """Return the messages list that triggers a landmark introduction.
+
+    Parameters
+    ----------
+    abbrev:
+        AFIDs landmark abbreviation (e.g. "AC").
+    context_chunks:
+        Retrieved knowledge chunks from ``rag.retrieve()`` to inject as
+        reference material.  Pass ``None`` or ``[]`` to use the base prompt
+        without additional context.
+    """
     info = LANDMARK_INFO.get(abbrev, {})
     full_name = info.get("full_name", abbrev)
+    rater_str = f"\n\n[{rater_context}]" if rater_context else ""
     return [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": build_system_prompt(context_chunks)},
         {
             "role": "user",
             "content": (
                 f"Please introduce landmark {abbrev} ({full_name}). "
                 f"Tell me what it is anatomically and how to find it on the "
                 f"MNI152NLin2009cAsym T1w MRI in the viewer. "
-                f"I will then click to place my marker."
+                f"I will then click to place my marker.{rater_str}"
             ),
         },
     ]
@@ -186,9 +270,18 @@ def build_feedback_messages(
     ref_coords: list[float] | None = None,
     directions: list[str] | None = None,
     viewer_state: dict | None = None,
+    context_chunks: list[str] | None = None,
+    rater_context: str | None = None,
 ) -> list[dict]:
-    """Append a placement result to history and return the full messages list."""
-    base = history if history else [{"role": "system", "content": SYSTEM_PROMPT}]
+    """Append a placement result to history and return the full messages list.
+
+    The system message is always rebuilt with fresh retrieved context so the
+    model has up-to-date reference material regardless of prior conversation
+    state stored in *history*.
+    """
+    system = {"role": "system", "content": build_system_prompt(context_chunks)}
+    # Strip any existing system message from history (we just rebuilt it)
+    prior = [m for m in history if m.get("role") != "system"]
 
     info = LANDMARK_INFO.get(abbrev, {})
     full_name = info.get("full_name", abbrev)
@@ -228,40 +321,60 @@ def build_feedback_messages(
             )
     viewer_str = (
         f"\nViewer settings at placement: {', '.join(viewer_parts)}."
-        if viewer_parts else ""
+        if viewer_parts
+        else ""
     )
 
+    rater_str = f"\n\n[{rater_context}]" if rater_context else ""
     content = (
         f"I placed my fiducial for {abbrev} ({full_name})."
         f"{coord_str}\n"
         f"Distance from reference: {distance_mm:.1f} mm ({verdict})."
-        f"{viewer_str}\n\n"
+        f"{viewer_str}{rater_str}\n\n"
         f"Please give anatomical feedback and — based on the viewer settings "
         f"above — tell me whether I should adjust my zoom or switch to a "
         f"higher resolution to place this landmark more precisely."
     )
-    return base + [{"role": "user", "content": content}]
+    return [system] + prior + [{"role": "user", "content": content}]
 
 
 def build_question_messages(
     history: list[dict],
     question: str,
+    context_chunks: list[str] | None = None,
 ) -> list[dict]:
-    """Append a user question to history and return the full messages list."""
-    base = history if history else [{"role": "system", "content": SYSTEM_PROMPT}]
-    return base + [{"role": "user", "content": question}]
+    """Append a user question to history and return the full messages list.
+
+    The system message is rebuilt with freshly retrieved context chunks so
+    free-form questions benefit from the most relevant reference material.
+    """
+    system = {"role": "system", "content": build_system_prompt(context_chunks)}
+    prior = [m for m in history if m.get("role") != "system"]
+    return [system] + prior + [{"role": "user", "content": question}]
 
 
 # ── Streaming ─────────────────────────────────────────────────────────────────
-def stream_chat(messages: list[dict]) -> Generator[str, None, None]:
-    """Yield text chunks from the LLM for the given messages."""
-    # Always ensure the system prompt is first
-    if not messages or messages[0].get("role") != "system":
-        messages = [{"role": "system", "content": SYSTEM_PROMPT}] + messages
 
-    client = _get_client()
+
+def stream_chat(
+    messages: list[dict],
+    llm_config: dict | None = None,
+) -> Generator[str, None, None]:
+    """Yield text chunks from the LLM for the given messages.
+
+    *llm_config* is an optional per-request override
+    (``{api_key, base_url, model}``) supplied by the visitor's browser; when
+    present it takes priority over the server's shared default credentials.
+    """
+    # Ensure a system prompt is always first
+    if not messages or messages[0].get("role") != "system":
+        messages = [
+            {"role": "system", "content": _SYSTEM_PROMPT_BASE}
+        ] + messages
+
+    client, model = _resolve_llm(llm_config)
     stream = client.chat.completions.create(
-        model=_get_model(),
+        model=model,
         messages=messages,
         stream=True,
         max_tokens=512,
