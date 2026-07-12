@@ -907,7 +907,7 @@ section(
 pill_right(
     XR - 0.30,
     A_y1 - 0.38,
-    "Taha et al., Sci Data 2023 · 10:449",
+    "Taha et al., 2023",
     DATA_C,
     size=8.0,
 )
@@ -950,7 +950,7 @@ txt(
 txt(
     bx + bw / 2,
     CAP2,
-    "AFIDs protocol · Lau et al., Hum Brain Mapp 2019",
+    "AFIDs protocol · Lau et al., 2019",
     size=7.6,
     color=MUT,
     ha="center",

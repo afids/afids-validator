@@ -233,57 +233,87 @@ def world_to_vox(aff, xyz):
 # FIGURE 3 — the 32 landmarks on real MNI anatomy
 # ══════════════════════════════════════════════════════════════════════════════
 def fig3_landmarks():
-    import warnings
+    """A visual field guide: one real MNI152 T1w patch per AFIDs landmark.
 
-    from nilearn import plotting
+    Each panel is a patch of the template centred on a landmark (crosshair on
+    the exact point), grouped and coloured by region, tagged with the median
+    trained-rater error and the viewing plane.
+    """
+    import json
+
+    import nibabel as nib
 
     mni = parse_fcsv(HUMAN_DIR / f"{MNI_KEY}_afids.fcsv")
-    fig = plt.figure(figsize=(13, 4.7))
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        disp = plotting.plot_glass_brain(
-            None, display_mode="lyrz", figure=fig, alpha=0.28, black_bg=False
-        )
-        for region, abbrevs in REGION_MAP.items():
-            coords = np.array([mni[a] for a in abbrevs if a in mni])
-            disp.add_markers(
-                coords,
-                marker_color=REGION_COLORS[region],
-                marker_size=32,
-                marker=".",
-                alpha=0.95,
+    rel = json.loads(
+        (Path("afidsvalidator") / "rater_reliability.json").read_text()
+    )["landmarks"]
+
+    img = nib.as_closest_canonical(nib.load(str(BRAIN)))
+    data = np.asarray(img.get_fdata(), dtype=np.float32)
+    data /= np.percentile(data, 99.5)
+    data = np.clip(data, 0, 1) ** 0.85
+    inv = np.linalg.inv(img.affine)
+    res = abs(img.affine[0, 0])
+    half = 20.0
+    n = int(round(half / res))
+
+    def patch(a):
+        v = np.rint(inv @ np.array([*mni[a], 1.0]))[:3].astype(int)
+        if abs(mni[a][0]) < 6:  # midline → sagittal
+            im = np.rot90(
+                data[v[0], max(0, v[1] - n):v[1] + n, max(0, v[2] - n):v[2] + n]
             )
+            plane = "sag"
+        else:  # bilateral → axial
+            im = np.rot90(
+                data[max(0, v[0] - n):v[0] + n, max(0, v[1] - n):v[1] + n, v[2]]
+            )
+            plane = "ax"
+        lo, hi = np.percentile(im, [2, 98])  # per-tile local contrast
+        return np.clip((im - lo) / (hi - lo + 1e-6), 0, 1), plane
+
+    order = [a for r in REGION_ORDER for a in REGION_MAP[r]]
+    fig = plt.figure(figsize=(13.5, 8.0))
+    gs = fig.add_gridspec(
+        4, 8, hspace=0.42, wspace=0.12, left=0.02, right=0.98, top=0.96,
+        bottom=0.08
+    )
+    for k, a in enumerate(order):
+        ax = fig.add_subplot(gs[divmod(k, 8)])
+        im, plane = patch(a)
+        ax.imshow(im, cmap="gray", origin="upper", aspect="equal",
+                  extent=(-half, half, -half, half))
+        c = REGION_COLORS[ABBR2REG[a]]
+        for s in (1, -1):  # gapped crosshair keeps the exact point visible
+            ax.plot([s * 3.2, s * 8], [0, 0], color=c, lw=1.1, alpha=0.95,
+                    solid_capstyle="round")
+            ax.plot([0, 0], [s * 3.2, s * 8], color=c, lw=1.1, alpha=0.95,
+                    solid_capstyle="round")
+        ax.plot(0, 0, "o", ms=4.5, mfc="none", mec=c, mew=1.5)
+        ax.set_xlim(-half, half)
+        ax.set_ylim(-half, half)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        for sp in ax.spines.values():
+            sp.set_edgecolor(c)
+            sp.set_linewidth(2.4)
+        ax.set_title(a, color=c, fontsize=8.5, fontweight="bold", pad=2)
+        ax.text(0.05, 0.05, f"{rel[a]['p50']:.2f} mm", transform=ax.transAxes,
+                fontsize=5.6, color="white", ha="left", va="bottom",
+                bbox=dict(boxstyle="round,pad=0.12", fc=c, ec="none",
+                          alpha=0.85))
+        ax.text(0.95, 0.05, plane, transform=ax.transAxes, fontsize=5.2,
+                color="#e8e8e8", ha="right", va="bottom")
 
     handles = [
-        plt.Line2D(
-            [0],
-            [0],
-            marker="o",
-            linestyle="",
-            markersize=8,
-            markerfacecolor=REGION_COLORS[r],
-            markeredgecolor="white",
-            markeredgewidth=0.7,
-            label=r,
-        )
+        plt.Line2D([0], [0], marker="s", linestyle="", markersize=8,
+                   markerfacecolor=REGION_COLORS[r], markeredgecolor="none",
+                   label=r)
         for r in REGION_ORDER
     ]
-    fig.legend(
-        handles=handles,
-        loc="lower center",
-        ncol=8,
-        fontsize=8.5,
-        frameon=False,
-        bbox_to_anchor=(0.5, -0.02),
-        columnspacing=1.4,
-        handletextpad=0.3,
-    )
-    fig.suptitle(
-        "The 32 AFIDs landmarks on the MNI152NLin2009cAsym template",
-        fontsize=12.5,
-        fontweight="bold",
-        y=1.0,
-    )
+    fig.legend(handles=handles, loc="lower center", ncol=8, fontsize=8.5,
+               frameon=False, bbox_to_anchor=(0.5, 0.015), columnspacing=1.3,
+               handletextpad=0.3)
     _save(fig, "fig3_landmarks")
 
 
@@ -389,10 +419,13 @@ def fig5_difficulty():
         )
         xs, ys = _pctile_curve(s)
         pct = float(np.interp(probe, xs, ys))
+        p = round(pct)
+        suf = ("th" if 11 <= p % 100 <= 13
+               else {1: "st", 2: "nd", 3: "rd"}.get(p % 10, "th"))
         verdict = (
-            "within range\n(≈%dth pct, near median)" % round(pct)
+            f"within range\n(≈{p}{suf} pct, near median)"
             if pct < 75
-            else "outside expert range\n(≈%dth pct)" % round(pct)
+            else f"outside expert range\n(≈{p}{suf} pct)"
         )
         axB.annotate(
             f"{a}: {verdict}",
@@ -459,13 +492,6 @@ def fig5_difficulty():
     axC.annotate("1.2 mm", (1.2, 4), fontsize=6.6, color="#111111", ha="left")
     panel_letter(axC, "C", "One error, calibrated per landmark")
 
-    fig.suptitle(
-        "How hard is each landmark? A difficulty benchmark from 492 "
-        "expert placements",
-        fontsize=12.5,
-        fontweight="bold",
-        y=1.0,
-    )
     _save(fig, "fig5_difficulty")
 
 
@@ -612,13 +638,6 @@ def fig4_qc_catch():
     )
     axC.grid(color="#dddddd")
 
-    fig.suptitle(
-        "A worked quality-control catch: landmarks in the wrong "
-        "template space",
-        fontsize=12.5,
-        fontweight="bold",
-        y=1.06,
-    )
     _save(fig, "fig4_qc_catch")
 
 
@@ -758,7 +777,7 @@ def fig2_cycle():
         ("Productive failure", "attempt before full instruction"),
         ("Anatomy-first", "never give raw coordinates"),
         ("Viewer-context aware", "feedback adapts to zoom / resolution"),
-        ("RAG-grounded", "answers anchored to the AFIDs protocol"),
+        ("RAG-grounded", "anchored to the AFIDs protocol"),
     ]
     ax.add_patch(
         FancyBboxPatch(
@@ -782,7 +801,7 @@ def fig2_cycle():
         linespacing=1.1,
     )
     for i, (name, desc) in enumerate(principles):
-        xx = 2.55 + i * 2.05
+        xx = 2.5 + i * 2.0
         ax.add_patch(Circle((xx - 0.16, 0.61), 0.05, color="#2a78d6"))
         ax.text(
             xx,
@@ -795,15 +814,6 @@ def fig2_cycle():
         )
         ax.text(xx, 0.44, desc, fontsize=6.4, color="#555555", va="center")
 
-    ax.text(
-        5.5,
-        5.55,
-        "The guided-learning cycle",
-        ha="center",
-        fontsize=13,
-        fontweight="bold",
-        color=INK,
-    )
     _save(fig, "fig2_learning_cycle")
 
 
@@ -878,15 +888,6 @@ def fig1_interface():
         fontsize=10.5,
         color="#222222",
         linespacing=1.9,
-    )
-    fig.text(
-        0.5,
-        0.005,
-        "The AFIDs Validator guided-learning interface " "(live session)",
-        ha="center",
-        fontsize=13,
-        fontweight="bold",
-        color="#111111",
     )
     _save(fig, "fig1_interface")
 
@@ -995,13 +996,6 @@ def fig6_two_difficulties():
         bbox_to_anchor=(0.5, -0.04),
         columnspacing=1.3,
         handletextpad=0.3,
-    )
-    fig.suptitle(
-        "Two distinct kinds of difficulty: localizing vs reproducing "
-        "a landmark",
-        fontsize=12.5,
-        fontweight="bold",
-        y=1.02,
     )
     _save(fig, "fig6_two_difficulties")
 
