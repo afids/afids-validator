@@ -41,12 +41,25 @@ jobs:
           ORCID_OAUTH_CLIENT_ID: ${{ secrets.PRODUCTION_ORCID_OAUTH_CLIENT_ID }}
           ORCID_OAUTH_CLIENT_SECRET: ${{ secrets.PRODUCTION_ORCID_OAUTH_CLIENT_SECRET }}
           SECRET_KEY: ${{ secrets.PRODUCTION_SECRET_KEY }}
+          # Guided-learning tutor. Only the key is a secret; URL/model default to
+          # Groq's free Llama 3.3 70B endpoint but can be overridden by optional
+          # secrets to switch providers without editing this file.
+          LLM_API_KEY: ${{ secrets.PRODUCTION_LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.PRODUCTION_LLM_BASE_URL || 'https://api.groq.com/openai/v1' }}
+          LLM_MODEL: ${{ secrets.PRODUCTION_LLM_MODEL || 'llama-3.3-70b-versatile' }}
         run: |
           echo DATABASE_URL="$DATABASE_URL" >> .env
           echo FLASK_ENV="$FLASK_ENV" >> .env
           echo ORCID_OAUTH_CLIENT_ID="$ORCID_OAUTH_CLIENT_ID" >> .env
           echo ORCID_OAUTH_CLIENT_SECRET="$ORCID_OAUTH_CLIENT_SECRET" >> .env
           echo SECRET_KEY="$SECRET_KEY" >> .env
+          # Only write LLM vars when a key is configured, so a deploy without the
+          # secret leaves the tutor on its graceful static-reference fallback.
+          if [ -n "$LLM_API_KEY" ]; then
+            echo LLM_API_KEY="$LLM_API_KEY" >> .env
+            echo LLM_BASE_URL="$LLM_BASE_URL" >> .env
+            echo LLM_MODEL="$LLM_MODEL" >> .env
+          fi
 
       - name: Build release
         run: |
