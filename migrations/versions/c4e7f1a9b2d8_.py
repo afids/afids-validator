@@ -1,7 +1,7 @@
 """Add knowledge_chunks table for RAG vector store
 
 Revision ID: c4e7f1a9b2d8
-Revises: 7b4e00130929
+Revises: 56d89145adbb
 Create Date: 2026-04-01 00:00:00.000000
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = "c4e7f1a9b2d8"
-down_revision = "7b4e00130929"
+down_revision = "56d89145adbb"
 branch_labels = None
 depends_on = None
 
