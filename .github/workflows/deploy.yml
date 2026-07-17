@@ -20,6 +20,13 @@ jobs:
       - name: Checkout reference branch
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        # Pin to a version inside pyproject's supported range (>=3.8,<3.12);
+        # ubuntu-latest now defaults to 3.12, which poetry would reject.
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Install poetry
         uses: snok/install-poetry@v1
         with:
