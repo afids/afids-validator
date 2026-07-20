@@ -12,3 +12,9 @@ _site/
 
 # Workspaces
 afids.code-workspace
+
+# docker compose
+compose
+
+# venv
+venv
