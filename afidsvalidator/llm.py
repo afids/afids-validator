@@ -3,7 +3,8 @@
 Configure via environment variables:
   LLM_API_KEY   — API key. If unset, defaults to local Ollama (free, no key needed).
   LLM_BASE_URL  — Base URL of any OpenAI-compatible endpoint.
-                  If LLM_API_KEY is unset, defaults to http://localhost:11434/v1 (Ollama).
+                  Defaults to Groq (https://api.groq.com/openai/v1) when a key is
+                  set, or local Ollama (http://localhost:11434/v1) when not.
                   Examples:
                     OpenAI    : https://api.openai.com/v1  (needs LLM_API_KEY)
                     Anthropic : https://api.anthropic.com/v1  (needs LLM_API_KEY)
@@ -11,7 +12,8 @@ Configure via environment variables:
                     Together  : https://api.together.xyz/v1  (needs LLM_API_KEY)
                     Ollama    : http://localhost:11434/v1  (no key required — free)
   LLM_MODEL     — Model name.
-                  Defaults to llama3.2 when using Ollama, or gpt-4o otherwise.
+                  Defaults to llama-3.3-70b-versatile (Groq) when a key is set,
+                  or llama3.2 (Ollama) when not.
                   Examples (Ollama):  llama3.2, llama3.1, mistral, phi4, gemma3
                   Examples (Groq):    llama-3.3-70b-versatile, mixtral-8x7b-32768
                   Examples (OpenAI):  gpt-4o, gpt-4o-mini
@@ -161,7 +163,8 @@ def build_system_prompt(context_chunks: list[str] | None = None) -> str:
 
 # ── Client factory ────────────────────────────────────────────────────────────
 _OLLAMA_DEFAULT_URL = "http://localhost:11434/v1"
-_OPENAI_DEFAULT_URL = "https://api.openai.com/v1"
+_GROQ_DEFAULT_URL = "https://api.groq.com/openai/v1"
+_GROQ_DEFAULT_MODEL = "llama-3.3-70b-versatile"
 
 
 def _clean(value: str | None) -> str:
@@ -201,9 +204,9 @@ def _resolve_llm(override: dict | None = None):
 
     if api_key:
         client = OpenAI(
-            api_key=api_key, base_url=base_url or _OPENAI_DEFAULT_URL
+            api_key=api_key, base_url=base_url or _GROQ_DEFAULT_URL
         )
-        return client, (model or "gpt-4o")
+        return client, (model or _GROQ_DEFAULT_MODEL)
 
     # No key anywhere → local self-hosted OpenAI-compatible endpoint (Ollama).
     client = OpenAI(api_key="ollama", base_url=base_url or _OLLAMA_DEFAULT_URL)
@@ -217,7 +220,7 @@ def resolve_model_label(override: dict | None = None) -> str:
     if model:
         return model
     has_key = _pick(override, "api_key", "LLM_API_KEY")
-    return "gpt-4o" if has_key else "llama3.2"
+    return _GROQ_DEFAULT_MODEL if has_key else "llama3.2"
 
 
 def server_has_default_key() -> bool:

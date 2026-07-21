@@ -12,6 +12,31 @@ Anatomical fiducials (AFIDs) is an open framework for evaluating correspondence 
 
 # [afids-validator (https://validator.afids.io)](https://validator.afids.io)
 
+## Guided Learning (AI tutor)
+
+The validator includes a guided-learning mode at `/learn` — an interactive tutor that walks users through placing anatomical fiducials and gives feedback on each placement. It is powered by any OpenAI-compatible language model.
+
+**Default model:** [Groq's Llama 3.3 70B](https://groq.com) (`llama-3.3-70b-versatile`) — a free, open-source model. When an API key is present, the endpoint and model default to Groq automatically, so the only thing you need to configure is the key.
+
+Configure via `.env` (see `.env.template`):
+
+- `LLM_API_KEY` — API key for the shared tutor. Get a free Groq key at https://console.groq.com/keys. **Setting only this is enough** — `LLM_BASE_URL` and `LLM_MODEL` default to Groq.
+- `LLM_BASE_URL` — OpenAI-compatible endpoint. Optional; defaults to Groq when a key is set.
+- `LLM_MODEL` — Model name. Optional; defaults to `llama-3.3-70b-versatile`.
+
+The tutor degrades gracefully:
+
+- Visitors can enter their own key/provider from the in-page **Settings** panel — their key stays in their browser and is never logged or persisted server-side.
+- If no key is configured anywhere, the tutor streams static reference material instead of failing.
+
+**Local, zero-key option:** run [Ollama](https://ollama.com) (`ollama pull llama3.2`) and leave `LLM_API_KEY` empty — the tutor talks to your local model, no key or cost.
+
+> RAG note: retrieval degrades gracefully to the built-in landmark reference when no embeddings store is present, so the tutor works without ingestion. Do **not** run `flask ingest-knowledge` against a Groq key — Groq serves chat models only, not embeddings.
+
+## Deployment
+
+Production is deployed via the **AFIDs Validator Deploy** GitHub Actions workflow (`.github/workflows/deploy.yml`, manually triggered), which builds a wheel and ships it to the server over SSH. Deployment configuration (including `PRODUCTION_LLM_API_KEY` for the shared tutor) is supplied through repository secrets. See `DEPLOY_HANDOFF.md` for the full step-by-step deploy runbook.
+
 ## Development
 
 `poetry` is used to manage dependencies. To install, run the following command:
