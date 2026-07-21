@@ -174,9 +174,9 @@
     <label class="settings-field">
       <span>Provider</span>
       <select id="set-provider">
+        <option value="groq">Groq (free, default)</option>
         <option value="openai">OpenAI</option>
         <option value="anthropic">Anthropic (Claude)</option>
-        <option value="groq">Groq (free tier)</option>
         <option value="together">Together AI</option>
         <option value="ollama">Local Ollama</option>
         <option value="custom">Custom / other</option>
@@ -185,17 +185,17 @@
     <label class="settings-field">
       <span>Base URL</span>
       <input id="set-base-url" type="text" autocomplete="off" spellcheck="false"
-             placeholder="https://api.openai.com/v1">
+             placeholder="https://api.groq.com/openai/v1">
     </label>
     <label class="settings-field">
       <span>Model</span>
       <input id="set-model" type="text" autocomplete="off" spellcheck="false"
-             placeholder="gpt-4o">
+             placeholder="llama-3.3-70b-versatile">
     </label>
     <label class="settings-field">
       <span>API key</span>
       <input id="set-api-key" type="password" autocomplete="off" spellcheck="false"
-             placeholder="sk-…">
+             placeholder="gsk_…">
     </label>
 
     <div class="settings-actions">
@@ -1644,9 +1644,10 @@ ${transcriptHTML || "<p style='color:#444'>No messages recorded.</p>"}
   function loadSettingsForm() {
     let cfg = {};
     try { cfg = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); } catch { cfg = {}; }
-    setProvider.value = cfg.provider || "openai";
-    setBaseUrl.value  = cfg.base_url || "";
-    setModel.value    = cfg.model || "";
+    setProvider.value = cfg.provider || "groq";
+    const dflt = PROVIDERS[setProvider.value] || {};
+    setBaseUrl.value  = cfg.base_url || dflt.base_url || "";
+    setModel.value    = cfg.model || dflt.model || "";
     setApiKey.value   = cfg.api_key || "";
     setStatus.textContent = "";
   }
