@@ -5,8 +5,10 @@ fiducial localization error (AFLE) for each of the 32 AFIDs, computed from the
 afids-data multi-rater release by ``compute_reliability.py`` — and exposes it in
 three forms the tutor and validator use:
 
-* :func:`percentile` — where a learner's error sits within the trained-rater
-  distribution for that landmark (a "you vs. the experts" metric);
+* :func:`percentile` — how precise a learner's placement is relative to the
+  trained-rater distribution for that landmark, as a "you vs. the experts"
+  metric where **higher is better** (e.g. 90 = more precise than 90% of trained
+  raters);
 * :func:`band` — a coarse, human-readable classification of that percentile;
 * :func:`difficulty` and :func:`expected` — how hard the landmark is for humans,
   used to calibrate feedback ("1 mm on the AC is poor; 1 mm on the indusium
@@ -67,12 +69,16 @@ def difficulty(abbrev: str) -> str | None:
     return "difficult"
 
 
-def percentile(abbrev: str, distance_mm: float) -> int | None:
+def _error_percentile(abbrev: str, distance_mm: float) -> int | None:
     """Percentile of *distance_mm* within the trained-rater AFLE distribution.
 
     0 = better (more precise) than essentially all trained raters; 90+ = at or
     beyond the least precise trained-rater placements for this landmark. Linear
     interpolation between stored percentile anchors; extrapolated above p90.
+
+    This is the raw error rank (lower = more precise). Callers should use the
+    public :func:`percentile`, which inverts it into an intuitive precision
+    percentile where higher = better.
     """
     s = stats(abbrev)
     if not s:
@@ -88,6 +94,21 @@ def percentile(abbrev: str, distance_mm: float) -> int | None:
     p90 = s["p90"]
     over = (distance_mm - p90) / (p90 if p90 > 0 else 1.0)
     return int(min(99, round(90 + 9 * over)))
+
+
+def percentile(abbrev: str, distance_mm: float) -> int | None:
+    """Precision percentile of *distance_mm* vs. the trained-rater distribution.
+
+    **Higher is better**: the percentage of trained-rater placements this
+    learner is at least as precise as. 90 = more precise than 90% of trained
+    raters (a tight placement); 10 = more precise than only 10% (a loose one).
+    Inverts :func:`_error_percentile` so the number matches the everyday reading
+    of "90th percentile = great." Clamped to 1..99.
+    """
+    ep = _error_percentile(abbrev, distance_mm)
+    if ep is None:
+        return None
+    return max(1, min(99, 100 - ep))
 
 
 _BAND_LABELS = {
@@ -135,7 +156,8 @@ def feedback_line(abbrev: str, distance_mm: float) -> str | None:
         f"multi-rater dataset, median placement error for this landmark is "
         f"{b['median']:.2f} mm (75th pct {b['p75']:.2f} mm, 90th pct "
         f"{b['p90']:.2f} mm); it is a {b['difficulty']} landmark. The learner's "
-        f"{distance_mm:.1f} mm is {b['label']} (~{b['percentile']}th percentile). "
+        f"{distance_mm:.1f} mm is {b['label']} — more precise than about "
+        f"{b['percentile']}% of trained raters. "
         f"Use this to calibrate praise/correction to how hard this landmark "
         f"actually is — do not quote these raw numbers unless helpful."
     )

@@ -1299,7 +1299,7 @@
     elBadge.className = `result-badge ${quality}`;
     let txt = `${QUALITY_LABELS[quality] || quality}  —  ${dist.toFixed(2)} mm`;
     if (rater) {
-      txt += `   ·   ${rater.percentile}th pct vs trained raters (${rater.label})`;
+      txt += `   ·   more precise than ${rater.percentile}% of trained raters (${rater.label})`;
     }
     elBadge.textContent = txt;
   }
@@ -1558,7 +1558,7 @@
         <td class="mono">${rc}</td>
         <td style="color:${col};font-weight:700">${p.distance_mm.toFixed(2)} mm</td>
         <td style="color:${col}">${p.quality.replace("_", " ")}</td>
-        <td>${p.rater ? `${p.rater.percentile}th pct — ${p.rater.label}` : "—"}</td>
+        <td>${p.rater ? `${p.rater.percentile}th pctl — ${p.rater.label}` : "—"}</td>
       </tr>`;
     }).join("\n");
 
@@ -1610,7 +1610,7 @@
 
 <h2>Placement Summary</h2>
 <table>
-  <tr><th>#</th><th>Landmark</th><th>Placed (mm RAS)</th><th>Reference (mm RAS)</th><th>Distance</th><th>Quality</th><th>vs trained raters</th></tr>
+  <tr><th>#</th><th>Landmark</th><th>Placed (mm RAS)</th><th>Reference (mm RAS)</th><th>Distance</th><th>Quality</th><th>Precision (higher = better)</th></tr>
   ${placementRows || "<tr><td colspan='7' style='color:#444'>No placements recorded</td></tr>"}
 </table>
 
