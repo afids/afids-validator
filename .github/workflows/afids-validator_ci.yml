@@ -9,9 +9,6 @@ jobs:
     name: Setup environment & test
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
       - name: Setup python environment
@@ -50,9 +47,6 @@ jobs:
     needs: [test]
     if: github.event.pull_request.merged == false
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
       - name: Setup python environment
