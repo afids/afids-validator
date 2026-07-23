@@ -52,6 +52,9 @@
 
     {# Viewer action buttons #}
     <div class="viewer-actions">
+      <button id="btn-back" class="btn-learn btn-back" disabled>
+        &larr;&nbsp; Back
+      </button>
       <button id="btn-place" class="btn-learn btn-place" disabled>
         &#9679;&nbsp; Place Fiducial Here
       </button>
@@ -417,6 +420,12 @@
   border-color: #ffaa00;
   box-shadow: 0 0 8px rgba(255,170,0,0.3);
 }
+.btn-back {
+  background: #1e1e1e;
+  color: #888;
+  border: 1px solid #333;
+}
+.btn-back:not(:disabled):hover { color: #ccc; border-color: #555; }
 .btn-next {
   background: #1a2a1a;
   color: #00ff01;
@@ -921,6 +930,7 @@
   const elInput     = $("user-input");
   const elProgressTxt = $("progress-text");
 
+  const btnBack   = $("btn-back");
   const btnPlace  = $("btn-place");
   const btnRef    = $("btn-show-ref");
   const btnNext   = $("btn-next");
@@ -1110,6 +1120,7 @@
     hideBadge();
     updateLandmarkUI();
 
+    btnBack.disabled   = idx === 0;   // nowhere to go back from the first landmark
     btnPlace.disabled  = false;
     btnRef.disabled    = false;   // allow peeking reference before placing
     btnNext.disabled   = false;   // allow skipping at any time
@@ -1205,7 +1216,9 @@
 
     const { distance_mm, directions, quality, ref_coords, rater } = checkResult;
 
-    // Record placement
+    // Record placement — drop any earlier attempt at this landmark (e.g. after
+    // going Back and re-placing) so the report shows one row per landmark.
+    state.placements = state.placements.filter(p => p.idx !== state.idx);
     state.placements.push({
       idx: state.idx, abbrev: lm.abbrev, full_name: lm.full_name,
       user_coords: coords, ref_coords: ref_coords ?? null,
@@ -1331,6 +1344,7 @@
         "3D Slicer and upload your FCSV to the Validator page for a " +
         "detailed quality report. You can also export this session transcript below."
       );
+      btnBack.disabled  = true;
       btnPlace.disabled = true;
       btnRef.disabled   = true;
       btnNext.disabled  = true;
@@ -1344,6 +1358,13 @@
       await placeMarker(false);
     }
     doAdvance();
+  }
+
+  /* ── Back — revisit the previous landmark to re-place it ──────────────────── */
+  function goBack() {
+    if (state.idx > 0) {
+      startLandmark(state.idx - 1);
+    }
   }
 
   /* ── User Q&A ────────────────────────────────────────────────────────────── */
@@ -1691,6 +1712,7 @@ ${transcriptHTML || "<p style='color:#444'>No messages recorded.</p>"}
   });
 
   /* ── Event listeners ─────────────────────────────────────────────────────── */
+  btnBack.addEventListener("click",  goBack);
   btnPlace.addEventListener("click", placeMarker);
   btnRef.addEventListener("click",   toggleReference);
   btnNext.addEventListener("click",  nextLandmark);
