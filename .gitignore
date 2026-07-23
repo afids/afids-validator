@@ -9,6 +9,14 @@ _site/
 *.pyc
 .env
 *.egg-info
+*.db
+~$*
+
+# Flask instance folder (local dev DB, cached templates)
+instance/
 
 # Workspaces
 afids.code-workspace
+
+# Generated Word manuscript (regenerate: python make_paper_doc.py)
+*.docx

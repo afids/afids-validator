@@ -1,144 +1,241 @@
 {% extends "base.html" %}
-{% block title %} | VALIDATOR {% endblock %}
+{% block title %} | Validator{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <section class="col-9">
-      <div class="row">
-          <div class="col-9">
-              <p>Use the following form to compare user placed fiducials to one of the available templates!</p>
-              <p>If you choose to "Upload to Database", fiducials from the file will be uploaded and stored. These
-              placements may be used in the future to identify fiducials users are having difficulty placing.
-              </p>
-          </div>
-      </div>
 
-      <!-- Template submission form -->
-      <form method=POST action="" enctype="multipart/form-data">
-        <!-- Dropdown for template selection -->
-        <fieldset class="form-group">
-          <legend>Select a template to compare against.</legend>
-          <select id="species" class="form-control" name="fid_species" method="GET" action="/">
-            {% for choice in form_choices %}
-            <option value="{{choice}}">{{choice}}</option>
-            {% endfor %}
-          </select>
-          <select id="templates" class="form-control" name="fid_template" method="GET" action="/">
-            <!-- Will autoload on page ready, start with blank option -->
-            <option value=""></option>
-          </select>
-        </fieldset>
+<!-- ── Page header ──────────────────────────────────────────────────── -->
+<div class="page-header fade-in">
+  <span class="section-label">AFIDs Protocol</span>
+  <h1>Fiducial Validator</h1>
+  <p>Upload a <code style="color:var(--green);background:var(--dark-card);padding:.1em .4em;border-radius:3px;">.fcsv</code>
+     or <code style="color:var(--green);background:var(--dark-card);padding:.1em .4em;border-radius:3px;">.json</code>
+     file and compare against a reference template.</p>
+</div>
 
-        <!-- User template "upload" -->
-        <fieldset class="form-group">
-          <legend>Select the AFIDs file to validate.</legend>
-          {% for field in form %}
-          {{ field }}
-          {% if field.errors %}
-          <ul class="errors">
-            {% for error in field.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
+<!-- ── Validation form ──────────────────────────────────────────────── -->
+<div class="afids-card fade-in-2" style="max-width:680px; margin-bottom:2rem;">
+  <form method="POST" action="" enctype="multipart/form-data" id="validator-form">
+
+    <!-- Species + Template row -->
+    <div class="form-row-cols">
+      <div>
+        <div class="form-section-title">Species</div>
+        <select id="species" class="afids-select" name="fid_species">
+          {% for choice in form_choices %}
+          <option value="{{ choice }}">{{ choice }}</option>
           {% endfor %}
-        </fieldset>
-        <input type="checkbox" id="db_checkbox" name="db_checkbox"/>
-        <label for="db_checkbox">Upload to Database</label>
-      </form>
-
-      <!-- Valid/Invalid Notification -->
-      {% if result != "" %}
-      <div class="row">
-          <div class="col-9">
-              <h2>Results</h2>
-          </div>
+        </select>
       </div>
-      <div class="row">
-          <div class="col-9">
-              {% if result[0:5] == "Valid" %}
-              <div class="alert alert-success">
-              {% else %}
-              <div class="alert alert-danger">
-              {% endif %}
-                  {{ result|safe }}
-              </div>
-          </div>
+      <div>
+        <div class="form-section-title">Template</div>
+        <select id="templates" class="afids-select" name="fid_template">
+          <option value=""></option>
+        </select>
       </div>
+    </div>
 
-        <!-- Plotly -->
-        {% if scatter_html %}
-        <div class="row">
-          <div class="col-9">
-            <ul class="nav nav-tabs" role="tablist">
-              <li role="presentation" class="active">
-                <a class="nav-link active" href="#plots" role="tab" aria-controls="plots" data-bs-toggle="tab"><h3>Plots</h3></a>
-              </li>
-              <li role="presentation">
-                <a class="nav-link" href="#table" role="tab" aria-controls="table" data-bs-toggle="tab"><h3>Table</h3></a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div class="tab-content">
-          <div role="tabpanel" class="tab-pane active" id="plots">
-            <div class="row">
-              <div class="col-9">
-                  {{scatter_html|safe}}
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-9">
-                  {{histogram_html|safe}}
-              </div>
-            </div>
-          </div>
-          <div role="tabpanel" class="tab-pane" id="table">
-            <div class="row">
-              <div class="text col-9">
-                <table class="table table-dark table-sm">
-                <tr>
-                  <th scope="col">{{"Fiducial Name"}}</th>
-                  <th scope="col">{{"Distance [mm]"}}</th></tr>
-                {% for label, distance in table_zip %}
-                <tr><td>{{label}}</td><td>{{distance}}</td></tr>
-                {% endfor %}
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-      {% endif %}
-    </section>
+    <!-- File drop zone -->
+    <div class="form-section-title" style="margin-top:.8rem;">AFIDs File</div>
+    <div class="file-drop-zone" id="drop-zone">
+      <input type="file" name="filename" id="file-input" accept=".fcsv,.csv,.json" required />
+      <span class="file-drop-icon">⬆</span>
+      <p class="file-drop-text">
+        <strong>Drop your file here</strong> or click to browse<br>
+        Accepts .fcsv, .csv, .json
+      </p>
+      <div id="filename-display"></div>
+    </div>
+
+    <!-- DB checkbox -->
+    <div class="afids-checkbox-row">
+      <input type="checkbox" id="db_checkbox" name="db_checkbox" />
+      <label for="db_checkbox">Contribute to community dataset (requires ORCID login)</label>
+    </div>
+
+    <!-- Submit -->
+    <div style="margin-top:1.2rem;">
+      <button type="submit" class="btn-afids"><span>Validate</span></button>
+    </div>
+
+  </form>
+</div>
+
+<!-- ── Result status ─────────────────────────────────────────────────── -->
+{% if result != "" %}
+<div class="fade-in" style="max-width:680px; margin-bottom:1.5rem;">
+  {% if result[:5] == "Valid" %}
+  <div class="afids-alert afids-alert-success">✔ {{ result|safe }}</div>
+  {% else %}
+  <div class="afids-alert afids-alert-danger">✖ {{ result|safe }}</div>
+  {% endif %}
+</div>
+
+{% if scatter_html %}
+
+<!-- ── Session summary dashboard ────────────────────────────────────── -->
+{% if summary %}
+<div class="summary-grid fade-in">
+  <div class="summary-stat">
+    <div class="summary-stat-value">
+      <span class="stat-yellow">{{ summary.mean }}</span>
+      <span style="font-size:1rem; color:var(--muted);">mm</span>
+    </div>
+    <div class="summary-stat-sub">± {{ summary.sd }} mm SD</div>
+    <div class="summary-stat-label">Mean Error</div>
+  </div>
+  <div class="summary-stat">
+    <div class="summary-stat-value">
+      <span class="stat-yellow">{{ summary.median }}</span>
+      <span style="font-size:1rem; color:var(--muted);">mm</span>
+    </div>
+    <div class="summary-stat-sub">IQR {{ summary.iqr }} mm ({{ summary.q1 }}&ndash;{{ summary.q3 }})</div>
+    <div class="summary-stat-label">Median Error</div>
+  </div>
+  <div class="summary-stat">
+    <div class="summary-stat-value stat-green">{{ summary.best_label }}</div>
+    <div class="summary-stat-sub">{{ summary.best_dist }} mm</div>
+    <div class="summary-stat-label">Best Landmark</div>
+  </div>
+  <div class="summary-stat">
+    <div class="summary-stat-value stat-red">{{ summary.worst_label }}</div>
+    <div class="summary-stat-sub">{{ summary.worst_dist }} mm</div>
+    <div class="summary-stat-label">Worst Landmark</div>
+  </div>
+  <div class="summary-stat">
+    <div class="summary-stat-value">
+      <span class="stat-green">{{ summary.n_within_2mm }}</span>
+      <span style="font-size:1rem; color:var(--muted);">/{{ summary.total }}</span>
+    </div>
+    <div class="summary-stat-sub">{{ summary.n_within_1mm }} within 1mm</div>
+    <div class="summary-stat-label">Within 2mm</div>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── Tabs: 3D View / Error Profile / Table ────────────────────────── -->
+<ul class="nav afids-tabs fade-in-2" role="tablist" id="result-tabs">
+  <li role="presentation">
+    <a class="nav-link active" href="#scatter" role="tab"
+       aria-controls="scatter" data-bs-toggle="tab">3D View</a>
+  </li>
+  <li role="presentation">
+    <a class="nav-link" href="#radar" role="tab"
+       aria-controls="radar" data-bs-toggle="tab">Error Profile</a>
+  </li>
+  <li role="presentation">
+    <a class="nav-link" href="#table" role="tab"
+       aria-controls="table" data-bs-toggle="tab">Table</a>
+  </li>
+</ul>
+
+<div class="tab-content fade-in-3">
+
+  <!-- 3D Scatter -->
+  <div role="tabpanel" class="tab-pane active" id="scatter">
+    {{ scatter_html|safe }}
+    {{ histogram_html|safe }}
+  </div>
+
+  <!-- Radar chart -->
+  <div role="tabpanel" class="tab-pane" id="radar">
+    <p style="color:var(--muted);font-family:var(--mono-font);font-size:.78rem;margin:1rem 0 .5rem;">
+      Each axis = mean error (mm) for landmarks in that neuroanatomical region.
+      Smaller polygon = better overall accuracy. Hover vertices for exact values.
+    </p>
+    {{ radar_html|safe }}
+  </div>
+
+  <!-- Distance table -->
+  <div role="tabpanel" class="tab-pane" id="table">
+    <p style="color:var(--muted);font-family:var(--mono-font);font-size:.75rem;margin:1rem 0 .5rem;">
+      Directional error in anatomical LPS space. Components &lt; 0.1mm suppressed.
+      <span class="stat-green">■</span> &lt;1mm
+      <span class="stat-yellow" style="margin-left:.6rem;">■</span> 1–3mm
+      <span class="stat-red" style="margin-left:.6rem;">■</span> &gt;3mm
+    </p>
+    <div style="overflow-x:auto;">
+      <table class="afids-table">
+        <thead>
+          <tr>
+            <th>Fiducial</th>
+            <th>Distance (mm)</th>
+            <th>Directional Error</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for label, distance, direction in table_rows %}
+          <tr>
+            <td class="label-cell">{{ label }}</td>
+            {% set d = distance|float %}
+            {% if d < 1.0 %}
+            <td class="dist-excellent">{{ distance }}</td>
+            {% elif d < 2.0 %}
+            <td class="dist-good">{{ distance }}</td>
+            {% elif d < 3.0 %}
+            <td class="dist-warning">{{ distance }}</td>
+            {% else %}
+            <td class="dist-danger">{{ distance }}</td>
+            {% endif %}
+            <td class="dir-cell">{{ direction }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <script>
-    // Grab associated templates to species
-    let species_select = document.getElementById("species");
-    let template_select = document.getElementById("templates");
+</div>
 
-    let update_dropdown = function() {
-      species = species_select.value;
+{% endif %}{# end scatter_html #}
+{% endif %}{# end result #}
 
-      fetch("/validator/" + species).then(function(response) {
-        response.json().then(function(data) {
-          let template_HTML = "";
+<!-- ── Scripts ───────────────────────────────────────────────────────── -->
+<script>
+  // Populate template dropdown from species selection
+  const speciesSelect   = document.getElementById('species');
+  const templateSelect  = document.getElementById('templates');
 
-          for (let template of data) {
-            template_HTML += '<option value="' + template + '">' + template + '</option>';
-          }
+  function updateTemplates() {
+    const species = speciesSelect.value;
+    fetch('/validator/' + species).then(r => r.json()).then(data => {
+      templateSelect.innerHTML = data
+        .map(t => `<option value="${t}">${t}</option>`)
+        .join('');
+    });
+  }
 
-          template_select.innerHTML = template_HTML;
-        });
-      });
+  window.onload   = updateTemplates;
+  speciesSelect.onchange = updateTemplates;
+
+  // File drop zone UX
+  const dropZone     = document.getElementById('drop-zone');
+  const fileInput    = document.getElementById('file-input');
+  const fileDisplay  = document.getElementById('filename-display');
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) {
+      fileDisplay.textContent = '📄 ' + fileInput.files[0].name;
     }
+  });
 
-    // Populate dropdown choices on load by species
-    window.onload = update_dropdown
+  ['dragover', 'dragenter'].forEach(evt => {
+    dropZone.addEventListener(evt, e => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+  });
 
-    // Populate dropdown choices if species is changed
-    species_select.onchange = update_dropdown
-  </script>
+  ['dragleave', 'drop'].forEach(evt => {
+    dropZone.addEventListener(evt, () => dropZone.classList.remove('dragover'));
+  });
+
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    if (e.dataTransfer.files.length) {
+      fileInput.files = e.dataTransfer.files;
+      fileDisplay.textContent = '📄 ' + e.dataTransfer.files[0].name;
+    }
+  });
+</script>
+
 {% endblock content %}

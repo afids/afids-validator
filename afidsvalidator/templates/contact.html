@@ -1,28 +1,54 @@
-{% extends "base.html" %} {% block title %} | CONTACT{% endblock%} {%block
-content %}
-<div class="row">
-  <p>
-    Please reach out if you would like to contribute to this open source
-    project, encounter any bugs with the validator, or have any questions!
-  </p>
+{% extends "base.html" %}
+{% block title %} | Contact{% endblock %}
 
-  <p>
-    For any issues related to the fiducial validator, please create a new issue
-    on our
+{% block content %}
+<div style="padding:2rem 0;">
+  <span class="section-label">Get in Touch</span>
+  <h1 style="font-family:var(--nav-font);font-size:2.5rem;margin:.3rem 0 1.5rem;">Contact</h1>
+
+  <div class="contact-card fade-in">
+    <p>
+      Please reach out if you would like to contribute to this open source
+      project, encounter any bugs with the validator, or have questions about
+      the AFIDs protocol.
+    </p>
+    <p>
+      For validator bugs or feature requests, open an issue on our
+      <a href="https://github.com/afids/afids-validator/issues" target="_blank">GitHub repository</a>.
+      For general inquiries, find us on
+      <a href="https://mattermost.brainhack.org/brainhack/channels/afids" target="_blank">Mattermost</a>
+      or <a href="https://twitter.com/afids_project" target="_blank">Twitter</a>.
+    </p>
+    <p style="margin-bottom:0;">
+      We will do our best to respond within a reasonable time.
+    </p>
+  </div>
+
+  <div class="feature-grid fade-in-2" style="max-width:640px; margin-top:2rem;">
     <a href="https://github.com/afids/afids-validator/issues" target="_blank"
-      >Github repository</a
-    >. For all other inquiries, please reach out to us via
-    <a
-      href="https://mattermost.brainhack.org/brainhack/channels/afids"
-      target="_blank"
-      >Mattermost</a
-    >
-    or
-    <a href="https://twitter.com/afids_project" target="_blank">Twitter</a>.
-  </p>
-
-  <p>
-    We will do our best to respond to any messages within a reasonable time!
-  </p>
+       style="text-decoration:none;">
+      <div class="feature-card">
+        <span class="feature-icon">🐛</span>
+        <div class="feature-title">Report a Bug</div>
+        <p class="feature-desc">Open a GitHub issue with steps to reproduce.</p>
+      </div>
+    </a>
+    <a href="https://mattermost.brainhack.org/brainhack/channels/afids" target="_blank"
+       style="text-decoration:none;">
+      <div class="feature-card">
+        <span class="feature-icon">💬</span>
+        <div class="feature-title">Community Chat</div>
+        <p class="feature-desc">Join the AFIDs channel on Brainhack Mattermost.</p>
+      </div>
+    </a>
+    <a href="https://afids.github.io/afids-protocol/" target="_blank"
+       style="text-decoration:none;">
+      <div class="feature-card">
+        <span class="feature-icon">📄</span>
+        <div class="feature-title">Protocol Docs</div>
+        <p class="feature-desc">Read the full placement guidelines and tutorials.</p>
+      </div>
+    </a>
+  </div>
 </div>
 {% endblock content %}
