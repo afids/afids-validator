@@ -84,6 +84,14 @@
     <div class="summary-stat-label">Mean Error</div>
   </div>
   <div class="summary-stat">
+    <div class="summary-stat-value">
+      <span class="stat-yellow">{{ summary.median }}</span>
+      <span style="font-size:1rem; color:var(--muted);">mm</span>
+    </div>
+    <div class="summary-stat-sub">IQR {{ summary.iqr }} mm ({{ summary.q1 }}&ndash;{{ summary.q3 }})</div>
+    <div class="summary-stat-label">Median Error</div>
+  </div>
+  <div class="summary-stat">
     <div class="summary-stat-value stat-green">{{ summary.best_label }}</div>
     <div class="summary-stat-sub">{{ summary.best_dist }} mm</div>
     <div class="summary-stat-label">Best Landmark</div>

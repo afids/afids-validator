@@ -138,11 +138,20 @@ def _session_summary(labels, float_distances):
     """Compute summary statistics for a validation session."""
     mean = float(np.mean(float_distances))
     sd = float(np.std(float_distances))
+    median = float(np.median(float_distances))
+    q1 = float(np.percentile(float_distances, 25))
+    q3 = float(np.percentile(float_distances, 75))
     worst_idx = int(np.argmax(float_distances))
     best_idx = int(np.argmin(float_distances))
     return {
         "mean": f"{mean:.2f}",
         "sd": f"{sd:.2f}",
+        # Median + IQR: robust to the right-skew of localization error and
+        # directly comparable to the percentile-based trained-rater reference.
+        "median": f"{median:.2f}",
+        "iqr": f"{q3 - q1:.2f}",
+        "q1": f"{q1:.2f}",
+        "q3": f"{q3:.2f}",
         "worst_label": labels[worst_idx],
         "worst_dist": f"{float_distances[worst_idx]:.2f}",
         "best_label": labels[best_idx],
