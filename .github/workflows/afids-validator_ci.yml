@@ -17,7 +17,7 @@ jobs:
       - name: Setup python environment
         uses: khanlab/actions/.github/actions/action-setup_task-installPyProject@v0.3.2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
           install-library: "true"
 
       - name: Start PostgreSQL services
@@ -58,7 +58,7 @@ jobs:
       - name: Setup python environment
         uses: khanlab/actions/.github/actions/action-setup_task-installPyProject@v0.3.2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
       - name: ruff
         run: poetry run ruff afidsvalidator test
