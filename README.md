@@ -51,7 +51,7 @@ The tutor degrades gracefully:
 
 ## Deployment
 
-Production is deployed via the **AFIDs Validator Deploy** GitHub Actions workflow (`.github/workflows/deploy.yml`, manually triggered), which builds a wheel and ships it to the server over SSH. Deployment configuration (including `PRODUCTION_LLM_API_KEY` for the shared tutor) is supplied through repository secrets. See `DEPLOY_HANDOFF.md` for the full step-by-step deploy runbook.
+Production is deployed via the **AFIDs Validator Deploy** GitHub Actions workflow (`.github/workflows/deploy.yml`, manually triggered), which builds a wheel and ships it to the server over SSH. Deployment configuration (including `PRODUCTION_LLM_API_KEY` for the shared tutor) is supplied through repository secrets.
 
 ## Paper & reproducibility
 
