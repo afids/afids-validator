@@ -61,7 +61,6 @@ The platform and its pedagogical design are described in our accompanying method
 - `scripts/analyze_afids_templates.py` — inter-template variability analysis across the reference templates.
 - `scripts/make_figures.py` — regenerates the graphical abstract and Figures 1–6 into `paper_figures/`. Figures 3–6 regenerate deterministically from the released templates and placements.
 - `scripts/make_graphical_abstract.py`, `scripts/make_ga_assets.py` — build the graphical abstract (Figure 0) and its assets.
-- `scripts/make_paper_doc.py` — renders the manuscript `.docx` with the figure set embedded.
 
 Run these from the repository root, e.g. `python scripts/make_figures.py`.
 
