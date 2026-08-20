@@ -418,8 +418,8 @@ def fig5_difficulty():
             markeredgewidth=0.8,
         )
         xs, ys = _pctile_curve(s)
-        pct = float(np.interp(probe, xs, ys))
-        p = round(pct)
+        pct = float(np.interp(probe, xs, ys))  # error rank (drives the verdict)
+        p = round(100 - pct)                    # precision pct shown (higher = better)
         suf = ("th" if 11 <= p % 100 <= 13
                else {1: "st", 2: "nd", 3: "rd"}.get(p % 10, "th"))
         verdict = (
@@ -460,7 +460,7 @@ def fig5_difficulty():
     for a, _ in curves:
         s = rel[a]
         xs, ys = _pctile_curve(s)
-        yy = np.interp(xx, xs, ys)
+        yy = 100 - np.interp(xx, xs, ys)  # precision percentile (higher = better)
         axC.plot(
             xx, yy, color=REGION_COLORS[ABBR2REG[a]], lw=2.0, label=a, zorder=3
         )
@@ -469,7 +469,7 @@ def fig5_difficulty():
         xs, ys = _pctile_curve(rel[a])
         axC.plot(
             1.2,
-            float(np.interp(1.2, xs, ys)),
+            100 - float(np.interp(1.2, xs, ys)),
             "o",
             color=REGION_COLORS[ABBR2REG[a]],
             ms=5,
@@ -481,7 +481,7 @@ def fig5_difficulty():
     axC.set_xlim(0, 4)
     axC.set_ylim(0, 100)
     axC.set_xlabel("Placement error (mm)", fontsize=8.5)
-    axC.set_ylabel("Percentile within trained raters", fontsize=8.5)
+    axC.set_ylabel("Precision percentile (vs trained raters)", fontsize=8.5)
     axC.legend(
         fontsize=7,
         loc="lower right",
