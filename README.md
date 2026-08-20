@@ -55,7 +55,7 @@ Production is deployed via the **AFIDs Validator Deploy** GitHub Actions workflo
 
 ## Paper & reproducibility
 
-The platform and its pedagogical design are described in our accompanying methods/resource paper (Aperture Neuro education issue). The analysis and figure-generation scripts live in [`scripts/`](scripts/) and are run from the repository root:
+The platform and its pedagogical design are described in our accompanying methods/resource paper (in preparation). The analysis and figure-generation scripts live in [`scripts/`](scripts/) and are run from the repository root:
 
 - `scripts/compute_reliability.py` — computes the per-landmark trained-rater AFLE distributions from the [AFIDs multi-rater release](https://github.com/afids/afids-data), writing `afidsvalidator/rater_reliability.json` (the reliability prior used by the tutor and validator).
 - `scripts/analyze_afids_templates.py` — inter-template variability analysis across the reference templates.
