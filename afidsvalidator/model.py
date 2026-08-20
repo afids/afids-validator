@@ -10,7 +10,7 @@ from enum import Enum
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
 from flask_login import LoginManager, UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 from sqlalchemy.orm import composite
 
 EXPECTED_LABELS = [str(x + 1) for x in range(32)]

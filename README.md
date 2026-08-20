@@ -12,6 +12,59 @@ Anatomical fiducials (AFIDs) is an open framework for evaluating correspondence 
 
 # [afids-validator (https://validator.afids.io)](https://validator.afids.io)
 
+![Graphical abstract](paper_figures/fig0_graphical_abstract.png)
+
+The AFIDs-Validator is an open-access, browser-based platform that pairs **active learning** with **quality assurance** for anatomical landmark placement. As summarized in the graphical abstract above, it comprises three parts: **(1)** a data foundation of trained-rater placements distilled into per-landmark reference distributions of anatomical fiducial localization error (AFLE); **(2)** an AI-guided learning mode (`/learn`) that teaches placement of the 32 AFIDs landmarks in an in-browser MRI viewer with protocol-grounded, reliability-calibrated feedback; and **(3)** a validation engine that scores uploaded landmark files against expert-annotated reference templates. It is described in our accompanying paper (see [Paper & reproducibility](#paper--reproducibility)).
+
+## Guided Learning (AI tutor)
+
+The validator includes a guided-learning mode at `/learn` — an interactive tutor that walks users through placing anatomical fiducials and gives feedback on each placement. It is powered by any OpenAI-compatible language model.
+
+**Default model:** [Groq's Llama 3.3 70B](https://groq.com) (`llama-3.3-70b-versatile`) — a free, open-source model. When an API key is present, the endpoint and model default to Groq automatically, so the only thing you need to configure is the key.
+
+Configure via `.env` (see `.env.template`):
+
+- `LLM_API_KEY` — API key for the shared tutor. Get a free Groq key at https://console.groq.com/keys. **Setting only this is enough** — `LLM_BASE_URL` and `LLM_MODEL` default to Groq.
+- `LLM_BASE_URL` — OpenAI-compatible endpoint. Optional; defaults to Groq when a key is set.
+- `LLM_MODEL` — Model name. Optional; defaults to `llama-3.3-70b-versatile`.
+
+### Getting your own free API key (Groq)
+
+The tutor works with any OpenAI-compatible model. The simplest zero-cost option is [Groq](https://groq.com), which offers a free developer tier with no credit card required:
+
+1. Go to **https://console.groq.com** and sign up (email, Google, or GitHub).
+2. Open **API Keys** in the sidebar, or go directly to **https://console.groq.com/keys**.
+3. Click **Create API Key**, name it (e.g. `afids-tutor`), and submit.
+4. **Copy the key immediately** — Groq shows the full key only once; after you close the dialog it is masked and cannot be retrieved.
+5. On the `/learn` page, open **Settings (⚙)**, paste the key into the API-key field (the provider defaults to Groq), and save. The key is stored only in your browser and is never transmitted to or logged by the server.
+
+The free tier is rate-limited but ample for individual learning. No payment details are required.
+
+The tutor degrades gracefully:
+
+- Visitors can enter their own key/provider from the in-page **Settings** panel — their key stays in their browser and is never logged or persisted server-side.
+- If no key is configured anywhere, the tutor streams static reference material instead of failing.
+
+**Local, zero-key option:** run [Ollama](https://ollama.com) (`ollama pull llama3.2`) and leave `LLM_API_KEY` empty — the tutor talks to your local model, no key or cost.
+
+> RAG note: retrieval degrades gracefully to the built-in landmark reference when no embeddings store is present, so the tutor works without ingestion. Do **not** run `flask ingest-knowledge` against a Groq key — Groq serves chat models only, not embeddings.
+
+## Deployment
+
+Production is deployed via the **AFIDs Validator Deploy** GitHub Actions workflow (`.github/workflows/deploy.yml`, manually triggered), which builds a wheel and ships it to the server over SSH. Deployment configuration (including `PRODUCTION_LLM_API_KEY` for the shared tutor) is supplied through repository secrets. See `DEPLOY_HANDOFF.md` for the full step-by-step deploy runbook.
+
+## Paper & reproducibility
+
+The platform and its pedagogical design are described in our accompanying methods/resource paper (Aperture Neuro education issue). The analysis and figure-generation scripts live in [`scripts/`](scripts/) and are run from the repository root:
+
+- `scripts/compute_reliability.py` — computes the per-landmark trained-rater AFLE distributions from the [AFIDs multi-rater release](https://github.com/afids/afids-data), writing `afidsvalidator/rater_reliability.json` (the reliability prior used by the tutor and validator).
+- `scripts/analyze_afids_templates.py` — inter-template variability analysis across the reference templates.
+- `scripts/make_figures.py` — regenerates the graphical abstract and Figures 1–6 into `paper_figures/`. Figures 3–6 regenerate deterministically from the released templates and placements.
+- `scripts/make_graphical_abstract.py`, `scripts/make_ga_assets.py` — build the graphical abstract (Figure 0) and its assets.
+- `scripts/make_paper_doc.py` — renders the manuscript `.docx` with the figure set embedded.
+
+Run these from the repository root, e.g. `python scripts/make_figures.py`.
+
 ## Development
 
 `poetry` is used to manage dependencies. To install, run the following command:

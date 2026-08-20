@@ -1,30 +1,337 @@
-{% extends "base.html" %} {% block title %} | ABOUT{% endblock title %} {% block
-content %}
-<div class="row">
-  <div class="col-7">
-    <h2>Anatomical fiducials</h2>
+{% extends "base.html" %}
+{% block title %} | About{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════════════════ -->
+<div class="hero fade-in">
+  <span class="hero-kicker">Open Neuroimaging Framework</span>
+
+  <h1 class="hero-title">
+    Anatomical<br><span class="accent">Fiducials</span> Validator
+  </h1>
+
+  <p class="hero-subtitle">
+    Train and validate the placement of 32 neuroanatomical landmarks
+    across human and non-human primate brain templates.
+    Built for reproducible science.
+  </p>
+
+  <a href="/app.html" class="btn-afids" style="text-decoration: none;">
+    <span>Launch Validator</span>
+  </a>
+
+  <!-- Live stats pulled from the template directories -->
+  <div class="hero-stats fade-in-2">
+    <div>
+      <span class="hero-stat-value">32</span>
+      <div class="hero-stat-label">Landmarks</div>
+    </div>
+    <div>
+      <span class="hero-stat-value">{{ total_templates }}</span>
+      <div class="hero-stat-label">Templates</div>
+    </div>
+    <div>
+      <span class="hero-stat-value">{{ n_species }}</span>
+      <div class="hero-stat-label">Species</div>
+    </div>
+    <div>
+      <span class="hero-stat-value">∞</span>
+      <div class="hero-stat-label">Open access</div>
+    </div>
   </div>
 </div>
 
-<div class="row">
-  <div class="col-7">
-    <p>
-      Anatomical fiducials (AFIDs) is an open framework for evaluating
-      correspondence in brain images and teaching neuroanatomy using anatomical
-      fiducial placement. Here you'll find a web application that allows you to
-      upload a fiducial markup file (.fcsv or .json) generated using the AFIDs
-      protocol, and validate that it conforms to the protocol.
+<div class="hero-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     WHAT IS AFIDs — two column
+════════════════════════════════════════════════════════════════════ -->
+<div class="row align-items-center g-5 fade-in-2" style="margin-bottom: 3.5rem;">
+  <div class="col-12 col-md-6">
+    <span class="section-label">What is AFIDs?</span>
+    <p style="color: #bbb; line-height: 1.85; margin-top: 0.6rem; font-size: 0.97rem;">
+      Anatomical Fiducials (AFIDs) is an open framework for evaluating
+      correspondence in brain images and teaching neuroanatomy through
+      precisely defined landmark placement. Researchers and trainees
+      place 32 landmarks in 3D Slicer, export the markup file, and
+      upload here to receive instant, detailed placement feedback.
+    </p>
+    <p style="color: #bbb; line-height: 1.85; font-size: 0.97rem;">
+      The protocol spans
+      <strong style="color: var(--light);">human</strong> and
+      <strong style="color: var(--light);">non-human primate</strong>
+      brain templates, making it a cross-species tool for
+      image registration quality control and neuroanatomy training.
+    </p>
+    <div style="display: flex; gap: 1.2rem; flex-wrap: wrap; margin-top: 1.2rem;">
+      <a href="https://afids.github.io/afids-protocol/" target="_blank"
+         style="font-family: var(--mono-font); font-size: 0.78rem; text-transform: uppercase;
+                letter-spacing: 0.1em; color: var(--green);">
+        Protocol docs →
+      </a>
+      <a href="https://github.com/afids" target="_blank"
+         style="font-family: var(--mono-font); font-size: 0.78rem; text-transform: uppercase;
+                letter-spacing: 0.1em; color: var(--muted);">
+        GitHub →
+      </a>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6">
+    <div class="video-panel">
+      <video id="afidsVideo" controls>
+        <source
+          src="{{ url_for('static', filename='lib/afidsvalidator-react/public/afids-human_HD.mp4') }}"
+          type="video/mp4"
+        />
+      </video>
+    </div>
+    <p style="font-family: var(--mono-font); font-size: 0.7rem; color: var(--muted);
+              text-align: center; margin-top: 0.5rem; letter-spacing: 0.05em;">
+      AFIDs placement walkthrough in 3D Slicer
     </p>
   </div>
+</div>
 
-  <div class="col-5">
-    <video id="afidsVideo" controls>
-      <source
-        src="{{ url_for('static', filename='lib/afidsvalidator-react/public/afids-human_HD.mp4') }}"
-        ,
-        type="video/mp4"
-      />
-    </video>
+<!-- ═══════════════════════════════════════════════════════════════════
+     HOW IT WORKS
+════════════════════════════════════════════════════════════════════ -->
+<div class="fade-in-2" style="margin-bottom: 3.5rem;">
+  <span class="section-label">How it works</span>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+              gap: 0; margin-top: 1rem; position: relative;">
+
+    <!-- connector line (desktop only) -->
+    <div style="position: absolute; top: 2.2rem; left: 15%; right: 15%; height: 1px;
+                background: linear-gradient(90deg, transparent, var(--green), var(--green), transparent);
+                opacity: 0.25; pointer-events: none;">
+    </div>
+
+    <!-- Step 1 -->
+    <div style="text-align: center; padding: 1.5rem 1rem; position: relative;">
+      <div style="width: 44px; height: 44px; border: 2px solid var(--green);
+                  border-radius: 50%; display: flex; align-items: center;
+                  justify-content: center; margin: 0 auto 1rem;
+                  font-family: var(--mono-font); font-size: 1rem; color: var(--green);
+                  background: var(--dark); box-shadow: var(--green-glow);">
+        01
+      </div>
+      <div style="font-family: var(--mono-font); font-size: 0.78rem; text-transform: uppercase;
+                  letter-spacing: 0.08em; color: var(--light); margin-bottom: 0.4rem;">
+        Place
+      </div>
+      <p style="font-size: 0.83rem; color: var(--muted); line-height: 1.6; margin: 0;">
+        Open 3D Slicer and follow the AFIDs protocol to place 32 anatomical
+        landmarks on your brain image.
+      </p>
+    </div>
+
+    <!-- Step 2 -->
+    <div style="text-align: center; padding: 1.5rem 1rem; position: relative;">
+      <div style="width: 44px; height: 44px; border: 2px solid var(--green);
+                  border-radius: 50%; display: flex; align-items: center;
+                  justify-content: center; margin: 0 auto 1rem;
+                  font-family: var(--mono-font); font-size: 1rem; color: var(--green);
+                  background: var(--dark); box-shadow: var(--green-glow);">
+        02
+      </div>
+      <div style="font-family: var(--mono-font); font-size: 0.78rem; text-transform: uppercase;
+                  letter-spacing: 0.08em; color: var(--light); margin-bottom: 0.4rem;">
+        Export
+      </div>
+      <p style="font-size: 0.83rem; color: var(--muted); line-height: 1.6; margin: 0;">
+        Save your markup file from 3D Slicer as
+        <code style="color: var(--green);">.fcsv</code> or
+        <code style="color: var(--green);">.json</code>.
+      </p>
+    </div>
+
+    <!-- Step 3 -->
+    <div style="text-align: center; padding: 1.5rem 1rem; position: relative;">
+      <div style="width: 44px; height: 44px; border: 2px solid var(--green);
+                  border-radius: 50%; display: flex; align-items: center;
+                  justify-content: center; margin: 0 auto 1rem;
+                  font-family: var(--mono-font); font-size: 1rem; color: var(--green);
+                  background: var(--dark); box-shadow: var(--green-glow);">
+        03
+      </div>
+      <div style="font-family: var(--mono-font); font-size: 0.78rem; text-transform: uppercase;
+                  letter-spacing: 0.08em; color: var(--light); margin-bottom: 0.4rem;">
+        Validate
+      </div>
+      <p style="font-size: 0.83rem; color: var(--muted); line-height: 1.6; margin: 0;">
+        Upload here. Get per-landmark distance, directional error,
+        and a regional error profile — instantly.
+      </p>
+    </div>
+
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     WHAT YOU GET — feature grid
+════════════════════════════════════════════════════════════════════ -->
+<div class="fade-in-3" style="margin-bottom: 3.5rem;">
+  <span class="section-label">What you get</span>
+  <div class="feature-grid" style="margin-top: 0.8rem;">
+    <div class="feature-card">
+      <span class="feature-icon">🧠</span>
+      <div class="feature-title">Regional Error Profile</div>
+      <p class="feature-desc">
+        Radar chart of mean placement error across 8 neuroanatomical
+        regions — see where your accuracy breaks down at a glance.
+      </p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🧭</span>
+      <div class="feature-title">Directional Feedback</div>
+      <p class="feature-desc">
+        Each landmark error decomposed into anatomical axes —
+        "2.1mm posterior, 0.8mm superior" — immediately actionable.
+      </p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📊</span>
+      <div class="feature-title">Session Dashboard</div>
+      <p class="feature-desc">
+        Mean ± SD error, best and worst landmark, and how many
+        placements fall within 1mm and 2mm of the template.
+      </p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🐒</span>
+      <div class="feature-title">Multi-Species</div>
+      <p class="feature-desc">
+        Validate against human <em>and</em> macaque templates.
+        NMT, D99, INIA19, Yerkes19, MacaqueMNI all supported.
+      </p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🗄️</span>
+      <div class="feature-title">Data Contribution</div>
+      <p class="feature-desc">
+        Log in with ORCID and contribute your placements to the
+        growing community dataset.
+      </p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🤖</span>
+      <div class="feature-title">AI-Guided Learning</div>
+      <p class="feature-desc">
+        New: place landmarks directly in-browser on the MNI152 template
+        with a real-time AI tutor that gives anatomical feedback after
+        every placement.
+        <a href="/learn" style="color: var(--green); white-space: nowrap;">Try it →</a>
+      </p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🔓</span>
+      <div class="feature-title">Open Framework</div>
+      <p class="feature-desc">
+        GPL-licensed, community driven, and built for reproducible
+        neuroimaging research.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     GUIDED LEARNING CALLOUT
+════════════════════════════════════════════════════════════════════ -->
+<div class="fade-in-3" style="margin-bottom: 3.5rem;">
+  <div style="background: var(--dark-card); border: 1px solid var(--green);
+              border-radius: var(--radius-lg); padding: 2.2rem 2.4rem;
+              display: grid; grid-template-columns: 1fr auto;
+              align-items: center; gap: 2rem; flex-wrap: wrap;">
+
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.7rem;">
+        <span style="font-size: 1.5rem;">🤖</span>
+        <span style="font-family: var(--mono-font); font-size: 0.7rem;
+                     text-transform: uppercase; letter-spacing: 0.12em;
+                     color: var(--green); border: 1px solid var(--green);
+                     border-radius: 3px; padding: 0.1rem 0.5rem;">New</span>
+      </div>
+      <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--light);
+                 margin-bottom: 0.5rem; line-height: 1.3;">
+        Guided Learning Mode
+      </h3>
+      <p style="color: var(--muted); font-size: 0.9rem; line-height: 1.75; margin: 0;">
+        Not sure where to start? The interactive learning mode loads the
+        MNI152NLin2009cAsym T1w template directly in your browser and walks
+        you through all 32 landmarks one by one. After each placement, an
+        AI tutor gives you immediate anatomical feedback — what structure you
+        likely clicked, how to visually identify the correct target, and
+        how close you were. No software to install.
+      </p>
+    </div>
+
+    <a href="/learn" class="btn-afids" style="text-decoration: none; white-space: nowrap; flex-shrink: 0;">
+      <span>Try Guided Learning</span>
+    </a>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SUPPORTED TEMPLATES
+════════════════════════════════════════════════════════════════════ -->
+<div class="fade-in-3" style="margin-bottom: 3.5rem;">
+  <span class="section-label">Supported Templates</span>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+              gap: 1rem; margin-top: 0.8rem;">
+
+    {% for species, templates in species_templates.items() %}
+    <div style="background: var(--dark-card); border: 1px solid var(--dark-border);
+                border-radius: var(--radius-lg); padding: 1.4rem;">
+
+      <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem;">
+        <span style="font-size: 1.1rem;">
+          {% if species == "Human" %}🧠{% else %}🐒{% endif %}
+        </span>
+        <div>
+          <div style="font-family: var(--mono-font); font-weight: 700;
+                      font-size: 0.85rem; color: var(--light);">
+            {{ species }}
+          </div>
+          <div style="font-family: var(--mono-font); font-size: 0.7rem;
+                      color: var(--muted);">
+            {{ templates|length }} template{% if templates|length != 1 %}s{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+        {% for tpl in templates %}
+        <span style="font-family: var(--mono-font); font-size: 0.72rem;
+                     background: var(--dark-raised); border: 1px solid var(--dark-border);
+                     border-radius: 3px; padding: 0.15rem 0.5rem; color: #ccc;">
+          {{ tpl }}
+        </span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CTA FOOTER
+════════════════════════════════════════════════════════════════════ -->
+<div class="fade-in-3" style="text-align: center; padding: 2rem 0 3rem;">
+  <div class="hero-divider" style="margin-bottom: 2rem;"></div>
+  <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 1.2rem;">
+    Ready to validate your fiducial placements?
+  </p>
+  <a href="/app.html" class="btn-afids" style="text-decoration: none;">
+    <span>Open Validator</span>
+  </a>
+</div>
+
 {% endblock content %}
