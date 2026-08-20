@@ -18,5 +18,5 @@ instance/
 # Workspaces
 afids.code-workspace
 
-# Generated Word manuscript (regenerate: python make_paper_doc.py)
+# Word documents
 *.docx
