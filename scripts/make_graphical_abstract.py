@@ -210,6 +210,13 @@ def pct_of(a, mm):
     return NormalDist().cdf(z) * 100.0
 
 
+def precision_pct(a, mm):
+    """Precision percentile (higher = better): the % of trained raters this
+    placement is at least as precise as. Inverts the error-rank pct_of so the
+    displayed number matches the intuitive reading (90th = great)."""
+    return 100.0 - pct_of(a, mm)
+
+
 def ordinal(p):
     n = int(round(p))
     suf = (
@@ -618,22 +625,6 @@ def ic_globe(cx, cy, s, color):
             lw=1.1,
             zorder=7,
         )
-
-
-def ic_copyleft(cx, cy, s, color):
-    ax.add_patch(Circle((cx, cy), s, fill=False, ec=color, lw=1.6, zorder=7))
-    ax.add_patch(
-        Arc(
-            (cx, cy),
-            s * 1.15,
-            s * 1.15,
-            theta1=-50,
-            theta2=230,
-            ec=color,
-            lw=1.7,
-            zorder=7.1,
-        )
-    )
 
 
 def ic_orcid(cx, cy, s, color="#A6CE39"):
@@ -1324,8 +1315,8 @@ rrect(
 txt(
     qx0 + 0.40,
     qcy + 0.20,
-    f"“Your AC sits {COIN_MM} mm from consensus — the {ordinal(pct_of('AC', COIN_MM))} "
-    f"percentile, where trained raters land within {LM['AC']['p50']:.2f} mm.",
+    f"“Your AC sits {COIN_MM} mm from consensus — the {ordinal(precision_pct('AC', COIN_MM))} "
+    f"precision percentile, where trained raters land within {LM['AC']['p50']:.2f} mm.",
     size=7.8,
     style="italic",
 )
@@ -1458,7 +1449,8 @@ for i, (a, mm) in enumerate(
     [("LIGO", 1.2), ("AC", 1.2), ("PMJ", 0.9), ("SPLE", 3.4)]
 ):
     yy = P_y0 + 1.78 - i * 0.34
-    p = pct_of(a, mm)
+    p = pct_of(a, mm)          # error-rank: drives the verdict tier/colour
+    disp = precision_pct(a, mm)  # precision percentile (higher = better): shown
     c = (
         TIER["ex"]
         if p < 50
@@ -1502,7 +1494,7 @@ for i, (a, mm) in enumerate(
     ax.add_patch(
         Rectangle(
             (rx0 + 1.48, yy - 0.11),
-            (rx1 - rx0 - 1.68) * p / 100,
+            (rx1 - rx0 - 1.68) * disp / 100,
             0.075,
             fc=c,
             ec="none",
@@ -1512,7 +1504,7 @@ for i, (a, mm) in enumerate(
     txt(
         rx1 - 0.22,
         yy,
-        f"{v} · {ordinal(p)}",
+        f"{v} · {ordinal(disp)}",
         size=7.2,
         color=c,
         weight="bold",
@@ -1552,7 +1544,6 @@ txt(
 LOGO = Path(OUT / "logos")
 LOGO_H = 0.30
 foundation = [
-    ("gpl", "GPL-3.0 code", ic_copyleft),
     ("opendata", "Open reference data", ic_stack),
     ("templateflow", "TemplateFlow", ic_globe),
     (
@@ -1686,6 +1677,6 @@ print(
     f"({N_HUMAN}H + {N_MACAQ}M) · max spread {MAX_SPREAD:.1f} mm"
 )
 print(
-    f"  {COIN_MM} mm  ->  {CAL_HARD} {ordinal(pct_of(CAL_HARD, COIN_MM))} pct · "
-    f"{CAL_EASY} {ordinal(pct_of(CAL_EASY, COIN_MM))} pct"
+    f"  {COIN_MM} mm  ->  {CAL_HARD} {ordinal(precision_pct(CAL_HARD, COIN_MM))} pct · "
+    f"{CAL_EASY} {ordinal(precision_pct(CAL_EASY, COIN_MM))} pct"
 )
