@@ -168,7 +168,8 @@ def main():
     ap.add_argument(
         "--out",
         default=os.path.join(
-            os.path.dirname(__file__), "afidsvalidator", "rater_reliability.json"),
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "afidsvalidator", "rater_reliability.json"),
         help="Output JSON path.")
     args = ap.parse_args()
 

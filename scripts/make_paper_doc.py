@@ -20,7 +20,7 @@ from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches, Pt, RGBColor
 
-REPO = Path(__file__).resolve().parent
+REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "AFIDs_Validator_Aperture_Education_AT_FINAL.md"
 OUT = SRC.with_suffix(".docx")
 FIG_DIR = REPO / "paper_figures"
