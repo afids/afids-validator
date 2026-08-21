@@ -365,10 +365,10 @@ def fig5_difficulty():
     for thr, lab in ((0.5, ""), (1.0, ""), (2.0, "")):
         axA.axvline(thr, color="#c8c8c8", ls=":", lw=0.9, zorder=0)
     axA.set_yticks(y)
-    axA.set_yticklabels([a for a, _ in items], fontsize=5.6)
+    axA.set_yticklabels([a for a, _ in items], fontsize=8)
     axA.set_ylim(-0.7, len(items) - 0.3)
     axA.set_xlim(0, 2.6)
-    axA.set_xlabel("Trained-rater localization error, AFLE (mm)", fontsize=8.5)
+    axA.set_xlabel("Trained-rater localization error, AFLE (mm)", fontsize=11)
     axA.plot([], [], "o", color="#555", ms=5.5, label="median")
     axA.plot(
         [], [], "x", color="#555", ms=4.5, mew=1.1, label="mean (heavy tail)"
@@ -377,9 +377,9 @@ def fig5_difficulty():
         [], [], "-", color="#999", lw=2.6, alpha=0.6, label="IQR (p25–p75)"
     )
     axA.legend(
-        fontsize=6.3, loc="lower right", frameon=False, handletextpad=0.4
+        fontsize=9, loc="lower right", frameon=False, handletextpad=0.4
     )
-    panel_letter(axA, "A", "A 3.9× difficulty spectrum across 32 landmarks")
+    panel_letter(axA, "A", "")
 
     # Panel B — the same 1.2 mm placement, two verdicts
     axB = fig.add_subplot(gs[0, 1])
@@ -417,40 +417,13 @@ def fig5_difficulty():
             markeredgecolor="white",
             markeredgewidth=0.8,
         )
-        xs, ys = _pctile_curve(s)
-        pct = float(np.interp(probe, xs, ys))  # error rank (drives the verdict)
-        p = round(100 - pct)                    # precision pct shown (higher = better)
-        suf = ("th" if 11 <= p % 100 <= 13
-               else {1: "st", 2: "nd", 3: "rd"}.get(p % 10, "th"))
-        verdict = (
-            f"within range\n(≈{p}{suf} pct, near median)"
-            if pct < 75
-            else f"outside expert range\n(≈{p}{suf} pct)"
-        )
-        axB.annotate(
-            f"{a}: {verdict}",
-            (probe, yi + 0.22),
-            fontsize=7.2,
-            ha="center",
-            va="bottom",
-            color=c,
-            fontweight="bold",
-        )
     axB.axvline(probe, color="#111111", ls="--", lw=1.3, zorder=5)
-    axB.annotate(
-        "one placement:\n1.2 mm from target",
-        (probe, -0.62),
-        fontsize=7.4,
-        ha="center",
-        va="top",
-        color="#111111",
-    )
     axB.set_yticks([0, 1])
-    axB.set_yticklabels(["LIGO\n(hard)", "AC\n(easy)"], fontsize=7.5)
+    axB.set_yticklabels(["LIGO\n(hard)", "AC\n(easy)"], fontsize=10.5)
     axB.set_ylim(-1.05, 1.7)
     axB.set_xlim(0, 4.0)
-    axB.set_xlabel("Trained-rater AFLE distribution (mm)", fontsize=8.5)
-    panel_letter(axB, "B", "The same 1.2 mm — two verdicts")
+    axB.set_xlabel("Trained-rater AFLE distribution (mm)", fontsize=11)
+    panel_letter(axB, "B", "")
 
     # Panel C — the mm→percentile calibration the platform applies
     axC = fig.add_subplot(gs[0, 2])
@@ -480,17 +453,16 @@ def fig5_difficulty():
     axC.axhline(50, color="#dddddd", lw=0.8, zorder=0)
     axC.set_xlim(0, 4)
     axC.set_ylim(0, 100)
-    axC.set_xlabel("Placement error (mm)", fontsize=8.5)
-    axC.set_ylabel("Precision percentile (vs trained raters)", fontsize=8.5)
+    axC.set_xlabel("Placement error (mm)", fontsize=11)
+    axC.set_ylabel("Precision percentile (vs trained raters)", fontsize=11)
     axC.legend(
-        fontsize=7,
+        fontsize=9,
         loc="lower right",
         frameon=False,
         title="landmark",
-        title_fontsize=7,
+        title_fontsize=9,
     )
-    axC.annotate("1.2 mm", (1.2, 4), fontsize=6.6, color="#111111", ha="left")
-    panel_letter(axC, "C", "One error, calibrated per landmark")
+    panel_letter(axC, "C", "")
 
     _save(fig, "fig5_difficulty")
 
@@ -872,23 +844,6 @@ def fig1_interface():
             color="black",
             zorder=6,
         )
-    legend = (
-        "\u2460  Multiplanar MRI viewer (NiiVue)      "
-        "\u2461  Rater-calibrated result: error + percentile vs raters\n"
-        "\u2462  Difficulty-aware, anatomy-first AI tutor      "
-        "\u2463  Bring-your-own-key + active model      "
-        "\u2464  32-landmark progress + export"
-    )
-    fig.text(
-        0.5,
-        0.05,
-        legend,
-        ha="center",
-        va="center",
-        fontsize=10.5,
-        color="#222222",
-        linespacing=1.9,
-    )
     _save(fig, "fig1_interface")
 
 
@@ -1017,9 +972,11 @@ def fig0_graphical_abstract():
     figure set still regenerates from ``python make_figures.py``.
     """
     import runpy
+    from pathlib import Path as _P
 
-    runpy.run_path("make_ga_assets.py", run_name="__main__")
-    runpy.run_path("make_graphical_abstract.py", run_name="__main__")
+    here = _P(__file__).resolve().parent
+    runpy.run_path(str(here / "make_ga_assets.py"), run_name="__main__")
+    runpy.run_path(str(here / "make_graphical_abstract.py"), run_name="__main__")
 
 
 if __name__ == "__main__":
