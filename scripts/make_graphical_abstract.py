@@ -527,50 +527,6 @@ def ic_file(cx, cy, s, color):
         )
 
 
-def ic_chat(cx, cy, s, color):
-    w, h = s * 1.7, s * 1.25
-    rrect(
-        cx - w / 2,
-        cy - h / 2 + 0.12,
-        w,
-        h,
-        fc="white",
-        ec=color,
-        lw=1.6,
-        r=0.14,
-        z=7,
-    )
-    ax.add_patch(
-        Polygon(
-            [
-                (cx - s * 0.2, cy - h / 2 + 0.18),
-                (cx - s * 0.55, cy - h / 2 - 0.14),
-                (cx + s * 0.12, cy - h / 2 + 0.18),
-            ],
-            closed=True,
-            fc="white",
-            ec=color,
-            lw=1.6,
-            zorder=7,
-            joinstyle="round",
-        )
-    )
-    ax.add_patch(
-        Rectangle(
-            (cx - s * 0.5, cy - h / 2 + 0.14),
-            s * 0.7,
-            0.1,
-            fc="white",
-            ec="none",
-            zorder=7.15,
-        )
-    )
-    for dx in (-0.42, 0, 0.42):
-        ax.add_patch(
-            Circle((cx + dx * s, cy + 0.14), s * 0.11, fc=color, zorder=7.2)
-        )
-
-
 def ic_gear(cx, cy, s, color):
     n, outer, inner = 8, s, s * 0.66
     pts = [
@@ -1159,40 +1115,8 @@ txt(
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
-# THE METRIC — a slim shared header spanning both product cards
-# (the "same mm, two verdicts" proof lives inside the cards themselves)
+# (metric band removed)
 # ══════════════════════════════════════════════════════════════════════════════
-_thesis = "One Euclidean error — two uses"
-_ty = BR_y0 + 0.40
-txt(SEAM, _ty, _thesis, size=11.5, weight="bold", color=SLATE, ha="center")
-txt(
-    SEAM,
-    BR_y0 + 0.17,
-    "the same millimetre, always read against how hard the landmark is",
-    size=8.2,
-    color=MUT,
-    ha="center",
-    style="italic",
-)
-# quiet colour cue mapping the shared metric onto each card, no heavy arrows
-txt(
-    M + 0.30,
-    BR_y0 + 0.13,
-    "taught in context",
-    size=7.8,
-    color=LEARN_C,
-    weight="bold",
-    ha="left",
-)
-txt(
-    XR - 0.30,
-    BR_y0 + 0.13,
-    "audited at scale",
-    size=7.8,
-    color=VALID_C,
-    weight="bold",
-    ha="right",
-)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 03 — LEARN  (left card)
@@ -1200,9 +1124,8 @@ txt(
 LX0 = M
 LX1 = M + CARDW
 card("LEARN", LX0, P_y0, CARDW, H_PROD, LEARN_C)
-ic_chat(LX0 + 0.42, P_y1 - 0.38, 0.18, LEARN_C)
 section(
-    LX0 + 0.78,
+    LX0 + 0.42,
     P_y1 - 0.38,
     "02",
     LEARN_C,
@@ -1345,9 +1268,8 @@ txt(
 VX0 = M + CARDW + GAP
 VX1 = XR
 card("VALIDATE", VX0, P_y0, CARDW, H_PROD, VALID_C)
-ic_gear(VX0 + 0.42, P_y1 - 0.38, 0.17, VALID_C)
 section(
-    VX0 + 0.78,
+    VX0 + 0.42,
     P_y1 - 0.38,
     "03",
     VALID_C,
